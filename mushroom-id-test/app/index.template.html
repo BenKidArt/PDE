@@ -1,3 +1,5 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sienitunnistin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -475,7 +477,7 @@
           'Content-Type': 'application/json',
           'Api-Key': API_KEY
         },
-        body: JSON.stringify({ images: [base64], similar_images: false })
+        body: JSON.stringify({ images: [base64], similar_images: true })
       });
 
       const bodyText = await response.text();
