@@ -1,0 +1,52 @@
+name: Deploy mushroom app to GitHub Pages
+
+on:
+  push:
+    branches: ["claude/mushroom-id-api-test-gq2wkz"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject API key and build site
+        env:
+          MUSHROOM_ID_API_KEY: ${{ secrets.MUSHROOM_ID_API_KEY }}
+        run: |
+          if [ -z "$MUSHROOM_ID_API_KEY" ]; then
+            echo "MUSHROOM_ID_API_KEY secret is not set. Add it under Settings > Secrets and variables > Actions." >&2
+            exit 1
+          fi
+          mkdir -p _site
+          sed "s|{{API_KEY}}|$MUSHROOM_ID_API_KEY|g" mushroom-id-test/app/index.template.html > _site/index.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
