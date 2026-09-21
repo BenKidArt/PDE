@@ -388,11 +388,12 @@
     return 'neutral';
   }
 
-  function edibilityLabel(category, raw) {
+  function edibilityLabel(category, raw, fromDescription) {
+    const suffix = fromDescription ? ' (pääteltyä kuvaustekstistä, ei varmaa)' : '';
     switch (category) {
-      case 'danger': return 'Mahdollisesti myrkyllinen';
-      case 'warn': return 'Vaatii varovaisuutta';
-      case 'success': return 'Yleensä syötäväksi kelpaava';
+      case 'danger': return 'Mahdollisesti myrkyllinen' + suffix;
+      case 'warn': return 'Vaatii varovaisuutta' + suffix;
+      case 'success': return 'Yleensä syötäväksi kelpaava' + suffix;
       default: return raw || 'Syötävyydestä ei tietoa';
     }
   }
@@ -416,7 +417,12 @@
     const commonNames = Array.isArray(details.common_names) ? details.common_names.filter(Boolean) : [];
     const description = extractText(details.description);
     const edibilityRaw = extractText(details.edibility) || (typeof details.edibility === 'string' ? details.edibility : null);
-    const category = edibilityCategory(edibilityRaw);
+    let category = edibilityCategory(edibilityRaw);
+    let fromDescription = false;
+    if (!category && description) {
+      category = edibilityCategory(description);
+      fromDescription = !!category;
+    }
     const probability = typeof top.probability === 'number' ? Math.round(top.probability * 100) : null;
 
     let html = '';
@@ -424,7 +430,7 @@
     if (commonNames.length) {
       html += `<p class="result-common">${escapeHtml(commonNames.slice(0, 3).join(', '))}</p>`;
     }
-    html += `<span class="badge ${category || 'neutral'}">${escapeHtml(edibilityLabel(category, edibilityRaw))}</span>`;
+    html += `<span class="badge ${category || 'neutral'}">${escapeHtml(edibilityLabel(category, edibilityRaw, fromDescription))}</span>`;
     if (probability !== null) {
       html += `<p class="probability">Tekoälyn varmuus: ${probability} %</p>`;
     }
