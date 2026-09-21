@@ -382,9 +382,10 @@
   function edibilityCategory(text) {
     if (!text) return null;
     const t = text.toLowerCase();
-    if (/(deadly|poison|toxic|myrky)/.test(t)) return 'danger';
-    if (/(caution|inedible|unknown|epäselv)/.test(t)) return 'warn';
-    if (/(choice|edible|syötäv)/.test(t)) return 'success';
+    const negatedDanger = /(not|non-|isn't|is not|no longer)\s+(a\s+)?(poison\w*|toxic|deadly)/.test(t) || /harmless/.test(t);
+    if (!negatedDanger && /(deadly|poison|toxic|myrky)/.test(t)) return 'danger';
+    if (/(caution|inedible|unknown|epäselv|upset stomach|mildly toxic)/.test(t)) return 'warn';
+    if (/(choice|edible|delicac|prized|gourmet|valued as (a )?food|cultivated for food|good edible|syötäv|herkku)/.test(t)) return 'success';
     return 'neutral';
   }
 
