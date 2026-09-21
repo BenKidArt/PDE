@@ -1,0 +1,505 @@
+<title>Sienitunnistin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f3ec;
+    --surface: #ffffff;
+    --surface-2: #efe9db;
+    --text: #2a251d;
+    --muted: #6f6656;
+    --border: #ddd3bd;
+    --accent: #3f6b4a;
+    --accent-dark: #2b4d34;
+    --accent-contrast: #f6f3ec;
+    --warn-bg: #fbf1de;
+    --warn-text: #7a5a12;
+    --warn-border: #e6cd94;
+    --danger-bg: #fbeae7;
+    --danger-text: #8f2c1f;
+    --danger-border: #e9baaa;
+    --success-bg: #e9f3e6;
+    --success-text: #2c5b30;
+    --success-border: #bcdcb4;
+    --shadow: 0 8px 24px -12px rgba(42, 37, 29, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171712;
+      --surface: #211f1a;
+      --surface-2: #2a2721;
+      --text: #ede7d9;
+      --muted: #b3a998;
+      --border: #3a362c;
+      --accent: #6fae7f;
+      --accent-dark: #8ec99b;
+      --accent-contrast: #12200f;
+      --warn-bg: #332a12;
+      --warn-text: #e7c878;
+      --warn-border: #5c4a1c;
+      --danger-bg: #351915;
+      --danger-text: #f0a292;
+      --danger-border: #6b2c22;
+      --success-bg: #16281a;
+      --success-text: #9bd7a2;
+      --success-border: #2f5636;
+      --shadow: 0 8px 28px -10px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #171712;
+    --surface: #211f1a;
+    --surface-2: #2a2721;
+    --text: #ede7d9;
+    --muted: #b3a998;
+    --border: #3a362c;
+    --accent: #6fae7f;
+    --accent-dark: #8ec99b;
+    --accent-contrast: #12200f;
+    --warn-bg: #332a12;
+    --warn-text: #e7c878;
+    --warn-border: #5c4a1c;
+    --danger-bg: #351915;
+    --danger-text: #f0a292;
+    --danger-border: #6b2c22;
+    --success-bg: #16281a;
+    --success-text: #9bd7a2;
+    --success-border: #2f5636;
+    --shadow: 0 8px 28px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding-inline: 20px;
+    padding-block: 28px;
+    display: flex;
+    justify-content: center;
+  }
+
+  main {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.1;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0;
+  }
+
+  section.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+
+  #idleView {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+    padding-block: 36px;
+  }
+
+  .camera-icon {
+    width: 56px;
+    height: 56px;
+    color: var(--accent);
+  }
+
+  label.camera-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-weight: 600;
+    font-size: 17px;
+    padding: 16px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    border: none;
+    touch-action: manipulation;
+  }
+
+  label.camera-btn:active { background: var(--accent-dark); }
+
+  label.camera-btn svg { width: 22px; height: 22px; }
+
+  input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+
+  .hint {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 320px;
+  }
+
+  #previewWrap { display: flex; flex-direction: column; gap: 14px; }
+
+  #previewImg {
+    width: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    display: block;
+  }
+
+  #statusRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation-duration: 2s; }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #resultView { display: flex; flex-direction: column; gap: 12px; }
+
+  .result-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .result-common {
+    color: var(--muted);
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    width: fit-content;
+  }
+
+  .badge.danger { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+  .badge.warn { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+  .badge.success { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+  .badge.neutral { background: var(--surface-2); color: var(--muted); border-color: var(--border); }
+
+  .description {
+    font-size: 14.5px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .probability {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .other-suggestions {
+    font-size: 13.5px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+
+  .other-suggestions ul { margin: 6px 0 0; padding-left: 18px; }
+
+  button.secondary, label.secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--surface-2);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  #errorView { display: flex; flex-direction: column; gap: 10px; }
+
+  .error-title { font-weight: 600; font-size: 16px; color: var(--danger-text); margin: 0; }
+
+  details.tech {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  details.tech summary { cursor: pointer; }
+
+  details.tech pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: var(--surface-2);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 6px;
+  }
+
+  .safety-note {
+    display: flex;
+    gap: 10px;
+    background: var(--warn-bg);
+    color: var(--warn-text);
+    border: 1px solid var(--warn-border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+  .safety-note svg { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+
+  footer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    padding-top: 6px;
+  }
+</style>
+
+<main>
+  <header>
+    <h1>Sienitunnistin</h1>
+    <p class="subtitle">Ota kuva sienestä ja katso mitä tekoäly arvelee.</p>
+  </header>
+
+  <section class="card" id="idleView">
+    <svg class="camera-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.13a1.5 1.5 0 0 0 1.28-.72l.9-1.46A1.5 1.5 0 0 1 11.09 4h1.82a1.5 1.5 0 0 1 1.28.82l.9 1.46a1.5 1.5 0 0 0 1.28.72H18.5A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" stroke-linejoin="round"/>
+      <circle cx="12" cy="13" r="3.4"/>
+    </svg>
+    <label class="camera-btn" for="fileInput">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.13a1.5 1.5 0 0 0 1.28-.72l.9-1.46A1.5 1.5 0 0 1 11.09 4h1.82a1.5 1.5 0 0 1 1.28.82l.9 1.46a1.5 1.5 0 0 0 1.28.72H18.5A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.4"/></svg>
+      Ota kuva sienestä
+    </label>
+    <input type="file" id="fileInput" accept="image/*" capture="environment">
+    <p class="hint">Kuva otetaan suoraan puhelimen kameralla. Yritä kuvata sieni läheltä ja hyvässä valossa.</p>
+  </section>
+
+  <section class="card" id="previewWrap" hidden>
+    <img id="previewImg" alt="Otettu kuva sienestä">
+    <div id="statusRow" hidden>
+      <div class="spinner"></div>
+      <span>Tunnistetaan sientä...</span>
+    </div>
+  </section>
+
+  <section class="card" id="resultView" hidden></section>
+
+  <section class="card" id="errorView" hidden></section>
+
+  <div class="safety-note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 16.5h.01M10.6 3.9 2.9 17.3a1.6 1.6 0 0 0 1.39 2.4h15.42a1.6 1.6 0 0 0 1.39-2.4L13.4 3.9a1.6 1.6 0 0 0-2.8 0Z" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <span>Tämä on kokeiluversio, ei asiantuntija-arvio. Tekoäly voi tunnistaa sienen väärin. <strong>Älä koskaan syö sientä vain tämän sovelluksen perusteella</strong> — kysy aina kokeneelta sienestäjältä.</span>
+  </div>
+
+  <footer>Kindwise mushroom.id -API · kokeiluprototyyppi</footer>
+</main>
+
+<script>
+  const API_KEY = "{{API_KEY}}";
+  const API_URL = "https://mushroom.kindwise.com/api/v1/identification?details=common_names,url,description,edibility";
+
+  const fileInput = document.getElementById('fileInput');
+  const idleView = document.getElementById('idleView');
+  const previewWrap = document.getElementById('previewWrap');
+  const previewImg = document.getElementById('previewImg');
+  const statusRow = document.getElementById('statusRow');
+  const resultView = document.getElementById('resultView');
+  const errorView = document.getElementById('errorView');
+
+  function resetToIdle() {
+    idleView.hidden = false;
+    previewWrap.hidden = true;
+    resultView.hidden = true;
+    errorView.hidden = true;
+    fileInput.value = '';
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function edibilityCategory(text) {
+    if (!text) return null;
+    const t = text.toLowerCase();
+    if (/(deadly|poison|toxic|myrky)/.test(t)) return 'danger';
+    if (/(caution|inedible|unknown|epäselv)/.test(t)) return 'warn';
+    if (/(choice|edible|syötäv)/.test(t)) return 'success';
+    return 'neutral';
+  }
+
+  function edibilityLabel(category, raw) {
+    switch (category) {
+      case 'danger': return 'Mahdollisesti myrkyllinen';
+      case 'warn': return 'Vaatii varovaisuutta';
+      case 'success': return 'Yleensä syötäväksi kelpaava';
+      default: return raw || 'Syötävyydestä ei tietoa';
+    }
+  }
+
+  function extractText(field) {
+    if (!field) return null;
+    if (typeof field === 'string') return field;
+    if (typeof field === 'object' && typeof field.value === 'string') return field.value;
+    return null;
+  }
+
+  function renderResult(data) {
+    const suggestions = (data.result && data.result.classification && data.result.classification.suggestions) || [];
+    if (!suggestions.length) {
+      renderError('Kuvasta ei löytynyt sieniehdotuksia.', 'Vastaus ei sisältänyt yhtään ehdotusta.');
+      return;
+    }
+
+    const top = suggestions[0];
+    const details = top.details || {};
+    const commonNames = Array.isArray(details.common_names) ? details.common_names.filter(Boolean) : [];
+    const description = extractText(details.description);
+    const edibilityRaw = extractText(details.edibility) || (typeof details.edibility === 'string' ? details.edibility : null);
+    const category = edibilityCategory(edibilityRaw);
+    const probability = typeof top.probability === 'number' ? Math.round(top.probability * 100) : null;
+
+    let html = '';
+    html += `<p class="result-name">${escapeHtml(top.name || 'Tuntematon laji')}</p>`;
+    if (commonNames.length) {
+      html += `<p class="result-common">${escapeHtml(commonNames.slice(0, 3).join(', '))}</p>`;
+    }
+    html += `<span class="badge ${category || 'neutral'}">${escapeHtml(edibilityLabel(category, edibilityRaw))}</span>`;
+    if (probability !== null) {
+      html += `<p class="probability">Tekoälyn varmuus: ${probability} %</p>`;
+    }
+    if (description) {
+      html += `<p class="description">${escapeHtml(description).slice(0, 500)}</p>`;
+    }
+    if (suggestions.length > 1) {
+      html += '<div class="other-suggestions">Muita mahdollisuuksia:<ul>' +
+        suggestions.slice(1, 4).map(s => `<li>${escapeHtml(s.name || '?')}</li>`).join('') +
+        '</ul></div>';
+    }
+    html += '<label class="secondary" for="fileInput" style="margin-top:6px;">Ota uusi kuva</label>';
+
+    resultView.innerHTML = html;
+    resultView.hidden = false;
+    errorView.hidden = true;
+  }
+
+  function renderError(message, technical) {
+    let html = `<p class="error-title">${escapeHtml(message)}</p>`;
+    html += '<label class="secondary" for="fileInput">Yritä uudelleen</label>';
+    if (technical) {
+      html += `<details class="tech"><summary>Näytä tekninen virhe</summary><pre>${escapeHtml(technical)}</pre></details>`;
+    }
+    errorView.innerHTML = html;
+    errorView.hidden = false;
+    resultView.hidden = true;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file) return;
+
+    idleView.hidden = true;
+    previewWrap.hidden = false;
+    resultView.hidden = true;
+    errorView.hidden = true;
+    statusRow.hidden = false;
+    previewImg.src = URL.createObjectURL(file);
+
+    try {
+      const base64 = await fileToBase64(file);
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Api-Key': API_KEY
+        },
+        body: JSON.stringify({ images: [base64], similar_images: false })
+      });
+
+      const bodyText = await response.text();
+      if (!response.ok) {
+        renderError('API vastasi virheellä (status ' + response.status + ').', bodyText.slice(0, 800));
+        return;
+      }
+
+      let data;
+      try {
+        data = JSON.parse(bodyText);
+      } catch (e) {
+        renderError('API:n vastausta ei voitu lukea.', bodyText.slice(0, 800));
+        return;
+      }
+
+      renderResult(data);
+    } catch (err) {
+      renderError(
+        'Yhteys API:in epäonnistui. Tämä voi johtua selaimen turvarajoituksesta (CORS) tai verkkoyhteydestä.',
+        (err && err.message) || String(err)
+      );
+    } finally {
+      statusRow.hidden = true;
+    }
+  });
+</script>
