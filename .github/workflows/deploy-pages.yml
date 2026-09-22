@@ -34,6 +34,8 @@ jobs:
           fi
           mkdir -p _site
           sed "s|{{API_KEY}}|$MUSHROOM_ID_API_KEY|g" mushroom-id-test/app/index.template.html > _site/index.html
+          cp mushroom-id-test/app/manifest.json _site/manifest.json
+          cp -r mushroom-id-test/app/icons _site/icons
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
