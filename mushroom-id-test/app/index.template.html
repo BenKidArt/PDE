@@ -248,6 +248,21 @@
     color: var(--muted);
   }
 
+  .badge-note {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: -4px;
+  }
+
+  .low-confidence {
+    font-size: 13px;
+    color: var(--warn-text);
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 10px;
+    padding: 8px 12px;
+  }
+
   .other-suggestions {
     font-size: 13.5px;
     color: var(--muted);
@@ -330,8 +345,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.13a1.5 1.5 0 0 0 1.28-.72l.9-1.46A1.5 1.5 0 0 1 11.09 4h1.82a1.5 1.5 0 0 1 1.28.82l.9 1.46a1.5 1.5 0 0 0 1.28.72H18.5A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.4"/></svg>
       Ota kuva sienestä
     </label>
-    <input type="file" id="fileInput" accept="image/*" capture="environment">
-    <p class="hint">Kuva otetaan suoraan puhelimen kameralla. Yritä kuvata sieni läheltä ja hyvässä valossa.</p>
+    <input type="file" id="fileInput" accept="image/*">
+    <p class="hint">Voit ottaa uuden kuvan kameralla tai valita valmiin kuvan galleriasta. Yritä kuvata sieni läheltä ja hyvässä valossa.</p>
   </section>
 
   <section class="card" id="previewWrap" hidden>
@@ -393,12 +408,11 @@
     return 'neutral';
   }
 
-  function edibilityLabel(category, raw, fromDescription) {
-    const suffix = fromDescription ? ' (pääteltyä kuvaustekstistä, ei varmaa)' : '';
+  function edibilityLabel(category, raw) {
     switch (category) {
-      case 'danger': return 'Mahdollisesti myrkyllinen' + suffix;
-      case 'warn': return 'Vaatii varovaisuutta' + suffix;
-      case 'success': return 'Yleensä syötäväksi kelpaava' + suffix;
+      case 'danger': return 'Mahdollisesti myrkyllinen';
+      case 'warn': return 'Vaatii varovaisuutta';
+      case 'success': return 'Yleensä syötäväksi kelpaava';
       default: return raw || 'Syötävyydestä ei tietoa';
     }
   }
@@ -435,12 +449,19 @@
     if (commonNames.length) {
       html += `<p class="result-common">${escapeHtml(commonNames.slice(0, 3).join(', '))}</p>`;
     }
-    html += `<span class="badge ${category || 'neutral'}">${escapeHtml(edibilityLabel(category, edibilityRaw, fromDescription))}</span>`;
+    html += `<span class="badge ${category || 'neutral'}">${escapeHtml(edibilityLabel(category, edibilityRaw))}</span>`;
+    if (fromDescription) {
+      html += '<p class="badge-note">Pääteltyä kuvaustekstistä, ei virallinen tieto</p>';
+    }
     if (probability !== null) {
       html += `<p class="probability">Tekoälyn varmuus: ${probability} %</p>`;
+      if (probability < 15) {
+        html += '<p class="low-confidence">Varmuus on hyvin matala — kuva ei välttämättä ole sienestä ollenkaan.</p>';
+      }
     }
     if (description) {
-      html += `<p class="description">${escapeHtml(description).slice(0, 500)}</p>`;
+      const truncated = description.length > 500;
+      html += `<p class="description">${escapeHtml(description).slice(0, 500)}${truncated ? '…' : ''}</p>`;
     }
     if (suggestions.length > 1) {
       html += '<div class="other-suggestions">Muita mahdollisuuksia:<ul>' +
