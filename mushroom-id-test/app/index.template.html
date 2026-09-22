@@ -494,12 +494,24 @@
     const file = fileInput.files && fileInput.files[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/') || file.size === 0) {
+      renderError('Valittu tiedosto ei ole kelvollinen kuva. Kokeile toista kuvaa.', 'file.type=' + file.type + ' file.size=' + file.size);
+      return;
+    }
+
     idleView.hidden = true;
     previewWrap.hidden = false;
     resultView.hidden = true;
     errorView.hidden = true;
     statusRow.hidden = false;
+    previewImg.onerror = () => {
+      renderError('Kuvan esikatselu ei latautunut. Tiedosto voi olla vioittunut tai vielä latautumassa pilvestä — kokeile toista kuvaa.', 'previewImg onerror');
+      statusRow.hidden = true;
+    };
     previewImg.src = URL.createObjectURL(file);
+
+    const timeoutController = new AbortController();
+    const timeoutId = setTimeout(() => timeoutController.abort(), 25000);
 
     try {
       const base64 = await fileToBase64(file);
@@ -509,7 +521,8 @@
           'Content-Type': 'application/json',
           'Api-Key': API_KEY
         },
-        body: JSON.stringify({ images: [base64], similar_images: true })
+        body: JSON.stringify({ images: [base64], similar_images: true }),
+        signal: timeoutController.signal
       });
 
       const bodyText = await response.text();
@@ -528,11 +541,16 @@
 
       renderResult(data);
     } catch (err) {
-      renderError(
-        'Yhteys API:in epäonnistui. Tämä voi johtua selaimen turvarajoituksesta (CORS) tai verkkoyhteydestä.',
-        (err && err.message) || String(err)
-      );
+      if (err && err.name === 'AbortError') {
+        renderError('Tunnistus kesti liian pitkään ja keskeytettiin. Kokeile uudelleen.', 'timeout after 25s');
+      } else {
+        renderError(
+          'Yhteys API:in epäonnistui. Tämä voi johtua selaimen turvarajoituksesta (CORS) tai verkkoyhteydestä.',
+          (err && err.message) || String(err)
+        );
+      }
     } finally {
+      clearTimeout(timeoutId);
       statusRow.hidden = true;
     }
   });
