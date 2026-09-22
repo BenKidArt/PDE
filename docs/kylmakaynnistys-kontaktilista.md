@@ -12,6 +12,64 @@ kuin lähdet myymään omaa appia sillä argumentilla että "tapahtumakalenteria
 Jos se on kattava, kannattaa miettiä oman appin kärjeksi enemmän striimausta + seurayhteisöä +
 treenipäiväkirjaa kuin pelkkää kalenteria.
 
+## Suunnanmuutos: striimifokus-validointi on nyt ensisijainen
+
+Päädyimme rajaamaan ensimmäisen validoitavan konseptin pelkkään ottelu-/striimikeskeiseen sivuun
+(ks. `kamppailufi-suunnitelma.md` → "Suunnanmuutos"). Tähän liittyen rakennettiin oikea testisivu
+oikealla tapahtumadatalla, jota voi näyttää ihmisille kiinnostuksen mittaamiseksi ennen mitään
+koodaamista:
+
+**Testisivu: https://claude.ai/artifact/Q8R5GfYLE2LnfNU4Ppff2Y**
+
+Tässä kapeammassa scopessa tärkein kontaktoitava ryhmä on **ottelutapahtumien järjestäjät**, ei
+enää yksittäiset harjoitussalit — heitä on paljon vähemmän (n. 10–15) ja he hyötyvät suoraan
+striimin löydettävyydestä.
+
+### Vaihe A': Ottelutapahtumien järjestäjät (kontaktoi ensin tässä scopessa)
+
+Hausta löytyneet oikeat, säännöllisesti otteluita järjestävät tahot — tarkista ajantasaiset
+yhteystiedot kunkin omalta some-sivulta/nettisivulta ennen yhteydenottoa:
+
+| Järjestäjä/tapahtuma | Kaupunki | Huomio |
+|---|---|---|
+| Hamara MMA | Turku / Kemi | Järjestää säännöllisesti, "Vol. 10" marraskuussa 2026 — vakiintunut sarja |
+| Rähinä MMA | — | Tapahtuma 14.11.2026 |
+| Suomi MMA Cup -sarja | Turku, Helsinki, Tampere, Oulu | Kiertää useassa kaupungissa — yksi kontakti voi kattaa monta tapahtumaa |
+| Immu Fight Night | Helsinki | |
+| Ice Cage Fighting | Turku | |
+| Seinäjoki Fight Night | Seinäjoki | |
+| Suomen Vapaaotteluliitto | koko Suomi | Ylläpitää koko maan tapahtumakalenteria — paras yksittäinen kontakti kiertueen kattamiseksi |
+
+### Valmis viestipohja järjestäjälle (viittaa testisivuun)
+
+```
+Aihe: Näkyisikö ottelunne täällä? — nopea konseptitesti
+
+Hei [järjestäjän nimi],
+
+Mietin uutta tapaa koota Suomen kamppailuottelut ja striimit yhteen paikkaan, jotta katsojat
+löytäisivät ne helpommin kuin somefeediä selaamalla. Tein tästä nopean testisivun:
+
+[liitä linkki: https://claude.ai/artifact/Q8R5GfYLE2LnfNU4Ppff2Y]
+
+Tämä ei ole vielä valmis tuote — haluan vain tietää olisiko tästä oikeasti hyötyä teille ennen
+kuin rakennan mitään pidemmälle. Kaksi kysymystä:
+
+1. Auttaisiko tällainen näkyvyys teitä saamaan enemmän katsojia striimeillenne?
+2. Olisitteko valmiita linkittämään oman striiminne tällaiseen palveluun, jos se olisi ilmainen?
+
+Kiitos jo etukäteen vastauksesta!
+
+Terveisin,
+[Nimesi]
+```
+
+## Laajemman vision kontaktit (jos striimifokus validoituu ja laajennetaan myöhemmin)
+
+Alla oleva liitto- ja salilista pätee siinä vaiheessa kun/jos siirrytään takaisin laajempaan
+seura- ja yhteisösovellukseen (treenipäiväkirja, seurahaku, kartta ym.) — ei ole tarpeen tässä
+ensimmäisessä validointivaiheessa.
+
 ## Strategia: liitot ensin, yksittäiset seurat toisena
 
 Sen sijaan että kontaktoit kymmeniä yksittäisiä saleja yksi kerrallaan, tehokkaampaa on lähestyä
@@ -93,12 +151,14 @@ Terveisin,
 [Nimesi]
 ```
 
-## Käytännön seuraavat askeleet
+## Käytännön seuraavat askeleet (striimifokus-validointi)
 
-1. Käy itse katsomassa finnfighting.com selaimella ja arvioi kilpaileeko se suoraan kalenteri-ideasi
-   kanssa — tämä vaikuttaa siihen mitä korostat viesteissä.
-2. Lähetä liitto-viesti 2–3 liitolle (aloita esim. Vapaaotteluliitosta ja BJJ-liitosta, koska ne
-   vaikuttavat pienemmiltä ja ketterämmiltä organisaatioilta kuin esim. Judoliitto).
-3. Lähetä salikohtainen viesti 5–8 yllä listatulle salille rinnakkain, älä odota liittojen vastausta.
-4. Tavoite: saada 3–5 kiinnostunutta pilottikumppania ennen kuin yhtään sovelluskoodia
-   viimeistellään julkaisukuntoon — tämä on tärkeämpää kuin tekniikan hiominen tässä vaiheessa.
+1. Täytä testisivun yhteystietokenttä omalla sähköpostilla/puhelinnumerolla ja käy itse katsomassa
+   finnfighting.com selaimella (arvioi kilpaileeko se suoraan kalenteri-ideasi kanssa).
+2. Näytä testisivu 5–10 oikealle ihmiselle — harrastajille, kavereille ja yllä listatuille
+   järjestäjille — ja kysy suoraan käyttäisivätkö he tällaista.
+3. Lähetä järjestäjäviesti 3–5 yllä listatulle tapahtumajärjestäjälle, aloita Vapaaotteluliitosta
+   koska sillä on jo koko maan kalenteri hallussaan.
+4. Tavoite: saada selkeä "kyllä, tätä käyttäisin" -signaali useammalta oikealta ihmiseltä ennen
+   kuin yhtään sovelluskoodia aletaan kirjoittaa — jos signaali on heikko, kannattaa miettiä
+   arvolupausta uudelleen (ks. `kamppailufi-suunnitelma.md` → "Suunnanmuutos") ennen jatkoa.

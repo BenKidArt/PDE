@@ -6,6 +6,36 @@
 
 ---
 
+## Suunnanmuutos (22.9.2026): striimifokus ennen koko laajaa visiota
+
+Alkuperäisen laajan analyysin jälkeen päädyttiin rajaamaan ensimmäinen validoitava konsepti paljon
+kapeammaksi: **pelkkä ottelu-/striimikeskeinen sivu**, ei koko yhteisösovellusta kerralla. Tausta ja
+perustelut:
+
+- **Tapahtumatiheys riittää.** Suomen Vapaaotteluliiton julkisesta kalenterista löytyi n. 10 MMA-
+  ottelutapahtumaa neljän kuukauden ajalta (elo–marraskuu 2026), eli noin 2–3 tapahtumaa kuukaudessa
+  pelkästään MMA:ssa. Muaythai/potkunyrkkeily/nyrkkeily mukaan lukien tiheys nousee todennäköisesti
+  n. 1–2 relevanttiin livetapahtumaan viikossa koko maan tasolla — tapahtumia siis riittää.
+- **Monetisaatioriski on todellinen ja pitää validoida ensin.** Ottelut striimataan Suomessa jo nyt
+  usein ilmaiseksi (YouTube/Facebook Live) järjestäjien omilla kanavilla. Pelkkä linkkien
+  kokoaminen ei ole riittävä syy maksaa 3–5 €/kk — arvon pitää tulla mukavuudesta (yksi kalenteri,
+  ilmoitukset), mainoksettomuudesta ja myöhemmin eksklusiivisesta sisällöstä (tallenteet, koosteet),
+  ei itse sisällöstä joka on jo ilmainen muualla.
+- **Kylmäkäynnistys on kevyempi tässä scopessa.** Kontaktoitavia ei ole 100+ yksittäistä seuraa vaan
+  n. 10–15 ottelutapahtumien järjestäjää (esim. Hamara MMA, Rähinä MMA, Suomi MMA Cup -sarja) —
+  ks. päivitetty `kylmakaynnistys-kontaktilista.md`.
+- **Validointi ennen rakentamista.** Ennen kuin mitään sovelluskoodia kirjoitetaan, tehtiin ilmainen
+  testisivu ("Tatami Live" -konsepti) oikealla tapahtumadatalla, jota käyttäjä voi näyttää oikeille
+  ihmisille ja kysyä käyttäisivätkö he sitä — vasta kiinnostuksen validoinnin jälkeen kannattaa
+  investoida Flutter/Firebase-toteutukseen (ks. kohdat 4–6 alla, jotka pätevät sellaisenaan myös
+  tähän kapeampaan versioon, koska tietomallit ja stack ovat samat, laajuus vain pienempi).
+
+Loput dokumentin osiot (1–7) kuvaavat edelleen alkuperäisen, laajan vision — niitä käytetään
+referenssinä kun/jos striimifokus-MVP validoituu ja laajennusta laajempaan yhteisösovellukseen
+harkitaan uudelleen.
+
+---
+
 ## 1. Idea-analyysi: vahvuudet, heikkoudet, riskit
 
 ### Vahvuudet
