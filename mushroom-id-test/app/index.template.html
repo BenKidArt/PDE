@@ -357,12 +357,14 @@
       <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.13a1.5 1.5 0 0 0 1.28-.72l.9-1.46A1.5 1.5 0 0 1 11.09 4h1.82a1.5 1.5 0 0 1 1.28.82l.9 1.46a1.5 1.5 0 0 0 1.28.72H18.5A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" stroke-linejoin="round"/>
       <circle cx="12" cy="13" r="3.4"/>
     </svg>
-    <label class="camera-btn" for="fileInput">
+    <label class="camera-btn" for="cameraInput">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.13a1.5 1.5 0 0 0 1.28-.72l.9-1.46A1.5 1.5 0 0 1 11.09 4h1.82a1.5 1.5 0 0 1 1.28.82l.9 1.46a1.5 1.5 0 0 0 1.28.72H18.5A1.5 1.5 0 0 1 20 8.5v9A1.5 1.5 0 0 1 18.5 19h-13A1.5 1.5 0 0 1 4 17.5v-9Z" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.4"/></svg>
       Ota kuva sienestä
     </label>
-    <input type="file" id="fileInput" accept="image/*">
-    <p class="hint">Voit ottaa uuden kuvan kameralla tai valita valmiin kuvan galleriasta. Yritä kuvata sieni läheltä ja hyvässä valossa.</p>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment">
+    <label class="secondary" for="galleryInput" style="margin-top:2px;">Valitse kuva galleriasta</label>
+    <input type="file" id="galleryInput" accept="image/*">
+    <p class="hint">Yritä kuvata sieni läheltä ja hyvässä valossa.</p>
   </section>
 
   <section class="card" id="previewWrap" hidden>
@@ -389,7 +391,8 @@
   const API_KEY = "{{API_KEY}}";
   const API_URL = "https://mushroom.kindwise.com/api/v1/identification?details=common_names,url,description,edibility";
 
-  const fileInput = document.getElementById('fileInput');
+  const cameraInput = document.getElementById('cameraInput');
+  const galleryInput = document.getElementById('galleryInput');
   const idleView = document.getElementById('idleView');
   const previewWrap = document.getElementById('previewWrap');
   const previewImg = document.getElementById('previewImg');
@@ -402,7 +405,8 @@
     previewWrap.hidden = true;
     resultView.hidden = true;
     errorView.hidden = true;
-    fileInput.value = '';
+    cameraInput.value = '';
+    galleryInput.value = '';
   }
 
   function fileToBase64(file) {
@@ -433,19 +437,49 @@
     }
   }
 
+  const MOREL_TIP = 'Kypsennä AINA kunnolla läpi (vähintään 10 min) — raakana lievästi myrkyllinen. Hyvä voissa paistettuna kermakastikkeen kanssa.';
+  const TATTI_TIP = 'Viipaloi ja paista voissa. Sopii keittoihin, kastikkeisiin ja pataruokiin.';
+  const SUILLUS_TIP = 'Kuori liukas pintakalvo pois ennen kypsentämistä. Paista voissa tai käytä keitoissa.';
+  const AGARICUS_TIP = 'Paista voissa tai käytä keitoissa ja pataruoissa, kuten kaupan herkkusieniä.';
+
   const RECIPE_TIPS = {
     'boletus edulis': 'Viipaloi ja paista voissa kullanruskeaksi. Sopii risottoon, kastikkeisiin tai munakkaan lisukkeeksi.',
     'cantharellus cibarius': 'Paista voissa miedolla lämmöllä kunnes neste haihtuu. Hyvä kermakastikkeessa tai munakkaassa.',
     'craterellus tubaeformis': 'Paista voissa rapeaksi. Sopii keittoihin, kastikkeisiin ja pastan kanssa.',
-    'morchella esculenta': 'Kypsennä AINA kunnolla läpi (vähintään 10 min) — raakana lievästi myrkyllinen. Hyvä voissa paistettuna kermakastikkeen kanssa.',
-    'morchella importuna': 'Kypsennä AINA kunnolla läpi (vähintään 10 min) — raakana lievästi myrkyllinen. Hyvä voissa paistettuna kermakastikkeen kanssa.',
-    'agaricus campestris': 'Paista voissa tai käytä keitoissa ja pataruoissa, kuten kaupan herkkusieniä.',
-    'agaricus bisporus': 'Paista voissa tai käytä keitoissa ja pataruoissa, kuten kaupan herkkusieniä.'
+    'cantharellus tubaeformis': 'Paista voissa rapeaksi. Sopii keittoihin, kastikkeisiin ja pastan kanssa.',
+    'craterellus cornucopioides': 'Kuivaa tai paista voissa. Voimakas maku sopii kastikkeisiin ja rahkoihin pieninä määrinä.',
+    'morchella esculenta': MOREL_TIP,
+    'morchella importuna': MOREL_TIP,
+    'morchella vulgaris': MOREL_TIP,
+    'agaricus campestris': AGARICUS_TIP,
+    'agaricus bisporus': AGARICUS_TIP,
+    'lactarius deliciosus': 'Paista voissa reilusti kypsäksi. Perinteinen tapa on suolata ja säilöä, tai käyttää kastikkeissa ja pataruoissa.',
+    'leccinum scabrum': TATTI_TIP,
+    'leccinum aurantiacum': TATTI_TIP,
+    'suillus luteus': SUILLUS_TIP,
+    'suillus grevillei': SUILLUS_TIP,
+    'hydnum repandum': 'Paista voissa kullanruskeaksi. Miedon makuinen, sopii moniin ruokiin kuten herkkusieni.',
+    'macrolepiota procera': 'Paista voissa kokonaisina viipaleina, kuten "sieniwiener". VARMISTA erityisen huolellisesti, että kyseessä on iso, aikuinen ukonsieni — pienet nuoret yksilöt voi sekoittaa myrkyllisiin Lepiota-lajeihin.',
+    'calvatia gigantea': 'Viipaloi ja paista voissa paahtoleivän tapaan. TÄRKEÄÄ: leikkaa aina auki ja varmista, että sisus on täysin valkoinen ja tasainen — jos näkyy sienen muotoinen hahmo sisällä, kyseessä voi olla myrkyllisen valkokärpässienen nappuvaihe, ei pallosieni.',
+    'calvatia utriformis': 'Viipaloi ja paista voissa paahtoleivän tapaan. TÄRKEÄÄ: leikkaa aina auki ja varmista, että sisus on täysin valkoinen ja tasainen — jos näkyy sienen muotoinen hahmo sisällä, kyseessä voi olla myrkyllisen valkokärpässienen nappuvaihe, ei pallosieni.',
+    'fistulina hepatica': 'Viipaloi ohuelti ja marinoi hetki esim. etikkavedessä ennen kypsentämistä, koska maku on hapan. Paista voissa.',
+    'armillaria mellea': 'Kypsennä AINA kunnolla läpi vähintään 15–20 minuuttia — raakana tai puolikypsänä voi aiheuttaa vatsavaivoja. Hyvä pataruoissa ja keitoissa.'
   };
 
   function recipeTipFor(name) {
     if (!name) return null;
     return RECIPE_TIPS[name.trim().toLowerCase()] || null;
+  }
+
+  function truncateDescription(text, maxLen) {
+    if (text.length <= maxLen) return { text, truncated: false, atSentence: false };
+    let cut = text.slice(0, maxLen);
+    const lastSentenceEnd = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+    if (lastSentenceEnd > maxLen * 0.5) {
+      return { text: cut.slice(0, lastSentenceEnd + 1), truncated: true, atSentence: true };
+    }
+    const lastSpace = cut.lastIndexOf(' ');
+    return { text: lastSpace > 0 ? cut.slice(0, lastSpace) : cut, truncated: true, atSentence: false };
   }
 
   function extractText(field) {
@@ -491,8 +525,8 @@
       }
     }
     if (description) {
-      const truncated = description.length > 500;
-      html += `<p class="description">${escapeHtml(description).slice(0, 500)}${truncated ? '…' : ''}</p>`;
+      const shown = truncateDescription(description, 500);
+      html += `<p class="description">${escapeHtml(shown.text)}${shown.truncated && !shown.atSentence ? '…' : ''}</p>`;
     }
     if (category === 'success' && probability !== null && probability >= 50) {
       const tip = recipeTipFor(top.name);
@@ -506,7 +540,7 @@
         suggestions.slice(1, 4).map(s => `<li>${escapeHtml(s.name || '?')}</li>`).join('') +
         '</ul></div>';
     }
-    html += '<label class="secondary" for="fileInput" style="margin-top:6px;">Ota uusi kuva</label>';
+    html += '<label class="secondary" for="cameraInput" style="margin-top:6px;">Ota uusi kuva</label>';
 
     resultView.innerHTML = html;
     resultView.hidden = false;
@@ -515,7 +549,7 @@
 
   function renderError(message, technical) {
     let html = `<p class="error-title">${escapeHtml(message)}</p>`;
-    html += '<label class="secondary" for="fileInput">Yritä uudelleen</label>';
+    html += '<label class="secondary" for="cameraInput">Yritä uudelleen</label>';
     if (technical) {
       html += `<details class="tech"><summary>Näytä tekninen virhe</summary><pre>${escapeHtml(technical)}</pre></details>`;
     }
@@ -528,8 +562,8 @@
     return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
-  fileInput.addEventListener('change', async () => {
-    const file = fileInput.files && fileInput.files[0];
+  async function handleFileChosen(inputEl) {
+    const file = inputEl.files && inputEl.files[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/') || file.size === 0) {
@@ -591,5 +625,8 @@
       clearTimeout(timeoutId);
       statusRow.hidden = true;
     }
-  });
+  }
+
+  cameraInput.addEventListener('change', () => handleFileChosen(cameraInput));
+  galleryInput.addEventListener('change', () => handleFileChosen(galleryInput));
 </script>
