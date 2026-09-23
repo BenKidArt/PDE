@@ -363,8 +363,9 @@ raiskata, raiskaan, raiskasin, tuhoan.*
 | Ihmisraportointi (ks. kohta 2) | Varmistaa loput | Kaikki mitä 1–2 eivät tunnista, esim. koodikieli, uudet ilmaisut |
 
 Tämä ei silti ole täydellinen — mikään automaattinen järjestelmä ei ole. Kohdan
-"Miksi tätä ei rakenneta suoraan..." vaatimukset (käyttöehdot, lakikonsultaatio,
-moderointiprosessi) pätevät edelleen tämän lisäksi, eivät sen sijaan.
+"Korjaus 24.9.2026: Ylilauta ja MV-lehti..." vaatimukset (raportointi, bännäys,
+valmius luovuttaa tietoja poliisille) pätevät edelleen tämän lisäksi, eivät
+sen sijaan.
 
 ---
 
@@ -487,10 +488,13 @@ ihmisten kirjoituksia, koska sivu ei ole yhdistetty mihinkään oikeaan dataan.
 
 1. Näytä visuaalinen demo muutamalle ihmiselle — kiinnostaako konsepti ja
    ulkoasu ylipäätään (sama validointilogiikka kuin Tatami Live -kokeilussa)
-2. **Ennen mitään oikeaa käyttäjädataa:** hanki edes yksi lyhyt lakikonsultaatio
-   suomalaiselta juristilta joka tuntee some-/foorumivastuun — tämä on halvin
-   tapa välttää kallis virhe myöhemmin
-3. Suunnittele moderointiprosessi konkreettisesti (kuka, miten nopeasti, millä
+2. Suunnittele moderointiprosessi konkreettisesti (kuka, miten nopeasti, millä
    työkalulla) ennen kuin rekisteröinti avataan kenellekään oikealle käyttäjälle
-4. Vasta tämän jälkeen: oikea Firebase-projekti, oikea rekisteröityminen, oikea
+3. Vasta tämän jälkeen: oikea Firebase-projekti, oikea rekisteröityminen, oikea
    sisältö
+
+**Huomio 24.9.2026:** lakikonsultaatio päätettiin jättää pois listalta
+käyttäjän päätöksellä. Kohdassa "Korjaus 24.9.2026: Ylilauta ja MV-lehti..."
+todettu juridinen minimi (raportointi + bännäys + valmius luovuttaa tietoja
+poliisille pyynnöstä, ks. yllä) on silti se taso johon kannattaa pyrkiä
+teknisesti, vaikka sitä ei varmisteta lakimiehellä etukäteen.
