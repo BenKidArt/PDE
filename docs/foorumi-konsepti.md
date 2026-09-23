@@ -32,6 +32,47 @@ kunnianloukkausrikoksen tunnusmerkit, ja anonyymit "politiikka"/"rikollisuus"-
 osiot houkuttelevat tätä siitä riippumatta lähettääkö niissä kuvia vai ei.
 Raportointi- ja moderointitarve (ks. alla) koskee siis edelleen tekstiäkin.
 
+### Päätös 24.9.2026: poikkeus — GIF:t ja tarrat valmiista kirjastosta ovat OK
+
+Tämä ei kumoa yllä olevaa kieltoa, vaan täsmentää sitä. Kielto koskee **vapaata
+käyttäjien median lähetystä** (kuka tahansa lataa minkä tahansa oman kuvan/videon)
+— se on CSAM-/laittoman sisällön riski. GIF:t ja tarrat jotka käyttäjä **valitsee
+valmiista, jo tarkistetusta listasta** eivät ole sama asia, koska käyttäjä ei voi
+tuoda mitään uutta sisältöä — hän vain osoittaa olemassa olevaan.
+
+Kaksi erillistä mekanismia:
+
+1. **Tarrat** — oma, appin operaattorin (ei käyttäjien) suunnittelema kiinteä
+   tarrapaketti. Kuvatiedostot bundlataan suoraan Flutter-appiin asset-tiedostoina
+   (ei Firebase Storagea, ei käyttäjän uploadmahdollisuutta ollenkaan). Nolla
+   uutta riskiä, eikä tämä muuta "ei Storagea" -päätöstä (kohta 3).
+2. **GIF:t** — haetaan ulkopuolisesta, jo moderoidusta kirjastosta API:n kautta.
+   Suositus: **Tenor API** (Googlen omistama, sama jota WhatsApp/Gboard
+   käyttävät, ilmainen). Käyttäjä hakee ja valitsee tuloksista — ei voi ladata
+   omaa GIF:iä. Käytä `contentfilter`-parametria (esim. `high`) rajaamaan
+   hakutulokset turvallisiin.
+
+**Tietomalliin lisätään** `type`-kenttä erottamaan viestityyppi:
+
+```
+dm_threads/{threadId}/messages/{messageId}
+  senderId: string
+  type: "text" | "gif" | "sticker"
+  ciphertext: string   # teksti: salattu viesti · gif: Tenor-ID · tarra: tarran ID
+
+public_chat/messages/{messageId}
+  ...
+  type: "text" | "gif" | "sticker"
+  content: string       # teksti: viesti · gif: Tenor-ID · tarra: tarran ID
+```
+
+GIF/tarra-viittaus on vain lyhyt ID-merkkijono, joten se salautuu DM:issä yhtä
+helposti kuin tavallinen teksti (kohta 2c) — ei vaadi erillistä teknistä ratkaisua.
+
+**Ei muuta mitään muuta:** Storagea tai haittasisältöskannausta ei silti tarvita,
+koska käyttäjät eivät lataa mitään uutta binääridataa — pelkkä viittaus valmiiseen
+sisältöön.
+
 ## Miksi tätä ei silti rakenneta suoraan oikeaksi, toimivaksi alustaksi
 
 Anonyymi nimimerkkijärjestelmä + avoin julkinen keskustelukanava on Suomessa
@@ -95,12 +136,14 @@ dm_threads/{threadId}                  # threadId = sorted(userA_userB)
 
 dm_threads/{threadId}/messages/{messageId}
   senderId: string
+  type: "text" | "gif" | "sticker"      # ks. "GIF:t ja tarrat" alta
   ciphertext: string                    # salattu sisältö — palvelin ei näe selkotekstiä, ks. 2c
   createdAt: timestamp
 
 public_chat/messages/{messageId}        # YKSI yhteinen julkinen chat, ei enää osioita/ketjuja
   authorId: string | "ai_curator"       # AI-poiminnat erikseen merkitty
-  content: string                       # pelkkä teksti — ei kuva/video-tukea
+  type: "text" | "gif" | "sticker"      # ks. "GIF:t ja tarrat" alta
+  content: string                       # teksti, tai Tenor-ID/tarra-ID — ei vapaata median uploadia
   sourceUrl: string?                    # jos viesti on AI-poiminta uutisesta, linkki lähteeseen
   createdAt: timestamp
   reportCount: number
@@ -264,6 +307,8 @@ ei teknisesti ole rakennettu mahdolliseksi.
 | AI-uutispoiminta | Cloud Function ajastettuna 12h välein → hakee uutislähteet (esim. uutis-RSS/API) → Claude API tiivistää → luo viestin `public_chat/messages`-kokoelmaan `authorId: "ai_curator"` | Ei vaadi erillistä palvelinta, Cloud Scheduler hoitaa ajastuksen |
 | Maksut | RevenueCat (mobiili) | Sama kuin KamppailuFI |
 | Tekstisisällön suodatus | Kaksiportainen: normalisoiva sanalistasuodatin (taso 1) + Claude API -luokitin (taso 2), ks. kohta 2b | Perspective API ei tue suomea eikä ole enää pian saatavilla — Claude API toimii suomeksi ja ymmärtää kontekstin |
+| GIF-haku | Tenor API, `contentfilter: high` | Ilmainen, sama jota WhatsApp/Gboard käyttävät, ei vaadi omaa mediatallennusta |
+| Tarrat | Flutter-appiin bundlatut asset-kuvat | Ei käyttäjän uploadia, ei Storagea, nolla lisäriskiä |
 
 ---
 
