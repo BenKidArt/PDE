@@ -40,7 +40,7 @@ käyttäjien median lähetystä** (kuka tahansa lataa minkä tahansa oman kuvan/
 valmiista, jo tarkistetusta listasta** eivät ole sama asia, koska käyttäjä ei voi
 tuoda mitään uutta sisältöä — hän vain osoittaa olemassa olevaan.
 
-Kaksi erillistä mekanismia:
+Kolme erillistä mekanismia:
 
 1. **Tarrat** — oma, appin operaattorin (ei käyttäjien) suunnittelema kiinteä
    tarrapaketti. Kuvatiedostot bundlataan suoraan Flutter-appiin asset-tiedostoina
@@ -51,27 +51,57 @@ Kaksi erillistä mekanismia:
    käyttävät, ilmainen). Käyttäjä hakee ja valitsee tuloksista — ei voi ladata
    omaa GIF:iä. Käytä `contentfilter`-parametria (esim. `high`) rajaamaan
    hakutulokset turvallisiin.
+3. **Äänitarrat (soundboard)** — päätös 24.9.2026: lyhyet, valmiiksi äänitetyt
+   huudahdukset (esim. "Okay!", "Yes!", "No!", "What?", "Cool!") joita käyttäjä
+   valitsee listasta, ei nauhoita itse. Sama periaate kuin tarroissa: äänitiedostot
+   bundlataan appiin valmiiksi, ei käyttäjän mikrofonitallennusta eikä uploadia.
+   *Yksi ehdotettu esimerkki jätettiin pois listalta, koska se sisälsi rasistisen
+   herjasanan — se olisi suoraan ristiriidassa kohdan 2b/2e suodatinjärjestelmän
+   kanssa, joka on rakennettu nimenomaan estämään tällaista sisältöä.*
 
 **Tietomalliin lisätään** `type`-kenttä erottamaan viestityyppi:
 
 ```
 dm_threads/{threadId}/messages/{messageId}
   senderId: string
-  type: "text" | "gif" | "sticker"
-  ciphertext: string   # teksti: salattu viesti · gif: Tenor-ID · tarra: tarran ID
+  type: "text" | "gif" | "sticker" | "voice_clip"
+  ciphertext: string   # teksti: salattu viesti · gif/tarra/äänitarra: valmiin klipin ID
 
 public_chat/messages/{messageId}
   ...
-  type: "text" | "gif" | "sticker"
-  content: string       # teksti: viesti · gif: Tenor-ID · tarra: tarran ID
+  type: "text" | "gif" | "sticker" | "voice_clip"
+  content: string       # teksti: viesti · gif/tarra/äänitarra: valmiin klipin ID
 ```
 
-GIF/tarra-viittaus on vain lyhyt ID-merkkijono, joten se salautuu DM:issä yhtä
-helposti kuin tavallinen teksti (kohta 2c) — ei vaadi erillistä teknistä ratkaisua.
+Kaikki viittaukset (GIF/tarra/äänitarra) ovat vain lyhyitä ID-merkkijonoja, joten
+ne salautuvat DM:issä yhtä helposti kuin tavallinen teksti (kohta 2c) — ei vaadi
+erillistä teknistä ratkaisua.
 
 **Ei muuta mitään muuta:** Storagea tai haittasisältöskannausta ei silti tarvita,
 koska käyttäjät eivät lataa mitään uutta binääridataa — pelkkä viittaus valmiiseen
 sisältöön.
+
+### Sisältöspeksit (valmiit listat toteutusta varten)
+
+En pysty tuottamaan oikeita kuvitus- tai äänitiedostoja tässä istunnossa (ei
+kuva- eikä äänigeneraattoria käytössä) — mutta tässä on valmis speksi jota
+vastaan voit teettää/generoida oikeat tiedostot ja lähettää minulle myöhemmin
+integroitavaksi, samaan tapaan kuin flamingokuvien kanssa tehtiin.
+
+**Äänitarrat (5 kpl, lyhyitä "mörisevä" huudahduksia):**
+1. "Okay!"
+2. "Yes!"
+3. "No!"
+4. "What?"
+5. "Cool!"
+
+**Flamingo-tarrapaketti (6 kpl, sama hahmo kuin sivun tunnuskuvassa):**
+1. Flamingo polttaa tupakkaa
+2. Flamingo tanssii, disco-valot pyörivät ympärillä
+3. Flamingo vinkkaa silmää
+4. "Cool" flamingo ajaa autoa (aurinkolasit, kyynärpää ikkunalla)
+5. Flamingo ihmettelee/odottaa kun puhelimeen ei vastata
+6. Flamingo katsoo TV:tä ja syö popcornia
 
 ## Miksi tätä ei silti rakenneta suoraan oikeaksi, toimivaksi alustaksi
 
