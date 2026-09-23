@@ -51,7 +51,9 @@ Kolme erillistä mekanismia:
    käyttävät, ilmainen). Käyttäjä hakee ja valitsee tuloksista — ei voi ladata
    omaa GIF:iä. Käytä `contentfilter`-parametria (esim. `high`) rajaamaan
    hakutulokset turvallisiin.
-3. **Äänitarrat (soundboard)** — päätös 24.9.2026: lyhyet, valmiiksi äänitetyt
+3. **Äänitarrat (soundboard) — siirretty myöhemmäksi (24.9.2026).** Speksi
+   säilytetään alla valmiina, mutta tätä ei viedä eteenpäin toistaiseksi.
+   Alkuperäinen suunnitelma: lyhyet, valmiiksi äänitetyt
    huudahdukset (esim. "Okay!", "Yes!", "No!", "What?", "Cool!") joita käyttäjä
    valitsee listasta, ei nauhoita itse. Sama periaate kuin tarroissa: äänitiedostot
    bundlataan appiin valmiiksi, ei käyttäjän mikrofonitallennusta eikä uploadia.
