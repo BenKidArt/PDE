@@ -101,6 +101,7 @@ sections/{sectionId}/threads/{threadId}/posts/{postId}
   createdAt: timestamp
   reportCount: number
   moderationStatus: "visible" | "hidden" | "under_review"
+  flaggedBy: "keyword_filter" | "ai_classifier" | "user_report" | null
 
 reports/{reportId}                      # moderointijono
   targetPath: string                    # esim. "sections/politiikka/threads/x/posts/y"
@@ -118,6 +119,77 @@ kunnes joku ehtii tarkistaa sen manuaalisesti.
 
 ---
 
+## 2b. Tekstisuodatus: rasismi, ääriliikeviittaukset, väkivaltauhkaukset
+
+Päätös 23.9.2026: viestit ja julkaisut tarkistetaan **ennen näkyville menoa**
+kaksiportaisella järjestelmällä. Kumpikaan taso ei toimi client-puolella
+(Flutter-sovelluksessa) — molemmat ajetaan aina palvelimella (Cloud Function
+kirjoitushetkellä), koska pelkkä client-puolen tarkistus on triviaalia ohittaa
+kutsumalla Firestorea suoraan.
+
+### Taso 1 — nopea sanalistasuodatin (kova esto, ei julkaisu ollenkaan)
+
+Tarkistaa jokaisen viestin/julkaisun **normalisoituna** ennen tallennusta, jotta
+lainausmerkit, välilyönnit, pisteet ja yleiset korvausmerkit eivät auta
+kiertämään sitä:
+
+```js
+function normalisoi(teksti) {
+  let t = teksti.toLowerCase();
+  t = t.normalize('NFKD').replace(/[̀-ͯ]/g, '');   // poistaa aksentit
+  const korvaukset = {'0':'o','1':'i','3':'e','4':'a','5':'s','7':'t','@':'a','$':'s','!':'i'};
+  t = t.split('').map(m => korvaukset[m] || m).join('');
+  t = t.replace(/[^a-zäöå]/g, '');                            // poistaa VÄLIT, LAINAUSMERKIT, PISTEET, VIIVAT
+  return t;
+}
+```
+
+`"H-i-t-l-e-r"`, `"H.I.T.L.E.R"`, `'"Hitler"'` ja `"Hi7l3r"` normalisoituvat
+kaikki samaksi merkkijonoksi `hitler`, jota verrataan estolistaan. Tämä on
+tarkoituksella aggressiivinen — se tarkoittaa myös että pidempi teksti voi
+harvinaisissa tapauksissa täsmätä vahingossa, joten taso 1 kannattaa käyttää
+vain **lyhyelle, korkean varmuuden listalle** (yksittäiset nimet/termit, ei
+kokonaisia lauseita).
+
+**Mitä listalle kuuluu ja mitä ei tässä dokumentissa:** nimetyt ääriliike-
+/historian hahmot ja termit (esim. "hitler", "natsi") on turvallista kirjoittaa
+suoraan koodiin, koska ne ovat yleiskielen sanoja, ei rasistisia herjasanoja.
+**Varsinaista rasististen herjasanojen listaa ei kirjoiteta tähän dokumenttiin
+eikä demoon** — sellaisen kokoaminen on oma erikoisosaamisalueensa, ja se
+kannattaa hakea valmiina esim. suomalaiselta vihapuheen tutkimusta tekevältä
+taholta tai ostaa osana moderointipalvelua, ei keksiä itse ad hoc -listana.
+Tuotannossa tämä lista täydennetään ennen julkaisua.
+
+### Taso 2 — Claude API semanttinen tarkistus (kontekstin ymmärtämiseen)
+
+Selvitettiin että **Google Perspective API ei tue suomea** (vain englanti,
+ranska, saksa, italia, portugali, venäjä, espanja) ja koko palvelu ajetaan
+alas vuoden 2026 loppuun mennessä — ei siis käyttökelpoinen vaihtoehto.
+
+Sen sijaan: jokainen julkaisu lähetetään Cloud Functionista Claude API:lle
+luokiteltavaksi ennen näkyville menoa ("sisältääkö tämä suoran väkivaltauhkauksen
+tiettyä henkilöä/ryhmää kohtaan, vai onko kyse uutis-/rikoskeskustelusta?").
+Tämä ratkaisee sen, minkä pelkkä sanalista ei osaa: **"Rikollisuus"-osiossa
+sanat kuten "veitsi", "ampui" tai "murha" ovat normaalia uutiskeskustelua**,
+eivät uhkauksia — jos nämä estettäisiin sanalistalla, koko osio lakkaisi
+toimimasta. Vasta selkeä, kohdistettu uhkaus ("pitäisi tappaa [nimi/ryhmä]")
+menee automaattisesti `moderationStatus: "under_review"` -tilaan ja piiloon
+kunnes ihminen tarkistaa sen.
+
+### Yhteenveto
+
+| Taso | Mitä tekee | Esimerkki joka jää kiinni |
+|---|---|---|
+| 1: Sanalista + normalisointi | Estää julkaisun kokonaan | "H i t l e r", `"natsi"`, "N4TS1" |
+| 2: Claude-luokitin | Piilottaa tarkistukseen asti, ei estä suoraan | Kohdistettu väkivaltauhkaus lauseen sisällä |
+| Ihmisraportointi (ks. kohta 2) | Varmistaa loput | Kaikki mitä 1–2 eivät tunnista, esim. koodikieli, uudet ilmaisut |
+
+Tämä ei silti ole täydellinen — mikään automaattinen järjestelmä ei ole. Kohdan
+"Miksi tätä ei rakenneta suoraan..." vaatimukset (käyttöehdot, lakikonsultaatio,
+moderointiprosessi) pätevät edelleen tämän lisäksi, eivät sen sijaan.
+
+---
+
 ## 3. Tekninen stack (sama logiikka kuin KamppailuFI:ssä — free tier ensin)
 
 | Kerros | Valinta | Perustelu |
@@ -126,7 +198,7 @@ kunnes joku ehtii tarkistaa sen manuaalisesti.
 | Backend | Firebase (Auth anonyymina + nimimerkkiprofiili, Firestore, Cloud Functions) | Sama free-tier-logiikka, realtime-kuuntelijat sopivat chatille. **Ei Storagea** — median puuttuessa sitä ei tarvita |
 | AI-uutispoiminta | Cloud Function ajastettuna 12h välein → hakee uutislähteet (esim. uutis-RSS/API) → Claude API tiivistää ja luokittelee osioon → luo `threads`-dokumentin `authorId: "ai_curator"` | Ei vaadi erillistä palvelinta, Cloud Scheduler hoitaa ajastuksen |
 | Maksut | RevenueCat (mobiili) | Sama kuin KamppailuFI |
-| Tekstisisällön suodatus | Kevyt automaattinen avainsanasuodatin + `reports`-kokoelman kynnysarvopiilotus (ks. tietomallit) | Median puuttuessa ei tarvita CSAM-skannausta, mutta tekstin raportointi/piilotus on silti tarpeen (ks. yllä) |
+| Tekstisisällön suodatus | Kaksiportainen: normalisoiva sanalistasuodatin (taso 1) + Claude API -luokitin (taso 2), ks. kohta 2b | Perspective API ei tue suomea eikä ole enää pian saatavilla — Claude API toimii suomeksi ja ymmärtää kontekstin |
 
 ---
 
