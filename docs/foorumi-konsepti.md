@@ -152,13 +152,23 @@ riittää selkeä, rehellinen teksti.
 
 ## 1. Tuotekonsepti tiivistettynä
 
-| Ominaisuus | Ilmainen | Maksullinen |
-|---|---|---|
-| Yksityisviestit (vain teksti) hyväksytyille kavereille | ✅ | ✅ |
-| Julkisen chatin **lukeminen** | ✅ | ✅ |
-| Julkiseen chattiin **kirjoittaminen** | ❌ | ✅ |
-| Kaveripyynnön lähetys julkisesta chatista nähdylle nimimerkille | ✅ | ✅ |
-| AI-kuratoidut uutispoiminnat julkiseen chattiin (automaattinen, 12h välein) | näkyvät kaikille (luku) | — |
+### Päätös 24.9.2026: ei maksumuuria vielä — kaikki ilmaista
+
+Freemium-rajaus (kirjoittaminen julkiseen chattiin maksullisena) poistettiin
+toistaiseksi. Kaikki ominaisuudet — lukeminen, kirjoittaminen, kaveripyynnöt,
+yksityisviestit — ovat ilmaisia kunnes konsepti on validoitu oikeilla
+käyttäjillä. Tämä madaltaa kynnystä kokeilla appia (ks. myös kylmäkäynnistys-
+pohdinta muissa dokumenteissa) ja auttaa selvittämään mistä käyttäjät
+oikeasti olisivat valmiita maksamaan, ennen kuin maksumuuri rakennetaan minne
+tahansa. Maksullinen taso lisätään myöhemmin datan perusteella.
+
+| Ominaisuus | Saatavuus |
+|---|---|
+| Yksityisviestit (vain teksti) hyväksytyille kavereille | ✅ Ilmainen |
+| Julkisen chatin lukeminen | ✅ Ilmainen |
+| Julkiseen chattiin kirjoittaminen | ✅ Ilmainen (toistaiseksi) |
+| Kaveripyynnön lähetys julkisesta chatista nähdylle nimimerkille | ✅ Ilmainen |
+| AI-kuratoidut uutispoiminnat julkiseen chattiin (automaattinen, 12h välein) | näkyvät kaikille |
 
 Identiteetti: nimimerkki, ei puhelinnumeroa muiden löytämiseen. Kaveriksi
 lisääminen vaatii molemminpuolisen hyväksynnän, vasta sen jälkeen voi
@@ -380,7 +390,7 @@ ei teknisesti ole rakennettu mahdolliseksi.
 | Sovellus | Flutter | Yksi koodikanta, reaaliaikaiset chat-näkymät toimivat hyvin |
 | Backend | Firebase (Auth anonyymina + nimimerkkiprofiili, Firestore, Cloud Functions) | Sama free-tier-logiikka, realtime-kuuntelijat sopivat chatille. **Ei Storagea** — median puuttuessa sitä ei tarvita |
 | AI-uutispoiminta | Cloud Function ajastettuna 12h välein → hakee uutislähteet (esim. uutis-RSS/API) → Claude API tiivistää → luo viestin `public_chat/messages`-kokoelmaan `authorId: "ai_curator"` | Ei vaadi erillistä palvelinta, Cloud Scheduler hoitaa ajastuksen |
-| Maksut | RevenueCat (mobiili) | Sama kuin KamppailuFI |
+| Maksut | RevenueCat (mobiili) — **ei käytössä vielä**, ks. kohta 1 | Lisätään myöhemmin kun maksumuuri otetaan käyttöön |
 | Tekstisisällön suodatus | Kaksiportainen: normalisoiva sanalistasuodatin (taso 1) + Claude API -luokitin (taso 2), ks. kohta 2b | Perspective API ei tue suomea eikä ole enää pian saatavilla — Claude API toimii suomeksi ja ymmärtää kontekstin |
 | GIF-haku | Tenor API, `contentfilter: high` | Ilmainen, sama jota WhatsApp/Gboard käyttävät, ei vaadi omaa mediatallennusta |
 | Tarrat | Flutter-appiin bundlatut asset-kuvat | Ei käyttäjän uploadia, ei Storagea, nolla lisäriskiä |
