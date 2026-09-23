@@ -188,16 +188,22 @@ sopii "ei numeroa, ei nimeä" -periaatteeseen suoraan ilman lisätyötä.
 4. Onnistuneen valinnan jälkeen: suoraan chattiin, `users/{uid}.nickname` tallennettu.
 
 **Tärkeä rajoitus, sama periaate kuin E2EE-avaimen kanssa (kohta 2c):** koska
-tiliä ei ole sidottu sähköpostiin, se katoaa jos sovellus poistetaan tai
-laite vaihtuu ilman toimenpiteitä. Tämä kerrotaan käyttäjälle selkeästi, ei
-piiloteta.
+tiliä ei ole sidottu mihinkään henkilötietoon, se katoaa jos sovellus
+poistetaan tai laite vaihtuu ilman toimenpiteitä. Tämä kerrotaan käyttäjälle
+selkeästi, ei piiloteta.
 
-**Valinnainen (ei koskaan pakollinen) palautusmenetelmä:** Firebase tukee
-anonyymin tilin päivittämistä pysyväksi jälkikäteen (`linkWithCredential`) —
-käyttäjä voi halutessaan asetuksista lisätä sähköpostin/salasanan pelkäksi
-palautuskeinoksi, menettämättä nimimerkkiä tai historiaansa. Tätä ei koskaan
-näytetä muille käyttäjille eikä vaadita missään vaiheessa — se on olemassa
-vain niitä varten jotka pelkäävät tilin menetystä.
+**Päätös 24.9.2026 — yksinkertaistettu: pelkkä valinnainen salasana, ei
+sähköpostia, ei palautusta.** Ei sähköpostikenttää ollenkaan — se toisi
+takaisin sen henkilötiedon jota koko appi on tietoisesti vältellyt alusta asti.
+Sen sijaan käyttäjä voi halutessaan (ei pakollista) asettaa pelkän salasanan
+nimimerkilleen asetuksista, jolla pääsee samaan tiliin kirjautumaan toisella
+laitteella. **Ei mitään "unohtuiko salasana" -palautuspolkua.** Jos salasana
+unohtuu, tiliä ei saa takaisin — käyttäjä luo uuden nimimerkin ja aloittaa
+alusta, aivan kuten silloinkin kun laite katoaa ilman salasanaa. Tämä pidetään
+tietoisesti näin yksinkertaisena: mitä vähemmän palautusmekanismeja, sitä
+vähemmän hyökkäyspintaa (esim. "unohtuiko salasana" -sähköpostiväärennökset)
+ja sitä vähemmän henkilötietoa kerätään ylipäätään. Käyttöliittymässä tämä
+sanotaan suoraan salasanan asetuksen yhteydessä, ei pienellä painettuna.
 
 **Demossa toteutettu ja testattu:** nimimerkin valintanäyttö, joka tarkistaa
 syötteen samalla suodatinlogiikalla kuin viestit, plus yksinkertainen
