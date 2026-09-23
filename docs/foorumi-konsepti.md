@@ -425,6 +425,89 @@ ei teknisesti ole rakennettu mahdolliseksi.
 
 ---
 
+## 2d. Moderointiprosessi konkreettisesti (24.9.2026)
+
+Kohdan "Korjaus 24.9.2026" juridinen minimi (raportointi + bännäys + valmius
+auttaa poliisia) vaatii oikean, kirjoitetun prosessin — ei riitä että
+ominaisuudet ovat olemassa, joku pitää myös oikeasti hoitaa niitä.
+
+### Kuka
+
+**Aluksi: sinä yksin.** Ei tarvita tiimiä tässä vaiheessa — kohdan
+kylmäkäynnistys-pohdinnan perusteella käyttäjämäärä on aluksi pieni, joten
+raportteja tulee todennäköisesti harvoin. Jos/kun käyttäjämäärä kasvaa
+merkittävästi, tämä pitää arvioida uudelleen (esim. luotettu vapaaehtois-
+moderaattori toiselle aikavyöhykkeelle) — ei kuitenkaan MVP-vaiheen ongelma.
+
+### Miten nopeasti — porrastettu vasteaika, ei "24/7 heti"
+
+Epärealistista luvata välitöntä reagointia yhden ihmisen voimin. Sen sijaan
+kolme tasoa:
+
+| Taso | Mikä laukaisee | Tavoiteaika | Miksi |
+|---|---|---|---|
+| **Kiireellinen** | Taso 2 -luokitin merkitsee `under_review` (mahdollinen suora väkivaltauhkaus) | Saman päivän aikana, mielellään muutamassa tunnissa | Sisältö on jo automaattisesti piilossa, mutta vaatii ihmisen vahvistuksen |
+| **Normaali** | Käyttäjän "Ilmoita"-raportti | 24–48 tuntia | Ei akuutti, mutta ei saa unohtua |
+| **Välitön eskalointi** | Uskottava, kohdistettu ja konkreettinen uhka (esim. nimetty henkilö/paikka + aikataulu) | Heti, ohi normaalin jonon | Tämä ei ole enää "moderointia" vaan mahdollinen rikosilmoitusasia — ks. eskalointi alla |
+
+**Käytännön tarkistusrytmi:** vähintään kahdesti päivässä (esim. aamulla ja
+illalla) käydään läpi avoimet raportit ja `under_review`-sisältö. Kiireellisen
+tason kohdalla Cloud Function lähettää push-ilmoituksen suoraan omaan
+puhelimeen heti kun jotain merkitään `under_review`-tilaan — ei odoteta
+seuraavaa tarkistuskertaa.
+
+### Millä työkalulla
+
+**Ei rakenneta erillistä admin-käyttöliittymää MVP-vaiheessa.** Firebase
+Console (ilmainen, valmiiksi olemassa) riittää:
+
+1. Firestore-konsolissa: suodata `reports`-kokoelma `status == "open"`,
+   järjestä `createdAt`-kentän mukaan
+2. Suodata `public_chat/messages` ja `dm_threads/*/messages`
+   `moderationStatus == "under_review"` -kentällä (DM:issä huomaa: sisältö on
+   salattua, ks. 2c — vain metatieto näkyy, ei viestin sisältöä)
+3. Jokaiselle: lue konteksti, päätä toimenpide, tee se suoraan Firestoresta:
+   - Ei toimenpidettä → `reports/{id}.status = "resolved"`
+   - Piilota viesti → `moderationStatus: "hidden"`
+   - Bännää käyttäjä → `users/{userId}.banned = true`
+
+**Firestore security rule bännäykselle** (lisäys kohdan 2 tietomalliin):
+
+```
+users/{userId}
+  ...
+  banned: boolean          # oletus false
+
+// security rules -periaate (ei koko syntaksi):
+// kirjoitus public_chat/messages ja dm_threads/*/messages -kokoelmiin
+// vaatii request.auth.uid vastaavan users-dokumentin banned == false
+```
+
+Kun käyttäjämäärä joskus kasvaa niin paljon että Firebase Consolin selaaminen
+käy hitaaksi, kannattaa rakentaa kevyt oma admin-näkymä (esim. suojattu reitti
+Flutter-webissä, näkyy vain omalle UID:lle) — ei kuitenkaan MVP:tä varten.
+
+### Eskalointi poliisille — konkreettinen toimintamalli
+
+Uskottavan, kohdistetun uhkauksen (ei yleistä vihapuhetta, vaan esim. nimetty
+kohde + aikataulu + keino) kohdalla:
+
+1. Älä pelkästään piilota/bännää hiljaa — tallenna kaikki relevantti tieto
+   ennen poistoa (kuvakaappaus, `userId`, `createdAt`, mahdollinen IP jos
+   Firebase-logeista löytyy)
+2. Tee rikosilmoitus poliisi.fi:n kautta tai soita hätänumeroon jos uhka
+   vaikuttaa välittömältä
+3. Vasta tämän jälkeen piilota sisältö normaalisti
+
+### Yhteenveto muistilistaksi
+
+- [ ] Tarkista raportit ja `under_review`-sisältö vähintään 2× päivässä
+- [ ] Push-ilmoitus omaan puhelimeen kiireellisistä (`under_review`) tapauksista
+- [ ] `banned`-kenttä ja sitä vastaava security rule käytössä ennen julkaisua
+- [ ] Tiedä etukäteen miten teet rikosilmoituksen jos joskus tarvitsee
+
+---
+
 ## 3. Tekninen stack (sama logiikka kuin KamppailuFI:ssä — free tier ensin)
 
 | Kerros | Valinta | Perustelu |
