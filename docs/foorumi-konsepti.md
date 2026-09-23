@@ -170,6 +170,40 @@ tahansa. Maksullinen taso lisätään myöhemmin datan perusteella.
 | Kaveripyynnön lähetys julkisesta chatista nähdylle nimimerkille | ✅ Ilmainen |
 | AI-kuratoidut uutispoiminnat julkiseen chattiin (automaattinen, 12h välein) | näkyvät kaikille |
 
+## 1b. Sisäänkirjautuminen ja nimimerkin luonti (24.9.2026)
+
+**Kirjautuminen: Firebase Anonymous Auth, ei sähköpostia/salasanaa/puhelinta.**
+Firebasen anonyymi kirjautuminen luo pysyvän tunnisteen laitteelle/selaimelle
+ilman että käyttäjä syöttää mitään henkilötietoa — juuri se ominaisuus joka
+sopii "ei numeroa, ei nimeä" -periaatteeseen suoraan ilman lisätyötä.
+
+**Ensimmäisen avauksen kulku:**
+1. Anonyymi kirjautuminen tapahtuu automaattisesti taustalla heti kun appi avataan
+2. Tervetuloa-näyttö: valitaan nimimerkki
+3. Nimimerkki tarkistetaan kahdesti ennen hyväksyntää:
+   - **Uniikkius** — Firestore-kysely `users`-kokoelmasta (`where('nickname','==',...)`)
+   - **Sama Taso 1 -suodatin kuin viesteissä** (kohta 2b) — ei voi rekisteröityä
+     esim. nimimerkillä "Hitler". Tämä on yhtä tärkeää kuin viestien suodatus,
+     koska nimimerkki on kaikkein näkyvin, pysyvin sisältö jonka käyttäjä tuottaa.
+4. Onnistuneen valinnan jälkeen: suoraan chattiin, `users/{uid}.nickname` tallennettu.
+
+**Tärkeä rajoitus, sama periaate kuin E2EE-avaimen kanssa (kohta 2c):** koska
+tiliä ei ole sidottu sähköpostiin, se katoaa jos sovellus poistetaan tai
+laite vaihtuu ilman toimenpiteitä. Tämä kerrotaan käyttäjälle selkeästi, ei
+piiloteta.
+
+**Valinnainen (ei koskaan pakollinen) palautusmenetelmä:** Firebase tukee
+anonyymin tilin päivittämistä pysyväksi jälkikäteen (`linkWithCredential`) —
+käyttäjä voi halutessaan asetuksista lisätä sähköpostin/salasanan pelkäksi
+palautuskeinoksi, menettämättä nimimerkkiä tai historiaansa. Tätä ei koskaan
+näytetä muille käyttäjille eikä vaadita missään vaiheessa — se on olemassa
+vain niitä varten jotka pelkäävät tilin menetystä.
+
+**Demossa toteutettu ja testattu:** nimimerkin valintanäyttö, joka tarkistaa
+syötteen samalla suodatinlogiikalla kuin viestit, plus yksinkertainen
+"varattu nimimerkki" -tarkistus demon esimerkkikäyttäjiä vasten, ja siirtää
+vasta hyväksynnän jälkeen itse chattiin.
+
 Identiteetti: nimimerkki, ei puhelinnumeroa muiden löytämiseen. Kaveriksi
 lisääminen vaatii molemminpuolisen hyväksynnän, vasta sen jälkeen voi
 vaihtaa viestejä. Ei enää aiheosioita eikä ketjuja — yksi yhteinen, aikajärjestyksessä
