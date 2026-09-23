@@ -1,36 +1,46 @@
 # Suomalainen anonyymi foorumi/chat-konsepti — tekninen suunnitelma
 
-> Eri projekti kuin KamppailuFI/Tatami Live. Nimimerkkipohjainen chat + aiheosiot
-> (politiikka, talous, rikollisuus, arkipäiväinen), freemium-malli, AI-kuratoidut
-> uutisketjut 12h välein. Tämä dokumentti kattaa suunnittelun; **ei sisällä oikeaa
-> toimivaa taustajärjestelmää** — ks. perustelu alta.
+> Eri projekti kuin KamppailuFI/Tatami Live. Nimimerkkipohjainen **tekstichat**
+> (ei kuvia/videoita, ks. päätös alta) + aiheosiot (politiikka, talous,
+> rikollisuus, arkipäiväinen), freemium-malli, AI-kuratoidut uutisketjut 12h
+> välein. Tämä dokumentti kattaa suunnittelun; **ei sisällä oikeaa toimivaa
+> taustajärjestelmää** — ks. perustelu alta.
 
 ---
 
-## Miksi tätä ei rakenneta suoraan oikeaksi, toimivaksi alustaksi
+## Päätös 23.9.2026: ei kuvien/videoiden lähetystä
 
-Tämä on tärkein kohta koko dokumentissa, luetaan ensin.
+Rajattiin viestintä (sekä kaveri-DM:t että osiokirjoitukset) **pelkkään
+tekstiin**. Tämä poistaa suurimman yksittäisen riski- ja kuluerän:
+haittasisältöskannauksen (CSAM-tunnistus) tarpeen ja videotallennuksen kulut,
+koska mediaa ei voi ylipäätään lähettää.
 
-Anonyymi nimimerkkijärjestelmä + kuvien/videoiden jako + avoimet keskusteluosiot
-kontroversiaaleista aiheista (politiikka, rikollisuus) on Suomessa ajanut aiemmin
-vastaavia palveluita (Ylilauta, MV-lehti) vakaviin oikeudellisiin ongelmiin:
+**Tämä ei kuitenkaan poista kaikkea riskiä** — pelkkä tärkeä täsmennys: myös
+pelkkä teksti voi Suomessa täyttää kiihottaminen kansanryhmää vastaan- tai
+kunnianloukkausrikoksen tunnusmerkit, ja anonyymit "politiikka"/"rikollisuus"-
+osiot houkuttelevat tätä siitä riippumatta lähettääkö niissä kuvia vai ei.
+Raportointi- ja moderointitarve (ks. alla) koskee siis edelleen tekstiäkin.
+
+## Miksi tätä ei silti rakenneta suoraan oikeaksi, toimivaksi alustaksi
+
+Anonyymi nimimerkkijärjestelmä + avoimet keskusteluosiot kontroversiaaleista
+aiheista (politiikka, rikollisuus) on Suomessa ajanut aiemmin vastaavia
+palveluita (Ylilauta, MV-lehti) vakaviin oikeudellisiin ongelmiin:
 kiihottaminen kansanryhmää vastaan -syytteitä, kunnianloukkauskanteita, ja
-ylläpitäjän henkilökohtaista rikosoikeudellista vastuuta käyttäjien julkaisemasta
-sisällöstä.
+ylläpitäjän henkilökohtaista rikosoikeudellista vastuuta käyttäjien
+julkaisemasta sisällöstä — myös silloin kun kyse on pelkästä tekstistä.
 
 **Tämä ei tarkoita ettei konseptia voi toteuttaa** — mutta se tarkoittaa, että
 seuraavat asiat pitää olla kunnossa **ennen** kuin yksikään oikea, tuntematon
 käyttäjä pääsee lähettämään mitään:
 
-1. Kuva-/videosisällön automaattinen haittasisältöskannaus (esim. hash-pohjainen
-   CSAM-tunnistus) käytössä ennen julkista mediajakoa
-2. Selkeät käyttöehdot ja moderointipolitiikka, lakimiehen tarkistamana
-3. Raportointi- ja pikapoistotoiminto jokaiselle viestille/julkaisulle
-4. Joko ihmismoderaattori(t) tai vähintään nopea reagointiprosessi ilmoituksiin
-5. Selkeä prosessi viranomaisyhteistyölle (esim. poliisin tietopyynnöt)
+1. Selkeät käyttöehdot ja moderointipolitiikka, lakimiehen tarkistamana
+2. Raportointi- ja pikapoistotoiminto jokaiselle viestille/julkaisulle
+3. Joko ihmismoderaattori(t) tai vähintään nopea reagointiprosessi ilmoituksiin
+4. Selkeä prosessi viranomaisyhteistyölle (esim. poliisin tietopyynnöt)
 
 Ennen näitä rakennetaan vain **suunnittelu ja visuaalinen konsepti** — ei oikeaa
-tiliä, ei oikeaa viestintää vieraiden kesken, ei oikeaa mediatallennusta.
+tiliä, ei oikeaa viestintää vieraiden kesken.
 
 ---
 
@@ -38,7 +48,7 @@ tiliä, ei oikeaa viestintää vieraiden kesken, ei oikeaa mediatallennusta.
 
 | Ominaisuus | Ilmainen | Maksullinen |
 |---|---|---|
-| Yksityisviestit (teksti/kuva/video) hyväksytyille kavereille | ✅ | ✅ |
+| Yksityisviestit (vain teksti) hyväksytyille kavereille | ✅ | ✅ |
 | Aiheosioiden (talous, politiikka, rikollisuus, arki) **lukeminen** | ✅ | ✅ |
 | Aiheosioihin **kirjoittaminen** | ❌ | ✅ |
 | Omien ketjujen luonti osioihin | ❌ | ✅ |
@@ -71,8 +81,7 @@ dm_threads/{threadId}                  # threadId = sorted(userA_userB)
 
 dm_threads/{threadId}/messages/{messageId}
   senderId: string
-  type: "text" | "image" | "video"
-  content: string                       # teksti tai mediaId
+  content: string                       # pelkkä teksti — ei kuva/video-tukea
   createdAt: timestamp
 
 sections/{sectionId}                    # "talous", "politiikka", "rikollisuus", "arki"
@@ -88,8 +97,7 @@ sections/{sectionId}/threads/{threadId}
 
 sections/{sectionId}/threads/{threadId}/posts/{postId}
   authorId: string
-  content: string
-  mediaId: string?
+  content: string                       # pelkkä teksti — ei kuva/video-tukea
   createdAt: timestamp
   reportCount: number
   moderationStatus: "visible" | "hidden" | "under_review"
@@ -115,10 +123,10 @@ kunnes joku ehtii tarkistaa sen manuaalisesti.
 | Kerros | Valinta | Perustelu |
 |---|---|---|
 | Sovellus | Flutter | Yksi koodikanta, reaaliaikaiset chat-näkymät toimivat hyvin |
-| Backend | Firebase (Auth anonyymina + nimimerkkiprofiili, Firestore, Storage, Cloud Functions) | Sama free-tier-logiikka, realtime-kuuntelijat sopivat chatille |
+| Backend | Firebase (Auth anonyymina + nimimerkkiprofiili, Firestore, Cloud Functions) | Sama free-tier-logiikka, realtime-kuuntelijat sopivat chatille. **Ei Storagea** — median puuttuessa sitä ei tarvita |
 | AI-uutispoiminta | Cloud Function ajastettuna 12h välein → hakee uutislähteet (esim. uutis-RSS/API) → Claude API tiivistää ja luokittelee osioon → luo `threads`-dokumentin `authorId: "ai_curator"` | Ei vaadi erillistä palvelinta, Cloud Scheduler hoitaa ajastuksen |
 | Maksut | RevenueCat (mobiili) | Sama kuin KamppailuFI |
-| Haittasisältöskannaus | **Pakollinen ennen julkista mediajakoa** — esim. kolmannen osapuolen hash-tunnistuspalvelu Cloud Functionin kautta upload-vaiheessa | Ei valinnainen, ks. yllä oleva perustelu |
+| Tekstisisällön suodatus | Kevyt automaattinen avainsanasuodatin + `reports`-kokoelman kynnysarvopiilotus (ks. tietomallit) | Median puuttuessa ei tarvita CSAM-skannausta, mutta tekstin raportointi/piilotus on silti tarpeen (ks. yllä) |
 
 ---
 
