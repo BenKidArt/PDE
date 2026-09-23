@@ -44,8 +44,14 @@ Paikallisesti (service worker vaatii http:n; pelkkä tiedoston avaaminen toimii 
 npx http-server soivat-sivut
 ```
 
-**Ilmainen julkaisu GitHub Pagesissa:** repon *Settings → Pages → Deploy from a branch → main / (root)*.
-Sovellus löytyy sen jälkeen osoitteesta `https://<käyttäjä>.github.io/<repo>/soivat-sivut/`.
+**Ilmainen julkaisu GitHub Pagesissa:** julkaise sovellus **omassa repossaan** (esim. `soivat-sivut`),
+jossa nämä tiedostot ovat juuressa. Valitse siinä repossa *Settings → Pages → Deploy from a branch → main / (root)*.
+Sovellus löytyy sen jälkeen osoitteesta `https://<käyttäjä>.github.io/soivat-sivut/`.
+
+> ⚠️ Älä muuta Pages-asetusta repossa, jossa on jo toinen Pages-sovellus (esim. `PDE`-repon
+> sienisovellus). Yhdellä repolla voi olla vain yksi Pages-sivusto, joten asetuksen vaihtaminen
+> korvaisi aiemman sovelluksen.
+
 Sama kansio toimii sellaisenaan myös Netlifyssä, Cloudflare Pagesissa tai Vercelissä.
 
 Kun julkaiset muutoksia, vaihda `sw.js`-tiedoston `CACHE`-versionumeroa.
