@@ -17,7 +17,7 @@ Kirjan jokaisella sivulla on yksi soitin. Lapsi painaa soitinta, ja se soittaa t
   Jokaisella sivulla on oma väriteemansa.
 - **Selaaminen:** nuolinapit, pyyhkäisy tai näppäimistö (← →, välilyönti, 1–6, Esc).
 - **Puhe:** jos laitteessa on suomenkielinen puheääni, sovellus sanoo soittimen nimen (voi kytkeä pois 🗣️).
-- **Mykistys** 🔊 ja **suoralinkit** sivuille (esim. `#rummut` → `index.html#drums`).
+- **Mykistys** 🔊 ja **suoralinkit** sivuille (esim. `index.html#drums` avaa suoraan rumpusivun).
 - **Toimii offline-tilassa** ja on asennettavissa kotinäytölle (PWA).
 - Kunnioittaa käyttöjärjestelmän *vähennä liikettä* -asetusta.
 
