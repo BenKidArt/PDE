@@ -1,16 +1,17 @@
 # Suomalainen anonyymi foorumi/chat-konsepti — tekninen suunnitelma
 
 > Eri projekti kuin KamppailuFI/Tatami Live. Nimimerkkipohjainen **tekstichat**
-> (ei kuvia/videoita, ks. päätös alta), **yksi yhteinen julkinen chat** (ei enää
-> aiheosioita, ks. päätös 24.9.2026), freemium-malli, AI-kuratoidut uutispoiminnat
-> 12h välein. Tämä dokumentti kattaa suunnittelun; **ei sisällä oikeaa toimivaa
-> taustajärjestelmää** — ks. perustelu alta.
+> (ei kuvia/videoita, GIF:t/tarrat poikkeuksena, ks. päätös alta), **yksi
+> yhteinen julkinen chat** (ei enää aiheosioita, ks. päätös 24.9.2026),
+> **kaikki ilmaista toistaiseksi** (ei maksumuuria vielä, ks. kohta 1),
+> AI-kuratoidut uutispoiminnat 12h välein. Tämä dokumentti kattaa suunnittelun;
+> **ei sisällä oikeaa toimivaa taustajärjestelmää** — ks. perustelu alta.
 
 ## Päätös 24.9.2026: yksi yhteinen julkinen chat, ei enää erillisiä osioita
 
 Aiheosiot (politiikka/talous/rikollisuus/arki) poistettiin kokonaan. Tilalla on
-**yksi julkinen chat**, johon kuka tahansa nimimerkki voi kirjoittaa (freemium-
-rajaus säilyy, ks. taulukko alla), ja josta voi lähettää kaveripyynnön toiselle
+**yksi julkinen chat**, johon kuka tahansa nimimerkki voi kirjoittaa (ilmaista
+kaikille toistaiseksi, ks. kohta 1), ja josta voi lähettää kaveripyynnön toiselle
 nimimerkille — kun hän hyväksyy sen takaisin, aukeaa yksityinen keskustelu.
 Tämä ei poista tekstisuodatustarvetta (kohta 2b) — yksi avoin julkinen chat
 tarvitsee saman raportointi-/suodatuslogiikan kuin aiemmat aiheosiot tarvitsivat,
@@ -58,7 +59,7 @@ Kolme erillistä mekanismia:
    valitsee listasta, ei nauhoita itse. Sama periaate kuin tarroissa: äänitiedostot
    bundlataan appiin valmiiksi, ei käyttäjän mikrofonitallennusta eikä uploadia.
    *Yksi ehdotettu esimerkki jätettiin pois listalta, koska se sisälsi rasistisen
-   herjasanan — se olisi suoraan ristiriidassa kohdan 2b/2e suodatinjärjestelmän
+   herjasanan — se olisi suoraan ristiriidassa kohdan 2b suodatinjärjestelmän
    kanssa, joka on rakennettu nimenomaan estämään tällaista sisältöä.*
 
 **Tietomalliin lisätään** `type`-kenttä erottamaan viestityyppi:
@@ -239,13 +240,13 @@ dm_threads/{threadId}                  # threadId = sorted(userA_userB)
 
 dm_threads/{threadId}/messages/{messageId}
   senderId: string
-  type: "text" | "gif" | "sticker"      # ks. "GIF:t ja tarrat" alta
+  type: "text" | "gif" | "sticker" | "voice_clip"   # ks. "GIF:t ja tarrat" alta (voice_clip siirretty myöhemmäksi)
   ciphertext: string                    # salattu sisältö — palvelin ei näe selkotekstiä, ks. 2c
   createdAt: timestamp
 
 public_chat/messages/{messageId}        # YKSI yhteinen julkinen chat, ei enää osioita/ketjuja
   authorId: string | "ai_curator"       # AI-poiminnat erikseen merkitty
-  type: "text" | "gif" | "sticker"      # ks. "GIF:t ja tarrat" alta
+  type: "text" | "gif" | "sticker" | "voice_clip"   # ks. "GIF:t ja tarrat" alta (voice_clip siirretty myöhemmäksi)
   content: string                       # teksti, tai Tenor-ID/tarra-ID — ei vapaata median uploadia
   sourceUrl: string?                    # jos viesti on AI-poiminta uutisesta, linkki lähteeseen
   createdAt: timestamp
@@ -438,17 +439,47 @@ ei teknisesti ole rakennettu mahdolliseksi.
 
 ---
 
-## 4. Visuaalinen konsepti
+## 4. Visuaalinen konsepti (päivitetty 24.9.2026 — kuvaa demon nykyistä tilaa)
 
-Toteutettu erillisenä, jatkuvasti päivittyvänä demona: "salaisen, redaktoidun
-tiedoston" estetiikka (musta pohja, neon-violetti + myrkyllinen vihreä signaali-
-värit, mustat "redaktointipalkit" peittämässä esim. sijainti-/IP-kenttiä, leimattu
-"EI JULKAISTU" -tila) tukemaan anonymiteettikonseptia visuaalisesti, ei pelkkänä
-päälle liimattuna cyberpunk-somistuksena. Layout on nyt kaksipalstainen: vasemmalla
-yksi yhteinen julkinen chat-syöte, oikealla konsolimainen sivupalkki (kaverit/DM,
-freemium-selitys, suodatintesti). Demo sisältää **keksittyä, selkeästi esimerkiksi
-merkittyä sisältöä** — ei oikeita uutisia tai oikeiden ihmisten kirjoituksia,
-koska sivu ei ole yhdistetty mihinkään oikeaan dataan tai käyttäjiin.
+Ulkoasu on iteroitu useaan kertaan käyttäjäpalautteen perusteella (kokeiltu mm.
+"redaktoitu salaisuustiedosto" -teemaa violetilla/myrkynvihreällä, goottilaista
+blackletter-kalligrafiaa ja graffititippaa ennen nykyistä versiota). Lopputulos:
+
+- **Brändi:** käyttäjän itse lähettämä oikea kuva — neonpinkki viivapiirros-
+  flamingo mustalla pohjalla — toimii sekä otsikon tunnuskuvana että pienenä
+  kierrätettynä kuvakkeena (tarranappien ja nimimerkkinäytön "profiilikuvan"
+  tyyppisissä kohdissa). Ei enää keksittyä SVG-logoa.
+- **Typografia:** "Permanent Marker" (paksu, selkeä tussikirjoitus) koko sivulla
+  johdonmukaisesti otsikoista leipätekstiin. Aiemmat kokeilut (blackletter,
+  graffiti) todettiin liian epäselviksi/väärän tuntuisiksi käyttäjätestissä.
+- **Väripaletti:** yksi yhtenäinen korostusväri — neonpinkki (sama sävy kuin
+  flamingokuvassa) — plus violetti toissijaisena, musta pohjana, ja punainen
+  varattuna yksinomaan varoitus-/vaaratoiminnoille (raportointi, lukot). Ei enää
+  useaa kilpailevaa väriä (aiempi vihreä/syaani/keltainen-kierto yhdistettiin
+  kaikki samaksi pinkiksi selkeyden vuoksi).
+- **Rakenne — oikeat erilliset näytöt, ei yksi pitkä sivu:** CHAT / KAVERIT /
+  ASETUKSET -välilehdet vaihtavat oikeasti näkymää, samaan tapaan kuin oikeassa
+  sovelluksessa olisi erilliset ruudut. "// Kehittäjätyökalut" (suodatintesti,
+  ilmoitussimulaattori) on siirretty selkeästi merkittynä omaan osioonsa
+  ASETUKSET-näytölle — ei osa oikeaa käyttäjänäkymää.
+- **Sisäänkirjautuminen:** sivu avautuu nimimerkin luontinäyttöön (ks. kohta 1b)
+  ennen kuin pääsee itse chattiin — sama Taso 1 -suodatin joka estää kielletyt
+  sanat viesteissä, estää ne myös nimimerkkinä.
+- **GIF:t/tarrat käytännössä:** pieni flamingo-kuvake kirjoituskentän vieressä
+  (sekä julkisessa chatissa että yksityisviesteissä) avaa tarralaatikon vasta
+  painettaessa — ei näy jatkuvasti, havainnollistaen "valitaan valmiista, ei
+  ladata omaa" -periaatetta (kohta "GIF:t ja tarrat" yllä).
+- **Saapumisilmoitukset:** kaveripyyntö ja yksityisviesti laukaisevat kumpikin
+  hehkuvan pulssin oikeassa UI-kohdassa ja oman, syntetisoidun "bouncy house
+  bass" -äänen (kohta 3, Web Audio API — ei äänitiedostoja).
+- **Maksumuuria ei näytetä** missään — kaikki kirjoituskentät ovat auki, ASETUKSET-
+  näyttö selittää tämän suoraan (kohta 1).
+
+Demo sisältää edelleen **keksittyä, selkeästi esimerkiksi merkittyä sisältöä**
+(esimerkkinimimerkit, -viestit, -tarrat) — ei oikeita uutisia tai oikeiden
+ihmisten kirjoituksia, koska sivu ei ole yhdistetty mihinkään oikeaan dataan.
+
+**Linkki demoon:** https://claude.ai/artifact/8Q4j5fH3T9Lj5PcGE67NYP
 
 ---
 
