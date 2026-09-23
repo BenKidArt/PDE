@@ -255,38 +255,6 @@ ei teknisesti ole rakennettu mahdolliseksi.
 
 ---
 
-## 2d. Tor-piilopalvelu (`.onion`-osoite) — merkitty tulevaisuuden vaihtoehdoksi, ei rakenneta nyt
-
-Selvitetty 24.9.2026: Varjolangasta voisi periaatteessa tehdä Tor-piilopalvelun
-(oikea termi, ei "Tor-osoite"), joka antaa `.onion`-osoitteen käyttäjille jotka
-haluavat lisäanonymiteettiä. Tämä on täysin laillista — samaa tekniikkaa
-käyttävät esim. ProtonMail ja New York Times.
-
-**Miksi tätä ei rakenneta nyt:** `.onion`-osoite vaatii että Tor-ohjelmisto
-pyörii samalla palvelimella jota itse hallinnoit (`HiddenServiceDir`-
-konfiguraatio). Firebase Hosting on Googlen hallinnoima pilvi-infra johon ei
-saa tällaista raakaa palvelinhallintaa — tämä tarkoittaisi koko backendin
-siirtoa pois Firebasesta omalle palvelimelle (VPS, ~5–20 €/kk), mikä on juuri
-se asia jota Firebase-valinnalla alun perin vältettiin. Lisäksi pelkkä sivun
-lataus `.onion`-osoitteesta ei riitä — myös kaikki taustaliikenne (Firestore-
-yhteydet, kirjautuminen) pitäisi kulkea Tor-verkon kautta, tai anonymiteetti
-vuotaa niiden kautta.
-
-**Kevyempi vaihtoehto joka toimii jo nyt ilman muutoksia:** kuka tahansa voi
-käyttää tavallista Firebase-osoitetta Tor-selaimella — käyttäjän IP pysyy
-piilossa siltikin, vaikkei erillistä `.onion`-osoitetta olisi. Tämä kattaa
-suurimman osan hyödystä ilman infrastruktuurimuutosta.
-
-**Ei vaikuta maksuihin:** premium-tilaus toimisi silti normaalisti, koska
-maksukäsittelijä tunnistaa palveluntarjoajan (sinut), ei yksittäisiä käyttäjiä.
-
-**Kirjattu tähän mahdollisena myöhempänä laajennuksena** — jos/kun konsepti
-validoituu ja siirrytään Firebasesta itsehallinnoituun palvelimeen jostain
-muusta syystä (esim. skaalautuvuus), `.onion`-osoite kannattaa lisätä silloin
-samalla, ei erillisenä projektina.
-
----
-
 ## 3. Tekninen stack (sama logiikka kuin KamppailuFI:ssä — free tier ensin)
 
 | Kerros | Valinta | Perustelu |
