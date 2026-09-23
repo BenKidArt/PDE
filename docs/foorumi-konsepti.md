@@ -384,6 +384,7 @@ ei teknisesti ole rakennettu mahdolliseksi.
 | Tekstisisällön suodatus | Kaksiportainen: normalisoiva sanalistasuodatin (taso 1) + Claude API -luokitin (taso 2), ks. kohta 2b | Perspective API ei tue suomea eikä ole enää pian saatavilla — Claude API toimii suomeksi ja ymmärtää kontekstin |
 | GIF-haku | Tenor API, `contentfilter: high` | Ilmainen, sama jota WhatsApp/Gboard käyttävät, ei vaadi omaa mediatallennusta |
 | Tarrat | Flutter-appiin bundlatut asset-kuvat | Ei käyttäjän uploadia, ei Storagea, nolla lisäriskiä |
+| Saapumisilmoitusten äänet | Synteettisesti koodilla luodut lyhyet äänet (esim. Flutterissa `just_audio`/omat `AudioContext`-tyyppiset oskillaattorit), ei äänitiedostoja | Kaveripyyntö ja yksityisviesti saavat kumpikin oman, saman "perheen" mutta erottuvan technomaisen piippauksen — ei vaadi äänen nauhoitusta/tuotantoa, koodilla generoitavissa suoraan (demossa Web Audio API, toteutettu ja testattu) |
 
 ---
 
