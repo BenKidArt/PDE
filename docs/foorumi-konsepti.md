@@ -243,6 +243,21 @@ kannattaa hakea valmiina esim. suomalaiselta vihapuheen tutkimusta tekevältä
 taholta tai ostaa osana moderointipalvelua, ei keksiä itse ad hoc -listana.
 Tuotannossa tämä lista täydennetään ennen julkaisua.
 
+**Lisäys 24.9.2026 — erikoistermit (turvallista kirjoittaa suoraan, eivät
+törmää tavalliseen kieleen):** `kouluhieronta`, `alfapvp`, `pvp`.
+
+**Miksi väkivaltaverbejä (tapan/tappaa/murhaan/kuristaa/räjäyttää/raiskaa ym.)
+EI laiteta tähän kovaan listaan:** tekninen syy, ei periaatteellinen. Taso 1
+etsii merkkijonoja normalisoidun tekstin *sisältä* (substring-haku). Lyhyt
+verbin vartalo kuten `"tapa"` osuisi jatkuvasti täysin viattomiin sanoihin —
+`ta`**`pa`**`aminen` (tapaaminen), `ta`**`pa`**`htuma` (tapahtuma), `ta`**`pa`**`ni`
+("minun tapani"). Suomen kielen taivutusmuodot tekevät lyhyistä verbivartaloista
+erityisen riskialttiita juuri substring-haulle — sama ilmiö joka teki
+"veitsi/ampui/murha" -sanoista sopimattomia kovaan estoon Rikollisuus-
+keskustelussa (ks. Taso 2 alla), koskee nyt näitä verbejä samasta syystä.
+Nämä ohjataan siis Taso 2:n (Claude-luokitin) käsiteltäväksi, joka ymmärtää
+kontekstin (uhkaus vs. viaton lause) sanavartalon sijaan.
+
 ### Taso 2 — Claude API semanttinen tarkistus (kontekstin ymmärtämiseen)
 
 Selvitettiin että **Google Perspective API ei tue suomea** (vain englanti,
@@ -258,6 +273,13 @@ eivät uhkauksia — jos nämä estettäisiin sanalistalla, koko chat kärsisi
 jatkuvista turhista estoista. Vasta selkeä, kohdistettu uhkaus ("pitäisi tappaa
 [nimi/ryhmä]") menee automaattisesti `moderationStatus: "under_review"` -tilaan
 ja piiloon kunnes ihminen tarkistaa sen.
+
+**Korkean prioriteetin tarkistuslista Claude-luokittimelle (24.9.2026):** näiden
+sanavartaloiden esiintyminen viestissä nostaa automaattisesti tarkistuksen
+prioriteettia (ei kovaa estoa, ks. Taso 1 yllä) — luokitin päättää kontekstin
+perusteella onko kyse uhkauksesta: *tapan, tapa, tappaa, murhaan, murhaa,
+murhata, murhasin, kuristan, kuristaa, kuristin, räjäyttää, räjäytin, raiskaa,
+raiskata, raiskaan, raiskasin, tuhoan.*
 
 ### Yhteenveto
 
