@@ -88,12 +88,13 @@ kuva- eikä äänigeneraattoria käytössä) — mutta tässä on valmis speksi 
 vastaan voit teettää/generoida oikeat tiedostot ja lähettää minulle myöhemmin
 integroitavaksi, samaan tapaan kuin flamingokuvien kanssa tehtiin.
 
-**Äänitarrat (5 kpl, lyhyitä "mörisevä" huudahduksia):**
+**Äänitarrat (6 kpl, lyhyitä "mörisevä" huudahduksia):**
 1. "Okay!"
 2. "Yes!"
 3. "No!"
 4. "What?"
 5. "Cool!"
+6. "Damn boii!"
 
 **Flamingo-tarrapaketti (6 kpl, sama hahmo kuin sivun tunnuskuvassa):**
 1. Flamingo polttaa tupakkaa
