@@ -15,6 +15,13 @@ Kirjan jokaisella sivulla on yksi soitin. Lapsi painaa soitinta, ja se soittaa t
 - **Visuaalit:** jatkuvasti pyörivä aurinkosädetausta (kiihtyy jokaisesta sävelestä), pyörivät renkaat,
   leijuvat nuotit, tähdet ja sydämet, kipinäpurskeet ja ääniaallot sekä hyppivät ja keinuvat soittimet.
   Jokaisella sivulla on oma väriteemansa.
+- **Arvauspeli "Mikä soitin soi?":** sovellus soittaa kappaleen ja lapsi valitsee kolmesta soittimesta oikean.
+  - **Oikein:** fanfaari, "Jee!"-huudahdukset ja aplodit, tähtisade, ilotulitus ja kysymysmerkin
+    tilalle pyörähtävä oikea soitin. Yläreunaan syttyy tähti.
+  - **Väärin:** pehmeä "hups", kannustavat taputukset ja nouseva melodia sekä teksti ja puhe
+    "Kokeile vielä kerran!". Väärä vaihtoehto himmenee, ja kappale soi uudestaan.
+  - **Viisi tähteä:** iso juhla pokaalin kera, ja tähdet alkavat alusta.
+  - Suoralinkki `index.html#peli`, näppäimet 1–3 ja välilyönti (kuuntele uudestaan).
 - **Selaaminen:** nuolinapit, pyyhkäisy tai näppäimistö (← →, välilyönti, 1–6, Esc).
 - **Puhe:** jos laitteessa on suomenkielinen puheääni, sovellus sanoo soittimen nimen (voi kytkeä pois 🗣️).
 - **Mykistys** 🔊 ja **suoralinkit** sivuille (esim. `index.html#drums` avaa suoraan rumpusivun).
@@ -51,7 +58,7 @@ Kun julkaiset muutoksia, vaihda `sw.js`-tiedoston `CACHE`-versionumeroa.
 
 ## Jatkoideoita
 
-- Arvauspeli: "Mikä soitin soi?" (kuuntele ja valitse oikea kuva)
+- Arvauspeliin vaikeustasot (esim. 4–6 vaihtoehtoa tai pelkät sävelet)
 - Lisää sivuja: laulu, tuuba, kantele, rumpukone ja eläinorkesteri
 - Nappien pitkä painallus: sävel soi niin kauan kuin sormi on napilla
 - Äänityksiä oikeista soittimista (esim. vapaasti lisensoiduista näytteistä)

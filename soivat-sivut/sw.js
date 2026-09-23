@@ -1,6 +1,6 @@
 // Offline-tuki: sovellus toimii ilman verkkoa ensimmäisen käynnin jälkeen.
 // Vaihda versionumeroa, kun julkaiset muutoksia.
-const CACHE = 'soivat-sivut-v1';
+const CACHE = 'soivat-sivut-v2';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {
