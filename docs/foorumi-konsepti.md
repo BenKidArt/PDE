@@ -104,27 +104,47 @@ integroitavaksi, samaan tapaan kuin flamingokuvien kanssa tehtiin.
 5. Flamingo ihmettelee/odottaa kun puhelimeen ei vastata
 6. Flamingo katsoo TV:tä ja syö popcornia
 
-## Miksi tätä ei silti rakenneta suoraan oikeaksi, toimivaksi alustaksi
+## Korjaus 24.9.2026: Ylilauta ja MV-lehti eivät ole sama asia — vaatimustaso yksinkertaistettu
 
-Anonyymi nimimerkkijärjestelmä + avoin julkinen keskustelukanava on Suomessa
-ajanut aiemmin vastaavia palveluita (Ylilauta, MV-lehti) vakaviin oikeudellisiin
-ongelmiin, riippumatta siitä onko keskustelu jaettu nimettyihin aiheosioihin
-vai ei — sama riski koskee yhtä lailla yhtä yhteistä julkista chattia:
-kiihottaminen kansanryhmää vastaan -syytteitä, kunnianloukkauskanteita, ja
-ylläpitäjän henkilökohtaista rikosoikeudellista vastuuta käyttäjien
-julkaisemasta sisällöstä — myös silloin kun kyse on pelkästä tekstistä.
+Aiemmin tässä dokumentissa niputettiin Ylilauta ja MV-lehti samaksi varoittavaksi
+esimerkiksi. Tarkistettiin faktat — se oli väärin, ja käyttäjän kritiikki tähän
+oli oikea:
 
-**Tämä ei tarkoita ettei konseptia voi toteuttaa** — mutta se tarkoittaa, että
-seuraavat asiat pitää olla kunnossa **ennen** kuin yksikään oikea, tuntematon
-käyttäjä pääsee lähettämään mitään:
+- **Ylilauta on täysin laillinen ja toiminnassa edelleen.** Yle on jopa
+  otsikoinut: "Poliisi puolustaa Ylilautaa, sillä se on rikostiedustelun
+  aarreaitta" — sivusto tekee yhteistyötä poliisin kanssa ja luovuttaa
+  käyttäjätietoja pyynnöstä kun on oikea rikosepäily. Sivustoa itseään ei ole
+  koskaan tuomittu. Yksittäisiä käyttäjiä on jäljitetty ja tuomittu heidän
+  *omista* viesteistään — mutta juuri se on se malli joka toimii: raportointi
+  + tarvittaessa käyttäjätietojen luovutus viranomaisille.
+- **MV-lehti ei ole verrannollinen.** Se ei ollut anonyymi keskustelufoorumi
+  jonka moderointi petti — Ilja Janitskin **kirjoitti itse** omalla nimellään
+  "toimittajana" juutalaisia, tummaihoisia ja muslimeja halventavat kirjoitukset,
+  ja hänet tuomittiin niistä (2 kpl kiihottaminen kansanryhmää vastaan, 3 kpl
+  törkeä kunnianloukkaus) plus täysin erillisistä rahapeli-, tekijänoikeus- ja
+  salassapitorikoksista. Tämä on eri riskikategoria kuin "anonyymi käyttäjä
+  kirjoittaa jotain jota kukaan ei huomaa ajoissa".
 
-1. Selkeät käyttöehdot ja moderointipolitiikka, lakimiehen tarkistamana
-2. Raportointi- ja pikapoistotoiminto jokaiselle viestille/julkaisulle
-3. Joko ihmismoderaattori(t) tai vähintään nopea reagointiprosessi ilmoituksiin
-4. Selkeä prosessi viranomaisyhteistyölle (esim. poliisin tietopyynnöt)
+**Johtopäätös: todellinen juridinen minimi on yksinkertaisempi kuin aiemmin
+esitettiin.** Sen sijaan että vaadittaisiin monimutkaista AI-esisuodatinta
+ennen julkaisua, riittää Ylilauta-mallin mukaisesti:
 
-Ennen näitä rakennetaan vain **suunnittelu ja visuaalinen konsepti** — ei oikeaa
-tiliä, ei oikeaa viestintää vieraiden kesken.
+1. **Raportointitoiminto** jokaiselle viestille (on jo tietomallissa, kohta 2)
+2. **Bännäys-/poistomahdollisuus** — ylläpitäjä (sinä, aluksi) voi poistaa
+   viestin ja estää käyttäjän kun raportti tulee tai itse huomaat ongelman
+3. **Valmius luovuttaa käyttäjätietoja poliisille** oikealla pyynnöllä
+   (ei tarvitse rakentaa etukäteen, riittää että tiedät miten Firestoresta
+   löytää tarvittavat tiedot jos/kun poliisi joskus pyytää)
+
+Kohdan 2b tekstisuodatin (Taso 1 sanalista + Taso 2 Claude-luokitin) **ei ole
+enää julkaisua estävä vaatimus** — se on hyvä, kannattava parannus joka vähentää
+sitä miten paljon pahaa sisältöä ehtii näkyä ennen kuin ihminen raportoi sen,
+mutta ei ole juridinen pakko tässä laajuudessa/vaiheessa. Voi lisätä myöhemmin.
+
+Yksi asia joka silti kannattaa tehdä ennen julkaisua, koska se on halpaa: lyhyt
+käyttöehtojen kirjoitus joka mainitsee että laiton sisältö poistetaan ja
+tietoja voidaan luovuttaa viranomaisille pyynnöstä — tämä ei vaadi lakimiestä,
+riittää selkeä, rehellinen teksti.
 
 ---
 
