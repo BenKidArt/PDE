@@ -81,6 +81,7 @@ users/{userId}
   isPremium: boolean
   createdAt: timestamp
   reportCount: number                  # denormalisoitu moderointia varten
+  publicKey: string                    # päästä päähän -salauksen julkinen avain, ks. kohta 2c
 
 friend_requests/{requestId}
   fromUserId: string
@@ -94,7 +95,7 @@ dm_threads/{threadId}                  # threadId = sorted(userA_userB)
 
 dm_threads/{threadId}/messages/{messageId}
   senderId: string
-  content: string                       # pelkkä teksti — ei kuva/video-tukea
+  ciphertext: string                    # salattu sisältö — palvelin ei näe selkotekstiä, ks. 2c
   createdAt: timestamp
 
 public_chat/messages/{messageId}        # YKSI yhteinen julkinen chat, ei enää osioita/ketjuja
@@ -195,6 +196,62 @@ ja piiloon kunnes ihminen tarkistaa sen.
 Tämä ei silti ole täydellinen — mikään automaattinen järjestelmä ei ole. Kohdan
 "Miksi tätä ei rakenneta suoraan..." vaatimukset (käyttöehdot, lakikonsultaatio,
 moderointiprosessi) pätevät edelleen tämän lisäksi, eivät sen sijaan.
+
+---
+
+## 2c. Päätös 24.9.2026: päästä päähän -salaus yksityisviesteihin (ei julkiseen chattiin)
+
+Oikea termi on **päästä päähän -salaus** ("end-to-end encryption", E2EE) — sama
+tekniikka jota Signal ja WhatsApp käyttävät: viesti salataan lähettäjän
+laitteella ja puretaan vasta vastaanottajan laitteella, eikä palvelin (eikä
+kukaan muukaan) näe koskaan selkotekstiä matkalla.
+
+**Tämä koskee vain `dm_threads`-kokoelmaa, ei `public_chat`-kokoelmaa.** Syy on
+looginen, ei mielivaltainen: jos viesti on oikeasti salattu, palvelin ei voi
+ajaa siihen kohdan 2b sanalista-/Claude-tarkistusta — koska tarkistus vaatisi
+palvelimen näkevän selkotekstin, mikä olisi ristiriidassa koko salauksen
+tarkoituksen kanssa. Tästä seuraa suoraan:
+
+- **Julkinen chat pysyy salaamattomana** — siellä moderointi on tärkeintä
+  (anonyymit vieraat, "politiikka"-tyyppinen sisältö), joten palvelimen pitää
+  pystyä lukemaan se
+- **Yksityisviestit voivat olla oikeasti salattuja** — koska ne ovat vain
+  kahden molemminpuolisesti hyväksytyn kaverin välillä, ei julkista riskiä
+  samalla tavalla
+- **Yksityisviestien raportointi palvelimelle ei enää toimi automaattisesti**
+  — käyttäjä voi silti raportoida toisen käyttäjän *käytöksen* (esim. "tämä
+  nimimerkki häiritsee minua"), mutta ei yksittäisen salatun viestin sisältöä,
+  koska palvelin ei sitä näe. Tämä on sama rajoitus joka koskee esim.
+  WhatsAppia — ei erikoisuus, vaan salauksen looginen seuraus.
+
+### Tekninen toteutus
+
+- Jokainen käyttäjä luo laitteellaan avainparin (julkinen + yksityinen avain)
+  tilin luonnin yhteydessä. Julkinen avain tallennetaan `users/{userId}.publicKey`;
+  **yksityinen avain ei koskaan lähde laitteelta** (selaimen/sovelluksen paikallinen
+  tallennus, esim. IndexedDB).
+- Kun kaveruus hyväksytään molemminpuolisesti, laitteet vaihtavat julkiset
+  avaimensa ja johtavat niistä yhteisen salausavaimen (esim. X25519-avainten-
+  vaihto, standarditekniikka — käytännössä valmiiksi tehty kirjasto kuten
+  `libsodium`, ei itse keksitty salaus).
+- Viesti salataan tällä avaimella ennen lähetystä; Firestoreen tallennetaan vain
+  `ciphertext` (salattu blob), ei koskaan selkotekstiä.
+- **Tärkeä käytännön rajoitus:** jos käyttäjä menettää laitteensa tai asentaa
+  sovelluksen uudelleen ilman varmuuskopiota yksityisestä avaimesta, vanhat
+  viestit eivät enää aukea — sama ilmiö kuin Signalissa/WhatsAppissa. Tämä
+  kannattaa kertoa käyttäjille selkeästi etukäteen, ei yllätyksenä.
+- **Älä koskaan kirjoita salausalgoritmia itse** — käytä valmista, auditoitua
+  kirjastoa (esim. libsodium/TweetNacl-tyyppinen X25519+XSalsa20-Poly1305-
+  yhdistelmä). Itse keksitty salaus on käytännössä aina heikompi kuin se
+  näyttää.
+
+### Lyhyt lakihuomio
+
+Päästä päähän -salatut viestisovellukset (Signal, WhatsApp) ovat täysin
+laillisia EU:ssa ja Suomessa — tätä ei tarvitse pelätä. Viranomaiset voivat
+pyytää tietoja käyttäjätileistä (esim. IP-lokit, rekisteröitymistiedot), mutta
+palveluntarjoajalta ei voida vaatia salauksen murtamista jälkikäteen jos sitä
+ei teknisesti ole rakennettu mahdolliseksi.
 
 ---
 
