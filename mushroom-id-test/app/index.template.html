@@ -264,6 +264,21 @@
     padding: 8px 12px;
   }
 
+  .recipe-tip {
+    font-size: 14px;
+    color: var(--text);
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    line-height: 1.5;
+  }
+
+  .recipe-caveat {
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
   .other-suggestions {
     font-size: 13.5px;
     color: var(--muted);
@@ -418,6 +433,21 @@
     }
   }
 
+  const RECIPE_TIPS = {
+    'boletus edulis': 'Viipaloi ja paista voissa kullanruskeaksi. Sopii risottoon, kastikkeisiin tai munakkaan lisukkeeksi.',
+    'cantharellus cibarius': 'Paista voissa miedolla lämmöllä kunnes neste haihtuu. Hyvä kermakastikkeessa tai munakkaassa.',
+    'craterellus tubaeformis': 'Paista voissa rapeaksi. Sopii keittoihin, kastikkeisiin ja pastan kanssa.',
+    'morchella esculenta': 'Kypsennä AINA kunnolla läpi (vähintään 10 min) — raakana lievästi myrkyllinen. Hyvä voissa paistettuna kermakastikkeen kanssa.',
+    'morchella importuna': 'Kypsennä AINA kunnolla läpi (vähintään 10 min) — raakana lievästi myrkyllinen. Hyvä voissa paistettuna kermakastikkeen kanssa.',
+    'agaricus campestris': 'Paista voissa tai käytä keitoissa ja pataruoissa, kuten kaupan herkkusieniä.',
+    'agaricus bisporus': 'Paista voissa tai käytä keitoissa ja pataruoissa, kuten kaupan herkkusieniä.'
+  };
+
+  function recipeTipFor(name) {
+    if (!name) return null;
+    return RECIPE_TIPS[name.trim().toLowerCase()] || null;
+  }
+
   function extractText(field) {
     if (!field) return null;
     if (typeof field === 'string') return field;
@@ -463,6 +493,13 @@
     if (description) {
       const truncated = description.length > 500;
       html += `<p class="description">${escapeHtml(description).slice(0, 500)}${truncated ? '…' : ''}</p>`;
+    }
+    if (category === 'success' && probability !== null && probability >= 50) {
+      const tip = recipeTipFor(top.name);
+      if (tip) {
+        html += `<div class="recipe-tip"><strong>Kypsennysvinkki:</strong> ${escapeHtml(tip)}<br>
+          <span class="recipe-caveat">Varmista laji kokeneelta sienestäjältä ennen kypsentämistä ja syömistä.</span></div>`;
+      }
     }
     if (suggestions.length > 1) {
       html += '<div class="other-suggestions">Muita mahdollisuuksia:<ul>' +
