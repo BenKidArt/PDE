@@ -1,27 +1,17 @@
 {
   "battles": [
     {
-      "id": "2026-11-frost",
-      "theme": {
-        "de": "Frost & Farben",
-        "en": "Frost & Colours"
-      },
+      "id": "battle-1-frostiest-bud",
+      "number": 1,
+      "theme": { "de": "Frostiest Bud", "en": "Frostiest Bud" },
       "summary": {
-        "de": "Zeig uns die schönsten Farben deiner Pflanze in der späten Blüte: Lila, Pink, Orange, alles ist erlaubt.",
-        "en": "Show us your plant's best colours in late flower: purple, pink, orange, anything goes."
+        "de": "Zeig uns deine frostigste Blüte: Trichome im Mittelpunkt. Scharfe Nahaufnahmen sind ausdrücklich erwünscht.",
+        "en": "Show us your frostiest bud: trichomes front and centre. Sharp close-ups are very welcome."
       },
-      "start": "2026-11-01T00:00:00+01:00",
-      "entriesClose": "2026-11-21T23:59:00+01:00",
-      "votingEnds": "2026-11-30T23:59:00+01:00",
-      "prize": {
-        "de": "Ein Growzelt-Set (nur Zubehör, keine Samen oder Pflanzen), gestellt vom Partner.",
-        "en": "A grow tent kit (accessories only, no seeds or plants), provided by the partner."
-      },
-      "partner": {
-        "name": "Beispiel-Partner GmbH",
-        "logo": "assets/partner-logo.svg",
-        "url": "https://example.com"
-      },
+      "start": "2026-11-22T00:00:00+01:00",
+      "entriesClose": "2026-11-29T23:59:00+01:00",
+      "votingEnds": "2026-12-06T23:59:00+01:00",
+      "partner": { "name": "Cannapot", "logo": "", "url": "" },
       "rules": {
         "de": [
           "Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.",
@@ -29,7 +19,8 @@
           "Nur eigene Fotos von legalem Eigenanbau (KCanG).",
           "Keine Personen, Adressen, Kennzeichen oder Verkaufsangebote auf dem Foto.",
           "Jedes Foto wird vor der Veröffentlichung geprüft.",
-          "Ein Vote pro Mitglied und Battle. Die meisten Stimmen gewinnen."
+          "Ein Vote pro Mitglied und Battle. Für das eigene Foto kann man nicht stimmen.",
+          "Das Foto mit den meisten Stimmen wird auf BudBattles gefeatured."
         ],
         "en": [
           "You must be 18+ with a confirmed email address.",
@@ -37,7 +28,8 @@
           "Only your own photos of a legal home grow (German KCanG).",
           "No people, addresses, licence plates or sales offers in the photo.",
           "Every photo is reviewed before it is published.",
-          "One vote per member per battle. Most votes wins."
+          "One vote per member per battle. You can't vote for your own photo.",
+          "The photo with the most votes gets featured on BudBattles."
         ]
       }
     }

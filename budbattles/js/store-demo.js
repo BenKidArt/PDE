@@ -1,10 +1,11 @@
 // DEMO data layer: everything is saved in this browser only (IndexedDB +
 // localStorage). Used when js/config.js has no Supabase details.
 import { CONFIG } from './config.js';
-import { StoreError, battleStatus } from './shared.js';
+import { StoreError, battleStatus, setClockOffset, withRanks } from './shared.js';
 
 const DB_NAME = 'budbattles-demo';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+const PHASE_KEY = 'bb.demo.phase';
 const SESSION_KEY = 'bb.demo.session';
 const ACCOUNTS_KEY = 'bb.demo.accounts';
 let dbPromise;
@@ -15,11 +16,19 @@ function openDb() {
   if (!dbPromise) {
     dbPromise = new Promise((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
-      req.onupgradeneeded = () => {
-        const entries = req.result.createObjectStore('entries', { keyPath: 'id' });
-        entries.createIndex('battleId', 'battleId');
-        // "One photo per grower per battle", enforced by the database.
-        entries.createIndex('battleUser', ['battleId', 'userId'], { unique: true });
+      req.onupgradeneeded = (ev) => {
+        const db = req.result;
+        if (ev.oldVersion < 1) {
+          const entries = db.createObjectStore('entries', { keyPath: 'id' });
+          entries.createIndex('battleId', 'battleId');
+          // "One photo per grower per battle", enforced by the database.
+          entries.createIndex('battleUser', ['battleId', 'userId'], { unique: true });
+        }
+        if (ev.oldVersion < 2) {
+          // "One vote per member per battle": the key is (battle, member).
+          const votes = db.createObjectStore('votes', { keyPath: ['battleId', 'userId'] });
+          votes.createIndex('entryId', 'entryId');
+        }
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);
@@ -28,12 +37,13 @@ function openDb() {
   return dbPromise;
 }
 
-function tx(mode, fn) {
+function tx(mode, fn, storeName = 'entries') {
   return openDb().then((db) => new Promise((resolve, reject) => {
-    const t = db.transaction('entries', mode);
-    const request = fn(t.objectStore('entries'));
+    const t = db.transaction(storeName, mode);
+    const request = fn(t.objectStore(storeName));
     t.oncomplete = () => resolve(request.result);
-    t.onerror = () => reject(t.error);
+    // The request's own error says what went wrong (e.g. ConstraintError = duplicate).
+    t.onerror = (ev) => reject(ev.target?.error || t.error);
     t.onabort = () => reject(t.error);
   }));
 }
@@ -50,7 +60,31 @@ async function hash(text) {
 }
 const emit = (event) => listeners.forEach((cb) => cb(event));
 
-export async function initStore() {}
+export async function initStore() {
+  await applyDemoPhase(getDemoPhase());
+}
+
+// ---------- Demo clock: jump to a phase of the current battle ----------
+
+export function getDemoPhase() {
+  try { return localStorage.getItem(PHASE_KEY) || 'real'; } catch { return 'real'; }
+}
+
+export async function setDemoPhase(phase) {
+  try { localStorage.setItem(PHASE_KEY, phase); } catch { /* ignore */ }
+  await applyDemoPhase(phase);
+}
+
+async function applyDemoPhase(phase) {
+  const battle = [...(await getBattles())].sort((a, b) => new Date(a.start) - new Date(b.start))[0];
+  const day = 24 * 3600 * 1000;
+  const target = battle && {
+    open: new Date(battle.start).getTime() + day,
+    voting: new Date(battle.entriesClose).getTime() + day,
+    ended: new Date(battle.votingEnds).getTime() + day,
+  }[phase];
+  setClockOffset(target ? target - Date.now() : 0);
+}
 
 export async function getBattles() {
   if (!battlesCache) {
@@ -186,9 +220,10 @@ export async function reviewEntry(id, status) {
 /** Demo only: adds a few sample entries from pretend growers, so there is something to review. */
 export async function seedDemoEntries(battleId) {
   const samples = [
-    { name: 'NightOwl', strain: 'Northern Lights', desc: 'Woche 8, die Kälte bringt das Lila raus.', colors: ['#2a1442', '#b04bff'] },
-    { name: 'BalkonBuds', strain: 'Gorilla Glue', desc: 'Outdoor auf dem Balkon, Herbstfarben.', colors: ['#3b2a0a', '#ff9d2e'] },
-    { name: 'TentQueen', strain: 'Strawberry Kush', desc: 'Pink wie nie zuvor.', colors: ['#3a0b24', '#ff3fa4'] },
+    { name: 'NightOwl', strain: 'Northern Lights', desc: 'Woche 9, voller Frost.', colors: ['#1c2a33', '#d8f3ff'], votes: 12 },
+    { name: 'BalkonBuds', strain: 'Gorilla Glue', desc: 'Harzig wie nie.', colors: ['#20301f', '#e9ffe0'], votes: 7 },
+    { name: 'TentQueen', strain: 'Wedding Cake', desc: 'Nahaufnahme mit Makrolinse.', colors: ['#2e1b2a', '#ffe3f4'], votes: 7 },
+    { name: 'GrowOpa', strain: 'Blue Dream', desc: 'Erster Grow, erstes Battle.', colors: ['#141e2e', '#bcd6ff'], votes: 3 },
   ];
   for (const sample of samples) {
     const canvas = document.createElement('canvas');
@@ -216,10 +251,77 @@ export async function seedDemoEntries(battleId) {
       width: 900,
       height: 1200,
       status: 'pending',
+      baseVotes: sample.votes, // pretend votes from other members
       createdAt: new Date().toISOString(),
     };
     try { await tx('readwrite', (s) => s.add(row)); } catch { /* already seeded */ }
   }
+}
+
+// ---------- Prize (members only) ----------
+
+export async function getPrize(battleId) {
+  if (!(await getCurrentUser())) return null; // never loaded for visitors
+  const res = await fetch('data/prizes.json');
+  const p = (await res.json()).prizes[battleId];
+  if (!p) return null;
+  return { text: { de: p.de, en: p.en }, terms: { de: p.terms_de, en: p.terms_en } };
+}
+
+// ---------- Voting & standings ----------
+
+function allVotes(battleId) {
+  return tx('readonly', (s) => s.getAll(IDBKeyRange.bound([battleId, ''], [battleId, '\uffff'])), 'votes');
+}
+
+export async function getStandings(battleId) {
+  const [user, rows, votes] = await Promise.all([
+    getCurrentUser(),
+    tx('readonly', (s) => s.index('battleId').getAll(battleId)),
+    allVotes(battleId),
+  ]);
+  const accounts = Object.values(readJson(ACCOUNTS_KEY, {}));
+  const list = rows.filter((r) => r.status === 'approved').map((r) => ({
+    ...toEntry(r),
+    displayName: r.displayName || accounts.find((a) => a.id === r.userId)?.displayName || '?',
+    votes: (r.baseVotes || 0) + votes.filter((v) => v.entryId === r.id).length,
+    isMine: !!user && r.userId === user.id,
+  }));
+  list.sort((a, b) => b.votes - a.votes || a.createdAt.localeCompare(b.createdAt));
+  return withRanks(list);
+}
+
+export async function getMyVote(battleId) {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  const vote = await tx('readonly', (s) => s.get([battleId, user.id]), 'votes');
+  return vote?.entryId ?? null;
+}
+
+export async function castVote(battleId, entryId) {
+  const user = await getCurrentUser();
+  if (!user) throw new StoreError('vote.loginNeeded');
+  const battle = (await getBattles()).find((b) => b.id === battleId);
+  if (!battle || battleStatus(battle) !== 'voting') throw new StoreError('error.voteClosed');
+  const entry = await tx('readonly', (s) => s.get(entryId));
+  if (!entry || entry.battleId !== battleId || entry.status !== 'approved') throw new StoreError('error.generic');
+  if (entry.userId === user.id) throw new StoreError('error.voteOwn');
+  try {
+    await tx('readwrite', (s) => s.add({ battleId, userId: user.id, entryId, createdAt: new Date().toISOString() }), 'votes');
+  } catch (e) {
+    if (e && e.name === 'ConstraintError') throw new StoreError('error.alreadyVoted');
+    throw e;
+  }
+}
+
+export async function listLatestApproved(limit = 6) {
+  const accounts = Object.values(readJson(ACCOUNTS_KEY, {}));
+  const rows = await tx('readonly', (s) => s.getAll());
+  return rows
+    .filter((r) => r.status === 'approved')
+    .sort((a, b) => (b.reviewedAt || b.createdAt).localeCompare(a.reviewedAt || a.createdAt))
+    .slice(0, limit)
+    .map((r) => ({ ...toEntry(r), displayName: r.displayName || accounts.find((a) => a.id === r.userId)?.displayName || '?' }));
 }
 
 export async function withdrawEntry(entry) {

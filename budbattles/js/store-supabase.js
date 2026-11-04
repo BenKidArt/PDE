@@ -1,6 +1,6 @@
 // REAL data layer: Supabase (database, photo storage and login), servers in Frankfurt.
 import { CONFIG } from './config.js';
-import { StoreError } from './shared.js';
+import { StoreError, withRanks } from './shared.js';
 
 const BUCKET = 'entry-photos';
 let sb; // Supabase client
@@ -74,9 +74,9 @@ const lines = (text) => (text || '').split('\n').map((l) => l.trim()).filter(Boo
 function toBattle(r) {
   return {
     id: r.id,
+    number: r.number,
     theme: { de: r.theme_de, en: r.theme_en },
     summary: { de: r.summary_de, en: r.summary_en },
-    prize: r.prize_de || r.prize_en ? { de: r.prize_de || r.prize_en, en: r.prize_en || r.prize_de } : null,
     partner: r.partner_name ? { name: r.partner_name, logo: r.partner_logo_url, url: r.partner_url } : null,
     rules: { de: lines(r.rules_de), en: lines(r.rules_en) },
     start: r.start_at,
@@ -225,6 +225,67 @@ export async function reviewEntry(id, status) {
     .eq('id', id).select('id');
   if (error) fail(error);
   if (!data?.length) throw new StoreError('admin.noAccess'); // blocked by the database = not admin
+}
+
+// ---------- Prize (members only: the database refuses visitors) ----------
+
+export async function getPrize(battleId) {
+  if (!(await getCurrentUser())) return null;
+  const { data, error } = await sb.from('battle_prizes').select('*').eq('battle_id', battleId).maybeSingle();
+  if (error || !data || !(data.prize_de || data.prize_en)) return null;
+  return {
+    text: { de: data.prize_de || data.prize_en, en: data.prize_en || data.prize_de },
+    terms: { de: data.terms_de, en: data.terms_en },
+  };
+}
+
+// ---------- Voting & standings ----------
+
+const publicUrl = (path) => sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+
+export async function getStandings(battleId) {
+  const { data, error } = await sb.rpc('get_standings', { p_battle: battleId });
+  if (error) fail(error);
+  return withRanks(data.map((r) => ({
+    id: r.entry_id,
+    battleId,
+    photoUrl: publicUrl(r.photo_path),
+    width: r.width,
+    height: r.height,
+    strain: r.strain,
+    description: r.description,
+    displayName: r.display_name,
+    votes: r.votes,
+    isMine: r.is_mine,
+    createdAt: r.created_at,
+  })));
+}
+
+export async function getMyVote(battleId) {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return null;
+  const { data, error } = await sb.from('votes').select('entry_id').eq('battle_id', battleId).maybeSingle();
+  if (error) return null;
+  return data?.entry_id ?? null;
+}
+
+export async function castVote(battleId, entryId) {
+  if (!(await getCurrentUser())) throw new StoreError('vote.loginNeeded');
+  const { error } = await sb.from('votes').insert({ battle_id: battleId, entry_id: entryId });
+  if (!error) return;
+  console.error(error);
+  if (error.code === '23505') throw new StoreError('error.alreadyVoted');
+  if (error.code === '42501') throw new StoreError('error.voteClosed'); // outside voting time, own photo, …
+  fail(error);
+}
+
+export async function listLatestApproved(limit = 6) {
+  const { data, error } = await sb.rpc('latest_entries', { p_limit: limit });
+  if (error) return [];
+  return data.map((r) => ({
+    id: r.entry_id, battleId: r.battle_id, photoUrl: publicUrl(r.photo_path),
+    width: r.width, height: r.height, strain: r.strain, displayName: r.display_name,
+  }));
 }
 
 export async function withdrawEntry(entry) {

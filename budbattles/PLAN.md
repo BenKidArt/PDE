@@ -45,15 +45,17 @@ loads nothing from Google, which is better for GDPR.
 5. ✅ **Sign-up / login**: email + password, 18+ checkbox, terms checkbox, forgot password
 5b. ✅ **On/off switches** for partner, prize and strain
 6. ✅ **Admin**: approve or reject from your phone, with undo (Profile → Review photos)
-7. ⏳ **Voting + Standings**: one vote each, live ranking
-8. ⏳ **Home + Profile**
+6b. ✅ **Logo + Battle #1 "Frostiest Bud"** (22.–29.11. entries, voting until 6.12.2026, partner Cannapot); prize visible to members only
+7. ✅ **Voting + Standings**: one vote each (tap twice to confirm, final), live ranking refreshing every 15 s, top photo featured
+8. ✅ **Start page** (battle card, latest photos, how it works) · ⏳ Profile extras
+8b. ⏳ **Gallery, Business**: "Coming soon" pages are in the menu
 9. ⏳ **Go live**: web address, privacy policy (Datenschutzerklärung), Impressum, terms
 
 ## Where we are now
 - **Preview (demo mode):** https://claude.ai/artifact/21gB1PsSgBjhL8QanDU7ik
   Data stays on the device you test with. It's private: only you can open it unless you share it.
 - **Next:** create your Supabase project (`SETUP-SUPABASE.md`), send me the two values, and then
-  the app uses the real database. Next: Voting and Standings.
+  the app uses the real database.
 
 ## Decisions made
 - Backend: **Supabase, Frankfurt (EU)** ✅
@@ -66,3 +68,8 @@ loads nothing from Google, which is better for GDPR.
 - A vote is **final** (can't be changed later).
 - Members can **withdraw** their photo while entries are still open.
 - Display names are public. The sign-up form asks people not to use their real name.
+- Visitors never see prize wording: the prize lives in a members-only table/file, and public texts
+  (rules, terms, how it works) say "featured" instead of "win". Prize conditions (Germany only,
+  no cash) are shown to members next to the prize.
+- Vote counts are hidden while entries are open and shown from the start of voting.
+- The demo preview has a "Phase" switch to try entries, voting and the end before the real dates.

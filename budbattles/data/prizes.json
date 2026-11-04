@@ -1,0 +1,11 @@
+{
+  "_note": "Members only. The app loads this file only for logged-in members (demo mode). With Supabase, prizes live in the battle_prizes table, which only members can read.",
+  "prizes": {
+    "battle-1-frostiest-bud": {
+      "de": "5 feminisierte Blue-Dream-Samen von Cannapot",
+      "en": "5 feminized Blue Dream seeds from Cannapot",
+      "terms_de": "Nur für Mitglieder mit Wohnsitz in Deutschland. Keine Barauszahlung.",
+      "terms_en": "Only for members living in Germany. No cash alternative."
+    }
+  }
+}

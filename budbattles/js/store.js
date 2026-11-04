@@ -2,20 +2,21 @@
 // It picks the demo version (this device only) or the real Supabase version,
 // depending on whether js/config.js contains Supabase details.
 import { isDemo } from './config.js';
-import { StoreError, battleStatus } from './shared.js';
+import { StoreError, battleStatus, now } from './shared.js';
 
 const impl = isDemo ? await import('./store-demo.js') : await import('./store-supabase.js');
 
 /** Battle shape used everywhere:
- *  { id, theme:{de,en}, summary:{de,en}, prize:{de,en}|null,
- *    partner:{name,logo,url}|null, rules:{de:[],en:[]}, start, entriesClose, votingEnds } */
+ *  { id, number, theme:{de,en}, summary:{de,en}, partner:{name,logo,url}|null,
+ *    rules:{de:[],en:[]}, start, entriesClose, votingEnds }
+ *  Prizes are NOT part of it: they come from getPrize(), for members only. */
 
 /** The battle to show by default: the running one, else the next, else the latest. */
-export async function getCurrentBattle(now = new Date()) {
+export async function getCurrentBattle(at = now()) {
   const list = await impl.getBattles();
-  const running = list.find((b) => new Date(b.start) <= now && now < new Date(b.votingEnds));
+  const running = list.find((b) => new Date(b.start) <= at && at < new Date(b.votingEnds));
   if (running) return running;
-  const upcoming = list.filter((b) => new Date(b.start) > now).sort((a, b) => new Date(a.start) - new Date(b.start));
+  const upcoming = list.filter((b) => new Date(b.start) > at).sort((a, b) => new Date(a.start) - new Date(b.start));
   if (upcoming[0]) return upcoming[0];
   return [...list].sort((a, b) => new Date(b.votingEnds) - new Date(a.votingEnds))[0] || null;
 }
@@ -41,9 +42,16 @@ export const {
   withdrawEntry, // (entry)
   listEntries, // (battleId) → all entries incl. displayName (admin only)
   reviewEntry, // (entryId, 'pending' | 'approved' | 'rejected') (admin only)
+  getPrize, // (battleId) → { text:{de,en}, terms:{de,en} } or null. Members only.
+  getStandings, // (battleId) → approved entries with votes, rank, isMine
+  getMyVote, // (battleId) → entryId you voted for, or null
+  castVote, // (battleId, entryId)
+  listLatestApproved, // (limit) → newest approved entries
 } = impl;
 
-/** Demo only: creates sample entries to try the admin view. Undefined with Supabase. */
-export const seedDemoEntries = impl.seedDemoEntries;
+// Demo only (undefined with Supabase):
+export const seedDemoEntries = impl.seedDemoEntries; // sample entries for the admin view
+export const getDemoPhase = impl.getDemoPhase; // 'real' | 'open' | 'voting' | 'ended'
+export const setDemoPhase = impl.setDemoPhase;
 
-export { isDemo, StoreError, battleStatus };
+export { isDemo, StoreError, battleStatus, now };

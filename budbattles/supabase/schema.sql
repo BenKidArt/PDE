@@ -56,15 +56,15 @@ $$;
 
 -- ---------- Battles ----------
 -- Edit these in the Table Editor. Rules: one rule per line.
--- Leave prize / partner fields empty to hide them for that battle.
+-- Leave the partner fields empty to hide the partner for that battle.
+-- Prizes are in their own table (battle_prizes) so that only members can read them.
 create table public.battles (
-  id text primary key check (id ~ '^[a-z0-9-]+$'),   -- e.g. 2026-12-winter
+  id text primary key check (id ~ '^[a-z0-9-]+$'),   -- e.g. battle-2-purple-haze
+  number int,                                         -- Battle #1, #2, …
   theme_de text not null,
   theme_en text not null,
   summary_de text not null default '',
   summary_en text not null default '',
-  prize_de text not null default '',
-  prize_en text not null default '',
   partner_name text not null default '',
   partner_logo_url text not null default '',
   partner_url text not null default '',
@@ -75,6 +75,15 @@ create table public.battles (
   voting_ends_at timestamptz not null,
   created_at timestamptz not null default now(),
   check (start_at < entries_close_at and entries_close_at < voting_ends_at)
+);
+
+-- ---------- Prizes (members only) ----------
+create table public.battle_prizes (
+  battle_id text primary key references public.battles (id) on delete cascade,
+  prize_de text not null default '',
+  prize_en text not null default '',
+  terms_de text not null default '',
+  terms_en text not null default ''
 );
 
 -- ---------- Entries (one photo per grower per battle) ----------
@@ -108,11 +117,15 @@ create index votes_entry on public.votes (entry_id);
 alter table public.settings enable row level security;
 alter table public.profiles enable row level security;
 alter table public.battles  enable row level security;
+alter table public.battle_prizes enable row level security;
 alter table public.entries  enable row level security;
 alter table public.votes    enable row level security;
 
 create policy "settings readable by all" on public.settings for select using (true);
 create policy "battles readable by all"  on public.battles  for select using (true);
+-- Prizes: only logged-in members (every member confirmed 18+ at sign-up).
+create policy "prizes for members" on public.battle_prizes for select to authenticated
+  using (exists (select 1 from public.profiles p where p.id = auth.uid()));
 
 create policy "own profile readable" on public.profiles for select
   using (id = auth.uid() or public.is_admin());
@@ -161,6 +174,7 @@ grant select, insert, delete on public.entries to authenticated;
 grant update (status, reviewed_at) on public.entries to authenticated;
 grant select, insert on public.votes to authenticated;
 grant select on public.profiles to authenticated;
+grant select on public.battle_prizes to authenticated;
 grant update (display_name) on public.profiles to authenticated;
 
 -- ---------- Public numbers without exposing private data ----------
@@ -171,20 +185,35 @@ returns int language sql stable security definer set search_path = public as $$
 $$;
 
 -- Live ranking: approved entries with vote totals and the grower's name.
+-- is_mine tells the app which photo is your own (you can't vote for it).
 create function public.get_standings(p_battle text)
 returns table (entry_id uuid, photo_path text, width int, height int, strain text,
-               description text, display_name text, votes int)
+               description text, display_name text, votes int, is_mine boolean, created_at timestamptz)
 language sql stable security definer set search_path = public as $$
   select e.id, e.photo_path, e.width, e.height, e.strain, e.description, p.display_name,
-         (select count(*)::int from public.votes v where v.entry_id = e.id) as votes
+         (select count(*)::int from public.votes v where v.entry_id = e.id) as votes,
+         coalesce(e.user_id = auth.uid(), false), e.created_at
   from public.entries e
   join public.profiles p on p.id = e.user_id
   where e.battle_id = p_battle and e.status = 'approved'
   order by votes desc, e.created_at asc
 $$;
 
-revoke execute on function public.entry_count(text), public.get_standings(text), public.is_admin() from public;
-grant execute on function public.entry_count(text), public.get_standings(text) to anon, authenticated;
+-- Newest approved photos (for the start page).
+create function public.latest_entries(p_limit int default 6)
+returns table (entry_id uuid, battle_id text, photo_path text, width int, height int,
+               strain text, display_name text)
+language sql stable security definer set search_path = public as $$
+  select e.id, e.battle_id, e.photo_path, e.width, e.height, e.strain, p.display_name
+  from public.entries e
+  join public.profiles p on p.id = e.user_id
+  where e.status = 'approved'
+  order by coalesce(e.reviewed_at, e.created_at) desc
+  limit least(greatest(p_limit, 1), 24)
+$$;
+
+revoke execute on function public.entry_count(text), public.get_standings(text), public.latest_entries(int), public.is_admin() from public;
+grant execute on function public.entry_count(text), public.get_standings(text), public.latest_entries(int) to anon, authenticated;
 grant execute on function public.is_admin() to authenticated;
 
 -- ---------- Photo storage ----------
@@ -199,18 +228,25 @@ create policy "delete own photo or admin" on storage.objects for delete to authe
   using (bucket_id = 'entry-photos'
          and ((storage.foldername(name))[1] = auth.uid()::text or public.is_admin()));
 
--- ---------- First battle (example, edit or delete in the Table Editor) ----------
-insert into public.battles (id, theme_de, theme_en, summary_de, summary_en, prize_de, prize_en,
+-- ---------- Battle #1 (edit in the Table Editor) ----------
+insert into public.battles (id, number, theme_de, theme_en, summary_de, summary_en,
   partner_name, partner_logo_url, partner_url, rules_de, rules_en, start_at, entries_close_at, voting_ends_at)
 values (
-  '2026-11-frost',
-  'Frost & Farben', 'Frost & Colours',
-  'Zeig uns die schönsten Farben deiner Pflanze in der späten Blüte: Lila, Pink, Orange, alles ist erlaubt.',
-  'Show us your plant''s best colours in late flower: purple, pink, orange, anything goes.',
-  'Ein Growzelt-Set (nur Zubehör, keine Samen oder Pflanzen), gestellt vom Partner.',
-  'A grow tent kit (accessories only, no seeds or plants), provided by the partner.',
-  '', '', '',
-  E'Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.\nEin Foto pro Grower und Battle.\nNur eigene Fotos von legalem Eigenanbau (KCanG).\nKeine Personen, Adressen, Kennzeichen oder Verkaufsangebote auf dem Foto.\nJedes Foto wird vor der Veröffentlichung geprüft.\nEin Vote pro Mitglied und Battle. Die meisten Stimmen gewinnen.',
-  E'You must be 18+ with a confirmed email address.\nOne photo per grower per battle.\nOnly your own photos of a legal home grow (German KCanG).\nNo people, addresses, licence plates or sales offers in the photo.\nEvery photo is reviewed before it is published.\nOne vote per member per battle. Most votes wins.',
-  '2026-11-01 00:00+01', '2026-11-21 23:59+01', '2026-11-30 23:59+01'
+  'battle-1-frostiest-bud', 1,
+  'Frostiest Bud', 'Frostiest Bud',
+  'Zeig uns deine frostigste Blüte: Trichome im Mittelpunkt. Scharfe Nahaufnahmen sind ausdrücklich erwünscht.',
+  'Show us your frostiest bud: trichomes front and centre. Sharp close-ups are very welcome.',
+  'Cannapot', '', '',
+  E'Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.\nEin Foto pro Grower und Battle.\nNur eigene Fotos von legalem Eigenanbau (KCanG).\nKeine Personen, Adressen, Kennzeichen oder Verkaufsangebote auf dem Foto.\nJedes Foto wird vor der Veröffentlichung geprüft.\nEin Vote pro Mitglied und Battle. Für das eigene Foto kann man nicht stimmen.\nDas Foto mit den meisten Stimmen wird auf BudBattles gefeatured.',
+  E'You must be 18+ with a confirmed email address.\nOne photo per grower per battle.\nOnly your own photos of a legal home grow (German KCanG).\nNo people, addresses, licence plates or sales offers in the photo.\nEvery photo is reviewed before it is published.\nOne vote per member per battle. You can''t vote for your own photo.\nThe photo with the most votes gets featured on BudBattles.',
+  '2026-11-22 00:00+01', '2026-11-29 23:59+01', '2026-12-06 23:59+01'
+);
+
+insert into public.battle_prizes (battle_id, prize_de, prize_en, terms_de, terms_en)
+values (
+  'battle-1-frostiest-bud',
+  '5 feminisierte Blue-Dream-Samen von Cannapot',
+  '5 feminized Blue Dream seeds from Cannapot',
+  'Nur für Mitglieder mit Wohnsitz in Deutschland. Keine Barauszahlung.',
+  'Only for members living in Germany. No cash alternative.'
 );

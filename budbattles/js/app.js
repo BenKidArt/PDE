@@ -1,25 +1,33 @@
-// APP SHELL: menu, language switch, and choosing which screen to show.
-// Addresses look like  #/battle/<id>  or  #/enter/<id>.
+// APP SHELL: header with logo and menu, bottom navigation, demo phase switch,
+// and choosing which screen to show. Addresses look like  #/battle/<id>.
 import { initI18n, setLang, getLang, t, LANGS } from './i18n.js';
-import { initStore, getCurrentBattle, onAuthEvent, isDemo } from './store.js';
+import {
+  initStore, onAuthEvent, isDemo, getCurrentUser, getDemoPhase, setDemoPhase,
+} from './store.js';
+import { renderHome } from './views/home.js';
 import { renderBattle } from './views/battle.js';
 import { renderEnter } from './views/enter.js';
+import { renderStandings } from './views/standings.js';
 import { renderProfile, renderNewPassword } from './views/profile.js';
 import { renderTerms } from './views/terms.js';
 import { renderAdmin } from './views/admin.js';
+import { renderSoon } from './views/soon.js';
 import { esc } from './ui.js';
 
 const routes = {
-  '': renderHomePlaceholder,
+  '': renderHome,
   battle: renderBattle,
   enter: renderEnter,
-  standings: renderComingSoon('nav.standings'),
+  standings: renderStandings,
+  gallery: renderSoon('gallery'),
+  business: renderSoon('business'),
   profile: renderProfile,
   'new-password': renderNewPassword,
   terms: renderTerms,
   admin: renderAdmin,
 };
 
+// Bottom bar: the five things people use most.
 const NAV = [
   { key: 'home', path: '', icon: '⌂' },
   { key: 'battle', path: 'battle', icon: '⚔' },
@@ -28,6 +36,21 @@ const NAV = [
   { key: 'profile', path: 'profile', icon: '◉' },
 ];
 
+// Full menu (☰ in the header): everything, including pages that are coming soon.
+const MENU = [
+  { key: 'home', path: '' },
+  { key: 'battle', path: 'battle' },
+  { key: 'enter', path: 'enter' },
+  { key: 'standings', path: 'standings' },
+  { key: 'gallery', path: 'gallery', soon: true },
+  { key: 'business', path: 'business', soon: true },
+  { key: 'profile', path: 'profile' },
+  { key: 'admin', path: 'admin', adminOnly: true },
+  { key: 'terms', path: 'terms' },
+];
+
+const DEMO_PHASES = ['real', 'open', 'voting', 'ended'];
+
 function parseHash() {
   const [, page = '', id] = (location.hash || '#/').split('/');
   return { page, id: id ? decodeURIComponent(id) : undefined };
@@ -35,7 +58,7 @@ function parseHash() {
 
 async function render() {
   const { page, id } = parseHash();
-  renderChrome(page);
+  await renderChrome(page);
   const main = document.getElementById('main');
   const view = routes[page];
   if (!view) {
@@ -60,49 +83,82 @@ async function render() {
   window.scrollTo(0, 0);
 }
 
-function renderChrome(activePage) {
+async function renderChrome(activePage) {
   document.title = t('app.name');
+  const user = await getCurrentUser();
+  const isActive = (path) => path === activePage || (path === 'profile' && activePage === 'admin');
+
   document.getElementById('topbar').innerHTML = `
-    <a class="brand" href="#/"><img src="icons/icon.svg" alt="" width="28" height="28"><span>Bud<b>Battles</b></span></a>
-    <div class="lang" role="group" aria-label="${esc(t('lang.switch'))}">
-      ${LANGS.map((l) => `<button type="button" data-lang="${l}" aria-pressed="${l === getLang()}" title="${esc(t(`lang.${l}`))}">${l.toUpperCase()}</button>`).join('')}
+    <a class="brand" href="#/" aria-label="${esc(t('app.name'))} – ${esc(t('nav.home'))}">
+      <img src="assets/logo-full.webp" alt="${esc(t('app.name'))}" width="640" height="189">
+    </a>
+    <div class="topbar-tools">
+      <div class="lang" role="group" aria-label="${esc(t('lang.switch'))}">
+        ${LANGS.map((l) => `<button type="button" data-lang="${l}" aria-pressed="${l === getLang()}" title="${esc(t(`lang.${l}`))}">${l.toUpperCase()}</button>`).join('')}
+      </div>
+      <button type="button" class="menu-button" data-menu-open aria-expanded="false" aria-controls="menu" aria-label="${esc(t('menu.open'))}">☰</button>
     </div>`;
+
+  document.getElementById('menu').innerHTML = `
+    <div class="menu-backdrop" data-menu-close></div>
+    <nav class="menu-sheet" aria-label="${esc(t('menu.title'))}">
+      <div class="menu-head">
+        <span class="eyebrow">${esc(t('menu.title'))}</span>
+        <button type="button" class="menu-button" data-menu-close aria-label="${esc(t('menu.close'))}">✕</button>
+      </div>
+      ${MENU.filter((m) => !m.adminOnly || user?.isAdmin).map((m) => `
+        <a href="#/${m.path}" class="menu-link ${isActive(m.path) ? 'active' : ''}" data-menu-close>
+          <span>${esc(t(`nav.${m.key}`))}</span>
+          ${m.soon ? `<span class="pill pill-upcoming">${esc(t('soon.badge'))}</span>` : ''}
+        </a>`).join('')}
+    </nav>`;
+
   const banner = document.getElementById('demo-banner');
-  banner.textContent = t('app.demoBanner');
   banner.hidden = !isDemo;
+  if (isDemo) {
+    const phase = getDemoPhase();
+    banner.innerHTML = `
+      <span>${esc(t('app.demoBanner'))}</span>
+      <label class="demo-phase">${esc(t('demo.phase'))}
+        <select data-demo-phase>
+          ${DEMO_PHASES.map((p) => `<option value="${p}" ${p === phase ? 'selected' : ''}>${esc(t(`demo.phase.${p}`))}</option>`).join('')}
+        </select>
+      </label>`;
+  }
+
   document.getElementById('bottomnav').innerHTML = NAV.map((n) => `
-    <a href="#/${n.path}" class="${n.path === activePage || (n.key === 'profile' && activePage === 'admin') ? 'active' : ''}" ${n.path === activePage ? 'aria-current="page"' : ''}>
+    <a href="#/${n.path}" class="${isActive(n.path) ? 'active' : ''}" ${n.path === activePage ? 'aria-current="page"' : ''}>
       <span class="nav-icon" aria-hidden="true">${n.icon}</span><span>${esc(t(`nav.${n.key}`))}</span>
     </a>`).join('');
 }
 
-// Temporary screens until they're built in later steps.
-async function renderHomePlaceholder(root) {
-  const battle = await getCurrentBattle();
-  root.innerHTML = `
-    <section class="hero">
-      <p class="eyebrow">${esc(t('app.adultsOnly'))}</p>
-      <h1 class="neon-title">${esc(t('app.name'))}</h1>
-      <p class="hero-summary">${esc(t('app.tagline'))}</p>
-      ${battle ? `<div class="actions"><a class="btn btn-primary" href="#/battle/${encodeURIComponent(battle.id)}">${esc(t('battle.title'))} →</a></div>` : ''}
-    </section>`;
-}
-
-function renderComingSoon(titleKey) {
-  return async (root) => {
-    root.innerHTML = `<section class="hero hero-small"><h1 class="neon-title">${esc(t(titleKey))}</h1></section>
-      <section class="card"><p class="muted">${esc(t('app.comingSoon'))}</p></section>`;
-  };
+function setMenu(open) {
+  const menu = document.getElementById('menu');
+  menu.hidden = !open;
+  document.querySelector('[data-menu-open]')?.setAttribute('aria-expanded', String(open));
+  if (open) menu.querySelector('.menu-link')?.focus();
 }
 
 document.addEventListener('click', async (e) => {
+  if (e.target.closest('[data-menu-open]')) return setMenu(true);
+  if (e.target.closest('[data-menu-close]')) return setMenu(false);
   const btn = e.target.closest('[data-lang]');
   if (!btn) return;
   await setLang(btn.dataset.lang);
   render();
 });
 
-window.addEventListener('hashchange', render);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') setMenu(false);
+});
+
+document.addEventListener('change', async (e) => {
+  if (!e.target.matches('[data-demo-phase]')) return;
+  await setDemoPhase(e.target.value);
+  render();
+});
+
+window.addEventListener('hashchange', () => { setMenu(false); render(); });
 
 (async () => {
   await initI18n();
