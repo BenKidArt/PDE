@@ -115,5 +115,21 @@
   "error.loginFailed": "E-Mail oder Passwort ist falsch.",
   "error.emailTaken": "Mit dieser E-Mail gibt es schon ein Konto.",
   "error.emailNotConfirmed": "Bitte bestätige zuerst deine E-Mail-Adresse (Link in der E-Mail).",
-  "error.rateLimit": "Zu viele Versuche. Bitte warte kurz und versuche es dann noch einmal."
+  "error.rateLimit": "Zu viele Versuche. Bitte warte kurz und versuche es dann noch einmal.",
+  "admin.title": "Fotos prüfen",
+  "admin.noAccess": "Dieser Bereich ist nur für Admins.",
+  "admin.open": "Fotos prüfen",
+  "admin.tab.pending": "Offen",
+  "admin.tab.approved": "Frei",
+  "admin.tab.rejected": "Abgelehnt",
+  "admin.empty.pending": "Keine Fotos warten auf Prüfung. 🎉",
+  "admin.empty.approved": "Noch keine freigegebenen Fotos.",
+  "admin.empty.rejected": "Keine abgelehnten Fotos.",
+  "admin.action.approved": "Freigeben",
+  "admin.action.rejected": "Ablehnen",
+  "admin.done.approved": "Foto von {name} freigegeben.",
+  "admin.done.rejected": "Foto von {name} abgelehnt.",
+  "admin.done.pending": "Zurück auf „Offen“ gesetzt.",
+  "admin.undo": "Rückgängig",
+  "admin.seedDemo": "Beispiel-Fotos erzeugen (nur Demo)"
 }

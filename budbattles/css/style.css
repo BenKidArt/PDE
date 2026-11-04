@@ -217,3 +217,44 @@ input[type="email"]:focus, input[type="password"]:focus { outline: none; border-
 .prose h1 { font-size: 1.5rem; color: var(--green); }
 .prose h2 { margin-top: 1.2rem; }
 .prose ul { padding-left: 1.2rem; display: grid; gap: 6px; }
+
+/* ---------- Admin ---------- */
+.admin-bar {
+  position: sticky; top: calc(56px + env(safe-area-inset-top)); z-index: 5;
+  display: grid; gap: 8px; padding: 10px 0; background: var(--bg);
+}
+select {
+  width: 100%; font: 16px var(--font); color: var(--text); background: var(--bg-2);
+  border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-height: 44px;
+}
+.tabs-3 { grid-template-columns: repeat(3, 1fr); }
+.tabs-3 button { font-size: .85rem; padding: 0 4px; }
+.tabs .count {
+  display: inline-block; min-width: 1.6em; padding: 0 6px; margin-left: 2px; border-radius: 999px;
+  background: rgba(255, 255, 255, .12); font-variant-numeric: tabular-nums;
+}
+.admin-list { display: grid; gap: 0; }
+.review { padding: 0; overflow: hidden; }
+.review-photo {
+  width: 100%; height: auto; max-height: 42vh; object-fit: cover; background: #000; cursor: zoom-in;
+}
+.review-photo.zoomed { max-height: none; object-fit: contain; cursor: zoom-out; }
+.review-body { padding: 14px 16px 4px; display: grid; gap: 4px; }
+.review-body p { margin: 0; }
+.review-meta { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.review-strain { color: var(--green); font-weight: 700; }
+.review-actions { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; padding: 12px 16px 16px; }
+.btn-reject { background: transparent; color: var(--danger); border-color: var(--danger); }
+.toast {
+  position: fixed; z-index: 20;
+  left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 12px);
+  max-width: 616px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; border-radius: 14px;
+  background: #1d2621; border: 1px solid var(--green-dim); box-shadow: 0 8px 30px rgba(0, 0, 0, .5);
+}
+.toast button {
+  background: none; border: 0; color: var(--pink); font: 700 .95rem var(--font); cursor: pointer;
+  min-height: 40px; padding: 0 8px; text-transform: uppercase; letter-spacing: .05em;
+}

@@ -24,7 +24,9 @@ function renderAccount(root, user) {
         <div class="date-row"><dt>${esc(t('auth.email'))}</dt><dd>${esc(user.email)}</dd></div>
         ${user.isAdmin ? `<div class="date-row active"><dt>${esc(t('profile.role'))}</dt><dd>${esc(t('profile.admin'))}</dd></div>` : ''}
       </dl>
-      <div class="actions"><button class="btn btn-ghost" type="button" data-logout>${esc(t('auth.logout'))}</button></div>
+      <div class="actions">
+        ${user.isAdmin ? `<a class="btn btn-primary" href="#/admin">${esc(t('admin.open'))}</a>` : ''}
+        <button class="btn btn-ghost" type="button" data-logout>${esc(t('auth.logout'))}</button></div>
     </section>`;
   root.querySelector('[data-logout]').addEventListener('click', async () => {
     await signOut();

@@ -210,6 +210,23 @@ export async function addEntry({ battleId, strain, description, photo, width, he
   return toEntry(data);
 }
 
+// ---------- Admin (the database only allows this for admins) ----------
+
+export async function listEntries(battleId) {
+  const { data, error } = await sb.from('entries').select('*, profiles(display_name)')
+    .eq('battle_id', battleId).order('created_at', { ascending: true });
+  if (error) fail(error);
+  return data.map((r) => ({ ...toEntry(r), displayName: r.profiles?.display_name || '?' }));
+}
+
+export async function reviewEntry(id, status) {
+  const { data, error } = await sb.from('entries')
+    .update({ status, reviewed_at: status === 'pending' ? null : new Date().toISOString() })
+    .eq('id', id).select('id');
+  if (error) fail(error);
+  if (!data?.length) throw new StoreError('admin.noAccess'); // blocked by the database = not admin
+}
+
 export async function withdrawEntry(entry) {
   const { error } = await sb.from('entries').delete().eq('id', entry.id);
   if (error) fail(error);

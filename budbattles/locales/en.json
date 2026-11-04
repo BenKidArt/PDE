@@ -115,5 +115,21 @@
   "error.loginFailed": "Email or password is wrong.",
   "error.emailTaken": "There is already an account with this email.",
   "error.emailNotConfirmed": "Please confirm your email address first (link in the email).",
-  "error.rateLimit": "Too many attempts. Please wait a moment and try again."
+  "error.rateLimit": "Too many attempts. Please wait a moment and try again.",
+  "admin.title": "Review photos",
+  "admin.noAccess": "This area is for admins only.",
+  "admin.open": "Review photos",
+  "admin.tab.pending": "Waiting",
+  "admin.tab.approved": "Approved",
+  "admin.tab.rejected": "Rejected",
+  "admin.empty.pending": "No photos waiting for review. 🎉",
+  "admin.empty.approved": "No approved photos yet.",
+  "admin.empty.rejected": "No rejected photos.",
+  "admin.action.approved": "Approve",
+  "admin.action.rejected": "Reject",
+  "admin.done.approved": "Photo by {name} approved.",
+  "admin.done.rejected": "Photo by {name} rejected.",
+  "admin.done.pending": "Moved back to waiting.",
+  "admin.undo": "Undo",
+  "admin.seedDemo": "Create sample photos (demo only)"
 }

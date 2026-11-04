@@ -1,11 +1,11 @@
 // Service worker: lets the app open fast and work with a weak connection.
 // Bump VERSION whenever you publish changes so phones fetch the new files.
-const VERSION = 'bb-v2';
+const VERSION = 'bb-v3';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/style.css',
   'js/app.js', 'js/config.js', 'js/i18n.js', 'js/store.js', 'js/store-demo.js', 'js/store-supabase.js',
   'js/shared.js', 'js/photo.js', 'js/ui.js', 'js/vendor/supabase-2.119.0.js',
-  'js/views/battle.js', 'js/views/enter.js', 'js/views/profile.js', 'js/views/terms.js',
+  'js/views/battle.js', 'js/views/enter.js', 'js/views/profile.js', 'js/views/terms.js', 'js/views/admin.js',
   'content/terms.de.html', 'content/terms.en.html',
   'locales/de.json', 'locales/en.json', 'data/battles.json',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'assets/partner-logo.svg',

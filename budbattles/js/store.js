@@ -39,6 +39,11 @@ export const {
   getEntryByUser, // (battleId, userId) → entry or null
   addEntry, // ({ battleId, strain, description, photo, width, height }) → entry
   withdrawEntry, // (entry)
+  listEntries, // (battleId) → all entries incl. displayName (admin only)
+  reviewEntry, // (entryId, 'pending' | 'approved' | 'rejected') (admin only)
 } = impl;
+
+/** Demo only: creates sample entries to try the admin view. Undefined with Supabase. */
+export const seedDemoEntries = impl.seedDemoEntries;
 
 export { isDemo, StoreError, battleStatus };

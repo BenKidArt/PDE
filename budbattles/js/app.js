@@ -6,6 +6,7 @@ import { renderBattle } from './views/battle.js';
 import { renderEnter } from './views/enter.js';
 import { renderProfile, renderNewPassword } from './views/profile.js';
 import { renderTerms } from './views/terms.js';
+import { renderAdmin } from './views/admin.js';
 import { esc } from './ui.js';
 
 const routes = {
@@ -16,6 +17,7 @@ const routes = {
   profile: renderProfile,
   'new-password': renderNewPassword,
   terms: renderTerms,
+  admin: renderAdmin,
 };
 
 const NAV = [
@@ -41,13 +43,19 @@ async function render() {
       <a class="btn btn-ghost" href="#/">${esc(t('app.backHome'))}</a></section>`;
     return;
   }
-  main.innerHTML = `<p class="muted center">${esc(t('app.loading'))}</p>`;
+  // Each visit gets a fresh container. If you tap on before a slow screen has
+  // loaded, that screen keeps drawing into its old (now detached) container
+  // and can't paint over the screen you actually opened.
+  const container = document.createElement('div');
+  container.innerHTML = `<p class="muted center">${esc(t('app.loading'))}</p>`;
+  main.replaceChildren(container);
   try {
-    await view(main, { id });
+    await view(container, { id });
   } catch (e) {
     console.error(e);
-    main.innerHTML = `<section class="card"><p class="error">${esc(t('error.generic'))}</p></section>`;
+    container.innerHTML = `<section class="card"><p class="error">${esc(t('error.generic'))}</p></section>`;
   }
+  if (!container.isConnected) return;
   main.focus({ preventScroll: true });
   window.scrollTo(0, 0);
 }
@@ -63,7 +71,7 @@ function renderChrome(activePage) {
   banner.textContent = t('app.demoBanner');
   banner.hidden = !isDemo;
   document.getElementById('bottomnav').innerHTML = NAV.map((n) => `
-    <a href="#/${n.path}" class="${n.path === activePage ? 'active' : ''}" ${n.path === activePage ? 'aria-current="page"' : ''}>
+    <a href="#/${n.path}" class="${n.path === activePage || (n.key === 'profile' && activePage === 'admin') ? 'active' : ''}" ${n.path === activePage ? 'aria-current="page"' : ''}>
       <span class="nav-icon" aria-hidden="true">${n.icon}</span><span>${esc(t(`nav.${n.key}`))}</span>
     </a>`).join('');
 }

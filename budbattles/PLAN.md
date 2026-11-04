@@ -44,7 +44,7 @@ loads nothing from Google, which is better for GDPR.
 4. ✅ **Real backend prepared**: Supabase (Frankfurt). Database, security rules and photo storage are ready in `supabase/schema.sql`. *Waiting for your project (see SETUP-SUPABASE.md).*
 5. ✅ **Sign-up / login**: email + password, 18+ checkbox, terms checkbox, forgot password
 5b. ✅ **On/off switches** for partner, prize and strain
-6. ⏳ **Admin**: approve or reject
+6. ✅ **Admin**: approve or reject from your phone, with undo (Profile → Review photos)
 7. ⏳ **Voting + Standings**: one vote each, live ranking
 8. ⏳ **Home + Profile**
 9. ⏳ **Go live**: web address, privacy policy (Datenschutzerklärung), Impressum, terms
@@ -53,7 +53,7 @@ loads nothing from Google, which is better for GDPR.
 - **Preview (demo mode):** https://claude.ai/artifact/21gB1PsSgBjhL8QanDU7ik
   Data stays on the device you test with. It's private: only you can open it unless you share it.
 - **Next:** create your Supabase project (`SETUP-SUPABASE.md`), send me the two values, and then
-  the app uses the real database. After that come Admin, Voting and Standings.
+  the app uses the real database. Next: Voting and Standings.
 
 ## Decisions made
 - Backend: **Supabase, Frankfurt (EU)** ✅

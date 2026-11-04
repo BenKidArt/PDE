@@ -153,6 +153,75 @@ export async function addEntry({ battleId, strain, description, photo, width, he
   return toEntry(row);
 }
 
+// ---------- Admin ----------
+
+/** All entries of a battle (admin view), oldest first, with the grower's display name. */
+export async function listEntries(battleId) {
+  const accounts = Object.values(readJson(ACCOUNTS_KEY, {}));
+  const rows = await tx('readonly', (s) => s.index('battleId').getAll(battleId));
+  return rows
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+    .map((r) => ({
+      ...toEntry(r),
+      displayName: r.displayName || accounts.find((a) => a.id === r.userId)?.displayName || '?',
+    }));
+}
+
+/** Set an entry's status: 'pending' | 'approved' | 'rejected'. */
+export async function reviewEntry(id, status) {
+  const db = await openDb();
+  await new Promise((resolve, reject) => {
+    const t = db.transaction('entries', 'readwrite');
+    const store = t.objectStore('entries');
+    const get = store.get(id);
+    get.onsuccess = () => {
+      if (!get.result) return;
+      store.put({ ...get.result, status, reviewedAt: status === 'pending' ? null : new Date().toISOString() });
+    };
+    t.oncomplete = resolve;
+    t.onerror = () => reject(t.error);
+  });
+}
+
+/** Demo only: adds a few sample entries from pretend growers, so there is something to review. */
+export async function seedDemoEntries(battleId) {
+  const samples = [
+    { name: 'NightOwl', strain: 'Northern Lights', desc: 'Woche 8, die Kälte bringt das Lila raus.', colors: ['#2a1442', '#b04bff'] },
+    { name: 'BalkonBuds', strain: 'Gorilla Glue', desc: 'Outdoor auf dem Balkon, Herbstfarben.', colors: ['#3b2a0a', '#ff9d2e'] },
+    { name: 'TentQueen', strain: 'Strawberry Kush', desc: 'Pink wie nie zuvor.', colors: ['#3a0b24', '#ff3fa4'] },
+  ];
+  for (const sample of samples) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 900;
+    canvas.height = 1200;
+    const ctx = canvas.getContext('2d');
+    const g = ctx.createRadialGradient(450, 520, 40, 450, 600, 700);
+    g.addColorStop(0, sample.colors[1]);
+    g.addColorStop(1, sample.colors[0]);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 900, 1200);
+    ctx.fillStyle = 'rgba(255,255,255,.85)';
+    ctx.font = 'bold 64px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('DEMO', 450, 620);
+    const photo = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.8));
+    const row = {
+      id: crypto.randomUUID(),
+      battleId,
+      userId: `demo-${sample.name}`,
+      displayName: sample.name,
+      strain: sample.strain,
+      description: sample.desc,
+      photo,
+      width: 900,
+      height: 1200,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    try { await tx('readwrite', (s) => s.add(row)); } catch { /* already seeded */ }
+  }
+}
+
 export async function withdrawEntry(entry) {
   await tx('readwrite', (s) => s.delete(entry.id));
 }
