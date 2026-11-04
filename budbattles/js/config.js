@@ -2,8 +2,8 @@
 export const CONFIG = {
   // Supabase connection. Both values are public and safe to share.
   // Leave them empty to run in demo mode (data stays on this device).
-  supabaseUrl: '',
-  supabaseKey: '', // the "publishable" key (older projects call it "anon public")
+  supabaseUrl: 'https://chjkseolzvdtlurafvim.supabase.co',
+  supabaseKey: 'sb_publishable_PUh0RWXSPQSO8UGYeY9BJQ_9EmSTyRo', // the "publishable" key (older projects call it "anon public")
 
   // Version of the terms people accept at sign-up. Change it when the terms change.
   termsVersion: '2026-11-draft',

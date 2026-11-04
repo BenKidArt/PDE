@@ -1,0 +1,23 @@
+# Netlify settings: publish the BudBattles app folder as-is (no build step).
+[build]
+  base = "budbattles"
+  publish = "."
+  command = ""
+
+# Always check for a new version of these, so updates reach phones quickly.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+[[headers]]
+  for = "/js/config.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+# Basic security headers.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), microphone=()"
