@@ -1,0 +1,32 @@
+{
+  "battles": [
+    {
+      "id": "2026-11-frost",
+      "theme": { "de": "Frost & Farben", "en": "Frost & Colours" },
+      "summary": {
+        "de": "Zeig uns die schönsten Farben deiner Pflanze in der späten Blüte: Lila, Pink, Orange, alles ist erlaubt.",
+        "en": "Show us your plant's best colours in late flower: purple, pink, orange, anything goes."
+      },
+      "start": "2026-11-01T00:00:00+01:00",
+      "entriesClose": "2026-11-21T23:59:00+01:00",
+      "votingEnds": "2026-11-30T23:59:00+01:00",
+      "prize": {
+        "de": "Ein Growzelt-Set (nur Zubehör, keine Samen oder Pflanzen), gestellt vom Partner.",
+        "en": "A grow tent kit (accessories only, no seeds or plants), provided by the partner."
+      },
+      "partner": {
+        "name": "Beispiel-Partner GmbH",
+        "logo": "assets/partner-logo.svg",
+        "url": "https://example.com"
+      },
+      "rules": [
+        { "de": "Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.", "en": "You must be 18+ with a confirmed email address." },
+        { "de": "Ein Foto pro Grower und Battle.", "en": "One photo per grower per battle." },
+        { "de": "Nur eigene Fotos von legalem Eigenanbau (KCanG).", "en": "Only your own photos of a legal home grow (German KCanG)." },
+        { "de": "Keine Personen, Adressen, Kennzeichen oder Verkaufsangebote auf dem Foto.", "en": "No people, addresses, licence plates or sales offers in the photo." },
+        { "de": "Jedes Foto wird vor der Veröffentlichung geprüft.", "en": "Every photo is reviewed before it is published." },
+        { "de": "Ein Vote pro Mitglied und Battle. Die meisten Stimmen gewinnen.", "en": "One vote per member per battle. Most votes wins." }
+      ]
+    }
+  ]
+}
