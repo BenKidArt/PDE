@@ -11,7 +11,7 @@
       "start": "2026-11-22T00:00:00+01:00",
       "entriesClose": "2026-11-29T23:59:00+01:00",
       "votingEnds": "2026-12-06T23:59:00+01:00",
-      "partner": { "name": "Cannapot", "logo": "", "url": "" },
+      "partner": { "name": "Cannapot", "logo": "assets/partner-cannapot.webp", "url": "" },
       "rules": {
         "de": [
           "Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.",

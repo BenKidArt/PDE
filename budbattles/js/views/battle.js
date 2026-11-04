@@ -61,7 +61,7 @@ export async function renderBattle(root, { id } = {}) {
     <section class="card partner">
       <h2>${esc(t('battle.partner'))}</h2>
       ${battle.partner.logo ? `<img class="partner-logo" src="${esc(battle.partner.logo)}" alt="${esc(battle.partner.name)}" loading="lazy">` : ''}
-      <p class="partner-name">${esc(battle.partner.name)}</p>
+      ${battle.partner.logo ? '' : `<p class="partner-name">${esc(battle.partner.name)}</p>`}
       ${/^https:\/\//.test(battle.partner.url || '') ? `<a class="link" href="${esc(battle.partner.url)}" target="_blank" rel="noopener noreferrer">${esc(t('battle.partnerVisit'))} ↗</a>` : ''}
     </section>` : ''}
 

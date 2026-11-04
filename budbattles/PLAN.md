@@ -69,7 +69,7 @@ loads nothing from Google, which is better for GDPR.
 - Members can **withdraw** their photo while entries are still open.
 - Display names are public. The sign-up form asks people not to use their real name.
 - Visitors never see prize wording: the prize lives in a members-only table/file, and public texts
-  (rules, terms, how it works) say "featured" instead of "win". Prize conditions (Germany only,
-  no cash) are shown to members next to the prize.
+  (rules, terms, how it works) say "featured" instead of "win". Prize conditions (18+, countries where home growing is
+  legal or tolerated, no cash) are shown to members next to the prize.
 - Vote counts are hidden while entries are open and shown from the start of voting.
 - The demo preview has a "Phase" switch to try entries, voting and the end before the real dates.

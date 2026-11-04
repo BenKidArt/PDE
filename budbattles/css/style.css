@@ -123,7 +123,7 @@ p { margin: 0 0 .75rem; }
 /* ---------- Partner / rules ---------- */
 .partner { text-align: center; }
 .partner h2 { text-align: left; }
-.partner-logo { margin: 8px auto; max-height: 90px; width: auto; }
+.partner-logo { margin: 12px auto 8px; max-height: 80px; width: auto; max-width: min(100%, 300px); }
 .partner-name { font-weight: 700; margin: 4px 0; }
 .rules { margin: 0; padding-left: 1.3rem; display: grid; gap: 8px; }
 .rules li::marker { color: var(--pink); font-weight: 700; }

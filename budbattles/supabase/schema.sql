@@ -236,7 +236,7 @@ values (
   'Frostiest Bud', 'Frostiest Bud',
   'Zeig uns deine frostigste Blüte: Trichome im Mittelpunkt. Scharfe Nahaufnahmen sind ausdrücklich erwünscht.',
   'Show us your frostiest bud: trichomes front and centre. Sharp close-ups are very welcome.',
-  'Cannapot', '', '',
+  'Cannapot', 'assets/partner-cannapot.webp', '',
   E'Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.\nEin Foto pro Grower und Battle.\nNur eigene Fotos von legalem Eigenanbau (KCanG).\nKeine Personen, Adressen, Kennzeichen oder Verkaufsangebote auf dem Foto.\nJedes Foto wird vor der Veröffentlichung geprüft.\nEin Vote pro Mitglied und Battle. Für das eigene Foto kann man nicht stimmen.\nDas Foto mit den meisten Stimmen wird auf BudBattles gefeatured.',
   E'You must be 18+ with a confirmed email address.\nOne photo per grower per battle.\nOnly your own photos of a legal home grow (German KCanG).\nNo people, addresses, licence plates or sales offers in the photo.\nEvery photo is reviewed before it is published.\nOne vote per member per battle. You can''t vote for your own photo.\nThe photo with the most votes gets featured on BudBattles.',
   '2026-11-22 00:00+01', '2026-11-29 23:59+01', '2026-12-06 23:59+01'
@@ -247,6 +247,6 @@ values (
   'battle-1-frostiest-bud',
   '5 feminisierte Blue-Dream-Samen von Cannapot',
   '5 feminized Blue Dream seeds from Cannapot',
-  'Nur für Mitglieder mit Wohnsitz in Deutschland. Keine Barauszahlung.',
-  'Only for members living in Germany. No cash alternative.'
+  'Teilnahmeberechtigt sind Grower ab 18 Jahren in Ländern, in denen Eigenanbau legal oder offiziell geduldet ist (z. B. Deutschland, Niederlande, Luxemburg, Malta, Spanien). Keine Barauszahlung.',
+  'Open to growers aged 18+ in countries where home growing is legal or officially tolerated (e.g. Germany, Netherlands, Luxembourg, Malta, Spain). No cash alternative.'
 );

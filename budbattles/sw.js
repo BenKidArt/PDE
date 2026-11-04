@@ -1,6 +1,6 @@
 // Service worker: lets the app open fast and work with a weak connection.
 // Bump VERSION whenever you publish changes so phones fetch the new files.
-const VERSION = 'bb-v4';
+const VERSION = 'bb-v5';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/style.css',
   'js/app.js', 'js/config.js', 'js/i18n.js', 'js/store.js', 'js/store-demo.js', 'js/store-supabase.js',
@@ -9,7 +9,7 @@ const SHELL = [
   'js/views/profile.js', 'js/views/terms.js', 'js/views/admin.js', 'js/views/soon.js',
   'locales/de.json', 'locales/en.json', 'data/battles.json',
   'content/terms.de.html', 'content/terms.en.html',
-  'assets/logo-full.webp', 'icons/icon-32.png', 'icons/icon-48.png', 'icons/icon-180.png',
+  'assets/logo-full.webp', 'assets/partner-cannapot.webp', 'icons/icon-32.png', 'icons/icon-48.png', 'icons/icon-180.png',
   'icons/icon-192.png', 'icons/icon-512.png',
 ];
 // Note: data/prizes.json is deliberately NOT cached up front (members only).
