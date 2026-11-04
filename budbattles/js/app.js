@@ -1,9 +1,11 @@
 // APP SHELL: menu, language switch, and choosing which screen to show.
 // Addresses look like  #/battle/<id>  or  #/enter/<id>.
 import { initI18n, setLang, getLang, t, LANGS } from './i18n.js';
-import { getCurrentBattle } from './store.js';
+import { initStore, getCurrentBattle, onAuthEvent, isDemo } from './store.js';
 import { renderBattle } from './views/battle.js';
 import { renderEnter } from './views/enter.js';
+import { renderProfile, renderNewPassword } from './views/profile.js';
+import { renderTerms } from './views/terms.js';
 import { esc } from './ui.js';
 
 const routes = {
@@ -11,7 +13,9 @@ const routes = {
   battle: renderBattle,
   enter: renderEnter,
   standings: renderComingSoon('nav.standings'),
-  profile: renderComingSoon('nav.profile'),
+  profile: renderProfile,
+  'new-password': renderNewPassword,
+  terms: renderTerms,
 };
 
 const NAV = [
@@ -55,7 +59,9 @@ function renderChrome(activePage) {
     <div class="lang" role="group" aria-label="${esc(t('lang.switch'))}">
       ${LANGS.map((l) => `<button type="button" data-lang="${l}" aria-pressed="${l === getLang()}" title="${esc(t(`lang.${l}`))}">${l.toUpperCase()}</button>`).join('')}
     </div>`;
-  document.getElementById('demo-banner').textContent = t('app.demoBanner');
+  const banner = document.getElementById('demo-banner');
+  banner.textContent = t('app.demoBanner');
+  banner.hidden = !isDemo;
   document.getElementById('bottomnav').innerHTML = NAV.map((n) => `
     <a href="#/${n.path}" class="${n.path === activePage ? 'active' : ''}" ${n.path === activePage ? 'aria-current="page"' : ''}>
       <span class="nav-icon" aria-hidden="true">${n.icon}</span><span>${esc(t(`nav.${n.key}`))}</span>
@@ -92,6 +98,8 @@ window.addEventListener('hashchange', render);
 
 (async () => {
   await initI18n();
+  await initStore();
+  onAuthEvent((event) => { if (event !== 'PASSWORD_RECOVERY') render(); });
   await render();
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW registration failed', err));

@@ -15,5 +15,9 @@ and tap "Add to Home Screen".
 - `data/battles.json`: battle theme, dates, prize, partner, rules (German and English)
 - `css/style.css`: colours and look
 - `js/photo.js`: removes GPS and other metadata from photos on the phone
-- `js/store.js`: data storage (demo: this device only; will be replaced by the real backend)
+- `js/config.js`: Supabase connection and demo-mode switches
+- `js/store.js`: data layer; uses `store-demo.js` (this device only) or `store-supabase.js` (real)
+- `supabase/schema.sql`: database, security rules and photo storage (paste into Supabase)
+- `SETUP-SUPABASE.md`: step-by-step Supabase setup
+- `content/terms.*.html`: terms of participation (draft)
 - `js/views/`: the screens

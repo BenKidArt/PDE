@@ -2,7 +2,10 @@
   "battles": [
     {
       "id": "2026-11-frost",
-      "theme": { "de": "Frost & Farben", "en": "Frost & Colours" },
+      "theme": {
+        "de": "Frost & Farben",
+        "en": "Frost & Colours"
+      },
       "summary": {
         "de": "Zeig uns die schönsten Farben deiner Pflanze in der späten Blüte: Lila, Pink, Orange, alles ist erlaubt.",
         "en": "Show us your plant's best colours in late flower: purple, pink, orange, anything goes."
@@ -19,14 +22,24 @@
         "logo": "assets/partner-logo.svg",
         "url": "https://example.com"
       },
-      "rules": [
-        { "de": "Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.", "en": "You must be 18+ with a confirmed email address." },
-        { "de": "Ein Foto pro Grower und Battle.", "en": "One photo per grower per battle." },
-        { "de": "Nur eigene Fotos von legalem Eigenanbau (KCanG).", "en": "Only your own photos of a legal home grow (German KCanG)." },
-        { "de": "Keine Personen, Adressen, Kennzeichen oder Verkaufsangebote auf dem Foto.", "en": "No people, addresses, licence plates or sales offers in the photo." },
-        { "de": "Jedes Foto wird vor der Veröffentlichung geprüft.", "en": "Every photo is reviewed before it is published." },
-        { "de": "Ein Vote pro Mitglied und Battle. Die meisten Stimmen gewinnen.", "en": "One vote per member per battle. Most votes wins." }
-      ]
+      "rules": {
+        "de": [
+          "Teilnahme ab 18 Jahren mit bestätigter E-Mail-Adresse.",
+          "Ein Foto pro Grower und Battle.",
+          "Nur eigene Fotos von legalem Eigenanbau (KCanG).",
+          "Keine Personen, Adressen, Kennzeichen oder Verkaufsangebote auf dem Foto.",
+          "Jedes Foto wird vor der Veröffentlichung geprüft.",
+          "Ein Vote pro Mitglied und Battle. Die meisten Stimmen gewinnen."
+        ],
+        "en": [
+          "You must be 18+ with a confirmed email address.",
+          "One photo per grower per battle.",
+          "Only your own photos of a legal home grow (German KCanG).",
+          "No people, addresses, licence plates or sales offers in the photo.",
+          "Every photo is reviewed before it is published.",
+          "One vote per member per battle. Most votes wins."
+        ]
+      }
     }
   ]
 }

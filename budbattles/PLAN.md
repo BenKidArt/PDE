@@ -41,29 +41,28 @@ loads nothing from Google, which is better for GDPR.
 1. ✅ **App shell**: menu, language switch, dark neon style, installable (PWA)
 2. ✅ **Battle page**: theme, dates with countdown, prize, partner, rules
 3. ✅ **Photo upload (Enter)**: GPS removal, one entry per battle, strain and description
-4. ⏳ **Real backend**: accounts, database, photo storage *(decision needed, see below)*
-5. ⏳ **Sign-up / login**: email, 18+ checkbox, terms checkbox
+4. ✅ **Real backend prepared**: Supabase (Frankfurt). Database, security rules and photo storage are ready in `supabase/schema.sql`. *Waiting for your project (see SETUP-SUPABASE.md).*
+5. ✅ **Sign-up / login**: email + password, 18+ checkbox, terms checkbox, forgot password
+5b. ✅ **On/off switches** for partner, prize and strain
 6. ⏳ **Admin**: approve or reject
 7. ⏳ **Voting + Standings**: one vote each, live ranking
 8. ⏳ **Home + Profile**
 9. ⏳ **Go live**: web address, privacy policy (Datenschutzerklärung), Impressum, terms
 
-## Where we are now: "demo mode"
+## Where we are now
+- **Preview (demo mode):** https://claude.ai/artifact/21gB1PsSgBjhL8QanDU7ik
+  Data stays on the device you test with. It's private: only you can open it unless you share it.
+- **Next:** create your Supabase project (`SETUP-SUPABASE.md`), send me the two values, and then
+  the app uses the real database. After that come Admin, Voting and Standings.
 
-Right now everything is saved **only in the browser on your own phone**. This lets you
-try out the screens and the upload safely. Nobody else can see your test photos yet.
-Step 4 connects the app to a real online database, so that everyone shares the same
-battles, entries and votes.
+## Decisions made
+- Backend: **Supabase, Frankfurt (EU)** ✅
+- Partner, prize and strain: optional, with on/off switches ✅
+- Real hosting with your own web address: comes with step 9 (Netlify or Cloudflare Pages, both free).
 
-## Decisions I need from you (before step 4)
-
-1. **Backend (where accounts, photos and votes are stored).**
-   My recommendation is **Supabase** with servers in **Frankfurt (EU)**. It's free to start,
-   handles email login, and keeps the data in Germany, which helps with GDPR.
-   The alternative is Firebase (Google), which is also free to start but has its data mostly in the USA.
-2. **Hosting (the web address).** Netlify or Cloudflare Pages are both free, and you'd need a domain
-   such as `budbattles.de` (around €5–15 per year).
-3. **Legal check.** The German Cannabis Act (KCanG §6) bans advertising and sponsorship
-   for cannabis. Partner logos, prizes from partners and strain names could be a problem.
-   Please get a short legal check from a lawyer before going live. The app keeps
-   partner and prize as simple editable fields, so it's easy to change or remove them.
+## Small choices I made (tell me if you want them different)
+- Login uses **email + password** (works the same in the browser and in the installed app).
+- Members **cannot vote for their own photo**.
+- A vote is **final** (can't be changed later).
+- Members can **withdraw** their photo while entries are still open.
+- Display names are public. The sign-up form asks people not to use their real name.

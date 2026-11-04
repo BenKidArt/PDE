@@ -1,7 +1,7 @@
-// ENTER PAGE: one photo per grower per battle, strain name, short description.
+// ENTER PAGE: one photo per grower per battle, strain name (optional switch), short description.
 import { t, tc } from '../i18n.js';
 import {
-  getBattle, getCurrentBattle, battleStatus, getCurrentUser, getEntryByUser, addEntry, deleteEntry,
+  getBattle, getCurrentBattle, battleStatus, getCurrentUser, getEntryByUser, addEntry, withdrawEntry, getSettings,
 } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { esc } from '../ui.js';
@@ -15,8 +15,7 @@ export async function renderEnter(root, { id } = {}) {
     root.innerHTML = `<section class="card"><p>${esc(t('battle.none'))}</p></section>`;
     return;
   }
-  const user = getCurrentUser();
-  const existing = await getEntryByUser(battle.id, user.id);
+  const [user, settings] = await Promise.all([getCurrentUser(), getSettings()]);
 
   const header = `
     <section class="hero hero-small">
@@ -24,12 +23,21 @@ export async function renderEnter(root, { id } = {}) {
       <h1 class="neon-title">${esc(t('enter.title'))}</h1>
     </section>`;
 
-  if (existing) {
-    root.innerHTML = header + entryCard(existing, t('enter.already.title'), t('enter.already.text'));
-    wireEntryCard(root, existing, battle.id);
+  if (!user) {
+    root.innerHTML = header + `<section class="card">
+      <p>${esc(t('enter.loginNeeded'))}</p>
+      <div class="actions"><a class="btn btn-primary" href="#/profile">${esc(t('auth.loginOrSignup'))}</a></div></section>`;
     return;
   }
-  if (battleStatus(battle) !== 'open') {
+
+  const existing = await getEntryByUser(battle.id, user.id);
+  const isOpen = battleStatus(battle) === 'open';
+  if (existing) {
+    root.innerHTML = header + entryCard(existing, t('enter.already.title'), t('enter.already.text'), { canWithdraw: isOpen });
+    wireWithdraw(root, existing, battle.id);
+    return;
+  }
+  if (!isOpen) {
     root.innerHTML = header + `<section class="card"><p>${esc(t('enter.closed'))}</p>
       <a class="btn btn-ghost" href="#/battle/${encodeURIComponent(battle.id)}">${esc(t('nav.battle'))}</a></section>`;
     return;
@@ -50,11 +58,11 @@ export async function renderEnter(root, { id } = {}) {
         <p class="badge-ok" data-clean-status hidden></p>
       </div>
 
-      <div class="field">
+      ${settings.showStrain ? `<div class="field">
         <label class="label" for="strain">${esc(t('enter.strain'))}</label>
         <input id="strain" name="strain" type="text" maxlength="${STRAIN_MAX}" required autocomplete="off"
           placeholder="${esc(t('enter.strainPlaceholder'))}">
-      </div>
+      </div>` : ''}
 
       <div class="field">
         <label class="label" for="description">${esc(t('enter.description'))}</label>
@@ -123,9 +131,9 @@ export async function renderEnter(root, { id } = {}) {
   form.addEventListener('submit', async (ev) => {
     ev.preventDefault();
     clearError();
-    const strain = form.strain.value.trim();
+    const strain = settings.showStrain ? form.strain.value.trim() : '';
     if (!cleaned) return showError('error.photoRequired');
-    if (!strain) return showError('error.strainRequired');
+    if (settings.showStrain && !strain) return showError('error.strainRequired');
     if (!form.confirm.checked) return showError('error.confirmRequired');
 
     submitBtn.disabled = true;
@@ -133,17 +141,17 @@ export async function renderEnter(root, { id } = {}) {
     try {
       const entry = await addEntry({
         battleId: battle.id,
-        userId: user.id,
         strain: strain.slice(0, STRAIN_MAX),
-        description: desc.value.slice(0, DESC_MAX),
+        description: desc.value.trim().slice(0, DESC_MAX),
         photo: cleaned.blob,
         width: cleaned.width,
         height: cleaned.height,
       });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
-      root.innerHTML = header + entryCard(entry, t('enter.success.title'), t('enter.success.text'), true);
-      wireEntryCard(root, entry, battle.id);
+      root.innerHTML = header + entryCard(entry, t('enter.success.title'), t('enter.success.text'), { success: true, canWithdraw: true });
+      wireWithdraw(root, entry, battle.id);
     } catch (e) {
+      console.error(e);
       showError(e.code || 'error.generic');
       submitBtn.disabled = false;
       submitBtn.textContent = t('enter.submit');
@@ -151,31 +159,42 @@ export async function renderEnter(root, { id } = {}) {
   });
 }
 
-function entryCard(entry, title, text, success = false) {
+function entryCard(entry, title, text, { success = false, canWithdraw = false } = {}) {
   return `
     <section class="card ${success ? 'card-success' : ''}">
       <h2>${esc(title)}</h2>
       <p>${esc(text)}</p>
       <figure class="entry">
-        <img data-entry-img alt="${esc(entry.strain)}">
+        <img src="${esc(entry.photoUrl)}" alt="${esc(entry.strain || '')}">
         <figcaption>
-          <strong>${esc(entry.strain)}</strong>
+          ${entry.strain ? `<strong>${esc(entry.strain)}</strong>` : ''}
           ${entry.description ? `<p>${esc(entry.description)}</p>` : ''}
           <p class="small">${esc(t('enter.statusLabel'))}:
             <span class="pill pill-${esc(entry.status)}">${esc(t(`enter.status.${entry.status}`))}</span></p>
         </figcaption>
       </figure>
-      <button class="btn btn-ghost btn-small" type="button" data-delete>${esc(t('enter.removeDemo'))}</button>
+      ${canWithdraw ? `<button class="btn btn-ghost btn-small" type="button" data-withdraw>${esc(t('enter.withdraw'))}</button>` : ''}
     </section>`;
 }
 
-function wireEntryCard(root, entry, battleId) {
-  const img = root.querySelector('[data-entry-img]');
-  const url = URL.createObjectURL(entry.photo);
-  img.src = url;
-  img.onload = () => URL.revokeObjectURL(url);
-  root.querySelector('[data-delete]').addEventListener('click', async () => {
-    await deleteEntry(entry.id);
-    renderEnter(root, { id: battleId });
+function wireWithdraw(root, entry, battleId) {
+  const btn = root.querySelector('[data-withdraw]');
+  if (!btn) return;
+  let armed = false; // first tap asks, second tap withdraws (no browser pop-ups needed)
+  btn.addEventListener('click', async () => {
+    if (!armed) {
+      armed = true;
+      btn.textContent = t('enter.withdrawConfirm');
+      btn.classList.add('btn-danger');
+      return;
+    }
+    btn.disabled = true;
+    try {
+      await withdrawEntry(entry);
+      renderEnter(root, { id: battleId });
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = t(e.code || 'error.generic');
+    }
   });
 }

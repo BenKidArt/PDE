@@ -1,6 +1,6 @@
 // BATTLE PAGE: theme, dates, prize, partner logo, rules.
 import { t, tc, formatDate } from '../i18n.js';
-import { getBattle, getCurrentBattle, battleStatus, countEntries } from '../store.js';
+import { getBattle, getCurrentBattle, battleStatus, countEntries, getSettings } from '../store.js';
 import { esc, splitDuration } from '../ui.js';
 
 export async function renderBattle(root, { id } = {}) {
@@ -11,7 +11,10 @@ export async function renderBattle(root, { id } = {}) {
   }
 
   const status = battleStatus(battle);
-  const entries = await countEntries(battle.id);
+  const [entries, settings] = await Promise.all([countEntries(battle.id), getSettings()]);
+  const showPrize = settings.showPrize && battle.prize && tc(battle.prize);
+  const showPartner = settings.showPartner && battle.partner;
+  const rules = tc(battle.rules) || [];
   const target = { upcoming: battle.start, open: battle.entriesClose, voting: battle.votingEnds }[status];
 
   root.innerHTML = `
@@ -43,25 +46,24 @@ export async function renderBattle(root, { id } = {}) {
     </section>
 
     <section class="card card-pink">
-      <h2>${esc(t('battle.prize'))}</h2>
-      <p>${esc(tc(battle.prize))}</p>
+      ${showPrize ? `<h2>${esc(t('battle.prize'))}</h2><p>${esc(tc(battle.prize))}</p>` : ''}
       <p class="muted small">${esc(t('battle.free'))}</p>
     </section>
 
-    ${battle.partner ? `
+    ${showPartner ? `
     <section class="card partner">
       <h2>${esc(t('battle.partner'))}</h2>
-      <img class="partner-logo" src="${esc(battle.partner.logo)}" alt="${esc(battle.partner.name)}" loading="lazy">
+      ${battle.partner.logo ? `<img class="partner-logo" src="${esc(battle.partner.logo)}" alt="${esc(battle.partner.name)}" loading="lazy">` : ''}
       <p class="partner-name">${esc(battle.partner.name)}</p>
-      ${battle.partner.url ? `<a class="link" href="${esc(battle.partner.url)}" target="_blank" rel="noopener noreferrer">${esc(t('battle.partnerVisit'))} ↗</a>` : ''}
+      ${/^https:\/\//.test(battle.partner.url || '') ? `<a class="link" href="${esc(battle.partner.url)}" target="_blank" rel="noopener noreferrer">${esc(t('battle.partnerVisit'))} ↗</a>` : ''}
     </section>` : ''}
 
-    <section class="card">
+    ${rules.length ? `<section class="card">
       <h2>${esc(t('battle.rules'))}</h2>
       <ol class="rules">
-        ${battle.rules.map((r) => `<li>${esc(tc(r))}</li>`).join('')}
+        ${rules.map((r) => `<li>${esc(r)}</li>`).join('')}
       </ol>
-    </section>
+    </section>` : ''}
   `;
 
   if (target) startCountdown(root.querySelector('[data-countdown-value]'), new Date(target));
