@@ -65,7 +65,8 @@ After `schema.sql`, run the files in `supabase/migrations/` in number order, eac
 (SQL Editor → New query → paste → Run):
 - `002_test_battles.sql`: hidden test battles that only admins can see (also creates one test battle)
 - `003_testers_and_badges.sql`: tester role and badges
-- `004_automatic_badges.sql`: Founding Member, Top 3 and Battle Champion are handed out automatically
+- `004_automatic_badges.sql`: Founding Member, place badges and Battle Champion are handed out automatically
+- `005_place_badges.sql`: separate badges for 1st, 2nd and 3rd place
 
 To remove the test battle and its photos later, run:
 `delete from public.battles where id = 'test-battle';`

@@ -52,10 +52,10 @@
     {
       "id": "badge_bulldog",
       "image": "assets/badges/badge_bulldog.webp",
-      "name_de": "Top 3",
-      "name_en": "Top 3",
-      "description_de": "Unter den besten drei eines Battles.",
-      "description_en": "Finished in the top three of a battle.",
+      "name_de": "1. Platz",
+      "name_en": "1st Place",
+      "description_de": "Platz 1 in einem Battle.",
+      "description_en": "1st place in a battle.",
       "kind": "award",
       "price_points": null,
       "active": true,
@@ -88,14 +88,14 @@
     {
       "id": "badge_panda",
       "image": "assets/badges/badge_panda.webp",
-      "name_de": "Panda",
-      "name_en": "Panda",
-      "description_de": "",
-      "description_en": "",
+      "name_de": "3. Platz",
+      "name_en": "3rd Place",
+      "description_de": "Platz 3 in einem Battle.",
+      "description_en": "3rd place in a battle.",
       "kind": "award",
       "price_points": null,
-      "active": false,
-      "sort": 100
+      "active": true,
+      "sort": 12
     },
     {
       "id": "badge_octopus",
@@ -112,14 +112,14 @@
     {
       "id": "badge_rat",
       "image": "assets/badges/badge_rat.webp",
-      "name_de": "Rat",
-      "name_en": "Rat",
-      "description_de": "",
-      "description_en": "",
+      "name_de": "2. Platz",
+      "name_en": "2nd Place",
+      "description_de": "Platz 2 in einem Battle.",
+      "description_en": "2nd place in a battle.",
       "kind": "award",
       "price_points": null,
-      "active": false,
-      "sort": 100
+      "active": true,
+      "sort": 11
     },
     {
       "id": "badge_mobster",
