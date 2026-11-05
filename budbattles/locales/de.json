@@ -187,5 +187,6 @@
   "battle.testNotice": "Test-Battle: nur für Admins sichtbar. Besucher und normale Mitglieder sehen es nicht.",
   "admin.openBattle": "Battle-Seite",
   "admin.openEnter": "Mitmachen",
-  "admin.openStandings": "Ranking"
+  "admin.openStandings": "Ranking",
+  "home.heroAlt": "GreenZillah und PinkZillah halten gemeinsam einen goldenen Pokal."
 }

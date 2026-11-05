@@ -71,26 +71,35 @@ export async function renderStandings(root, { id } = {}) {
 
     const showVotes = status === 'voting' || status === 'ended';
     const canVote = status === 'voting' && user && !myVote;
-    listEl.innerHTML = entries.map((e) => `
-      <li class="rank-item ${e.rank === 1 && showVotes && e.votes > 0 ? 'rank-top' : ''} ${e.id === myVote ? 'rank-voted' : ''}" data-entry="${esc(e.id)}">
-        ${showVotes ? `<span class="rank-num" aria-label="${esc(t('standings.rank', { rank: e.rank }))}">${e.rank}</span>` : ''}
-        <img class="rank-photo" src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" loading="lazy" data-zoom>
-        <div class="rank-body">
-          <p class="rank-name"><strong>${esc(e.displayName)}</strong>
-            ${e.isMine ? `<span class="pill pill-open">${esc(t('standings.yours'))}</span>` : ''}
-            ${status === 'ended' && e.rank === 1 && e.votes > 0 ? `<span class="pill pill-voting">★ ${esc(t('standings.featured'))}</span>` : ''}</p>
-          ${e.strain ? `<p class="rank-strain">${esc(e.strain)}</p>` : ''}
+    listEl.innerHTML = entries.map((e) => {
+      const top = showVotes && e.rank === 1 && e.votes > 0; // only the leader gets the gold glow
+      return `
+      <li class="entry-card ${top ? 'entry-top' : ''} ${e.id === myVote ? 'entry-voted' : ''}" data-entry="${esc(e.id)}">
+        <div class="entry-frame">
+          <img src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" loading="lazy" data-zoom>
+          ${showVotes ? `<span class="rank-pill ${top ? 'rank-pill-gold' : ''}" aria-label="${esc(t('standings.rank', { rank: e.rank }))}">#${e.rank}</span>` : ''}
+          ${status === 'ended' && top ? `<span class="featured-pill">★ ${esc(t('standings.featured'))}</span>` : ''}
+        </div>
+        <div class="entry-body">
+          <p class="entry-name"><strong>${esc(e.displayName)}</strong>
+            ${e.isMine ? `<span class="pill pill-open">${esc(t('standings.yours'))}</span>` : ''}</p>
+          <div class="entry-row">
+            <div class="entry-info">
+              ${e.strain ? `<p class="entry-strain">${esc(e.strain)}</p>` : ''}
+              ${showVotes ? `<p class="entry-votes"><span class="tabular">${e.votes}</span> ${esc(t(e.votes === 1 ? 'standings.vote' : 'standings.votes'))}</p>` : ''}
+            </div>
+            ${canVote && !e.isMine ? `<button type="button" class="btn btn-vote ${armedId === e.id ? 'is-armed' : ''}" data-vote>
+              ${esc(t(armedId === e.id ? 'vote.confirm' : 'vote.button'))}</button>` : ''}
+            ${e.id === myVote ? `<span class="your-vote">✓ ${esc(t('vote.yourVote'))}</span>` : ''}
+          </div>
           ${e.description ? `<p class="small muted">${esc(e.description)}</p>` : ''}
-          ${showVotes ? `<p class="rank-votes"><span class="tabular">${e.votes}</span> ${esc(t(e.votes === 1 ? 'standings.vote' : 'standings.votes'))}</p>` : ''}
-          ${e.id === myVote ? `<p class="small rank-myvote">✓ ${esc(t('vote.yourVote'))}</p>` : ''}
-          ${canVote && !e.isMine ? `<button type="button" class="btn ${armedId === e.id ? 'btn-primary' : 'btn-ghost'} btn-small" data-vote>
-            ${esc(t(armedId === e.id ? 'vote.confirm' : 'vote.button'))}</button>` : ''}
           <p class="error small" data-error hidden></p>
         </div>
-      </li>`).join('');
+      </li>`;
+    }).join('');
 
     listEl.querySelectorAll('[data-zoom]').forEach((img) => img.addEventListener('click', () => {
-      img.closest('.rank-item').classList.toggle('expanded');
+      img.closest('.entry-card').classList.toggle('expanded');
     }));
     listEl.querySelectorAll('[data-vote]').forEach((btn) => btn.addEventListener('click', async () => {
       const entryId = btn.closest('[data-entry]').dataset.entry;
@@ -107,7 +116,7 @@ export async function renderStandings(root, { id } = {}) {
         armedId = null;
         await refresh();
       } catch (e) {
-        const err = btn.parentElement.querySelector('[data-error]');
+        const err = btn.closest('[data-entry]').querySelector('[data-error]');
         err.textContent = t(e.code || 'error.generic');
         err.hidden = false;
         btn.disabled = false;

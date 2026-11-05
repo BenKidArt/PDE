@@ -187,5 +187,6 @@
   "battle.testNotice": "Test battle: only visible to admins. Visitors and regular members can't see it.",
   "admin.openBattle": "Battle page",
   "admin.openEnter": "Enter",
-  "admin.openStandings": "Standings"
+  "admin.openStandings": "Standings",
+  "home.heroAlt": "GreenZillah and PinkZillah holding a golden trophy together."
 }

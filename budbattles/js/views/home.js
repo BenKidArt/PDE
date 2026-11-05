@@ -12,6 +12,9 @@ export async function renderHome(root) {
   const enc = (id) => encodeURIComponent(id);
 
   root.innerHTML = `
+    <figure class="home-hero-media">
+      <img src="assets/hero-trophy.webp" alt="${esc(t('home.heroAlt'))}" width="860" height="894" fetchpriority="high" decoding="async">
+    </figure>
     <section class="hero home-hero">
       <p class="eyebrow">${esc(t('app.adultsOnly'))}</p>
       <h1 class="home-title">${esc(t('home.title'))}</h1>
