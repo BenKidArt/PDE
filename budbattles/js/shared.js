@@ -18,6 +18,19 @@ export function battleStatus(b, at = now()) {
   return 'ended';
 }
 
+/** Turns a badges table row into the app's badge shape. */
+export function toBadge(r) {
+  return {
+    id: r.id,
+    image: r.image,
+    name: { de: r.name_de, en: r.name_en },
+    description: { de: r.description_de, en: r.description_en },
+    kind: r.kind, // 'award' | 'buyable'
+    pricePoints: r.price_points ?? null, // only for 'buyable' (points come later)
+    sort: r.sort,
+  };
+}
+
 /** Adds a rank to a list sorted by votes (ties share a rank: 1, 1, 3). */
 export function withRanks(list) {
   let rank = 0;

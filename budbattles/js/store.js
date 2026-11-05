@@ -29,7 +29,8 @@ export const {
   initStore, // call once at start-up
   getBattles,
   getSettings, // { showPartner, showPrize, showStrain }
-  getCurrentUser, // { id, email, displayName, isAdmin } or null
+  getCurrentUser, // { id, email, displayName, isAdmin, isTester, canTest, badges:[ids] } or null
+  getBadgeCatalog, // active badges: [{ id, image, name:{de,en}, description, kind, pricePoints, sort }]
   onAuthEvent, // (cb) → cb('SIGNED_IN' | 'SIGNED_OUT' | 'PASSWORD_RECOVERY')
   signUp, // ({ email, password, displayName, ageConfirmed, termsAccepted }) → { needsConfirmation }
   signIn, // ({ email, password })

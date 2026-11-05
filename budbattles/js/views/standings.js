@@ -1,9 +1,9 @@
 // STANDINGS: live ranking of approved photos, and voting (one vote per member per battle).
 import { t, tc, formatDate } from '../i18n.js';
 import {
-  getBattle, getCurrentBattle, battleStatus, getStandings, getMyVote, castVote, getCurrentUser,
+  getBattle, getCurrentBattle, battleStatus, getStandings, getMyVote, castVote, getCurrentUser, getBadgeCatalog,
 } from '../store.js';
-import { esc } from '../ui.js';
+import { esc, badgeIcons } from '../ui.js';
 import { battleLabel, testNotice } from './battle.js';
 
 const REFRESH_MS = 15000; // "live": refresh every 15 seconds while the page is open
@@ -14,7 +14,7 @@ export async function renderStandings(root, { id } = {}) {
     root.innerHTML = `<section class="card"><p>${esc(t('battle.none'))}</p></section>`;
     return;
   }
-  const user = await getCurrentUser();
+  const [user, badgeCatalog] = await Promise.all([getCurrentUser(), getBadgeCatalog()]);
 
   root.innerHTML = `${testNotice(battle)}
     <section class="hero hero-small">
@@ -81,7 +81,7 @@ export async function renderStandings(root, { id } = {}) {
           ${status === 'ended' && top ? `<span class="featured-pill">★ ${esc(t('standings.featured'))}</span>` : ''}
         </div>
         <div class="entry-body">
-          <p class="entry-name"><strong>${esc(e.displayName)}</strong>
+          <p class="entry-name"><strong>${esc(e.displayName)}</strong>${badgeIcons(e.badges, badgeCatalog, (b) => tc(b.name))}
             ${e.isMine ? `<span class="pill pill-open">${esc(t('standings.yours'))}</span>` : ''}</p>
           <div class="entry-row">
             <div class="entry-info">

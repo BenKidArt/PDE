@@ -1,10 +1,11 @@
 // REAL data layer: Supabase (database, photo storage and login), servers in Frankfurt.
 import { CONFIG } from './config.js';
-import { StoreError, withRanks } from './shared.js';
+import { StoreError, withRanks, toBadge } from './shared.js';
 
 const BUCKET = 'entry-photos';
 let sb; // Supabase client
-let profileCache = null; // { id, email, displayName, isAdmin }
+let profileCache = null; // { id, email, displayName, isAdmin, isTester, canTest, badges }
+let badgeCache = null;
 let battlesCache = null;
 const listeners = new Set();
 const emit = (event) => listeners.forEach((cb) => cb(event));
@@ -96,6 +97,15 @@ export async function getBattles() {
   return battlesCache;
 }
 
+/** Active badges, sorted. Inactive ones are never shown. */
+export async function getBadgeCatalog() {
+  if (!badgeCache) {
+    const { data, error } = await sb.from('badges').select('*').eq('active', true).order('sort');
+    badgeCache = error ? [] : data.map(toBadge);
+  }
+  return badgeCache;
+}
+
 export async function getSettings() {
   const { data, error } = await sb.from('settings').select('*').eq('id', 1).maybeSingle();
   if (error || !data) return { showPartner: true, showPrize: true, showStrain: true };
@@ -108,13 +118,23 @@ export async function getCurrentUser() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return null;
   if (profileCache?.id === session.user.id) return profileCache;
-  const { data, error } = await sb.from('profiles').select('display_name, is_admin').eq('id', session.user.id).maybeSingle();
+  let [{ data, error }, own] = await Promise.all([
+    sb.from('profiles').select('display_name, is_admin, is_tester').eq('id', session.user.id).maybeSingle(),
+    sb.from('user_badges').select('badge_id').eq('user_id', session.user.id),
+  ]);
+  if (error) {
+    // Safety net: database update 003 (testers + badges) not run yet → load without the tester flag.
+    ({ data, error } = await sb.from('profiles').select('display_name, is_admin').eq('id', session.user.id).maybeSingle());
+  }
   if (error) fail(error);
   profileCache = {
     id: session.user.id,
     email: session.user.email,
     displayName: data?.display_name || '',
     isAdmin: !!data?.is_admin,
+    isTester: !!data?.is_tester,
+    canTest: !!(data?.is_admin || data?.is_tester), // may see and use hidden test battles
+    badges: (own.data || []).map((b) => b.badge_id),
   };
   return profileCache;
 }
@@ -260,6 +280,7 @@ export async function getStandings(battleId) {
     votes: r.votes,
     isMine: r.is_mine,
     createdAt: r.created_at,
+    badges: r.badges || [],
   })));
 }
 

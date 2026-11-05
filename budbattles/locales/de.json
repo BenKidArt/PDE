@@ -184,9 +184,14 @@
   "error.voteOwn": "Für dein eigenes Foto kannst du nicht stimmen.",
   "error.alreadyVoted": "Du hast in diesem Battle schon abgestimmt.",
   "battle.testLabel": "TEST-BATTLE",
-  "battle.testNotice": "Test-Battle: nur für Admins sichtbar. Besucher und normale Mitglieder sehen es nicht.",
+  "battle.testNotice": "Test-Battle: nur für Admins und Tester sichtbar. Besucher und normale Mitglieder sehen es nicht.",
   "admin.openBattle": "Battle-Seite",
   "admin.openEnter": "Mitmachen",
   "admin.openStandings": "Ranking",
-  "home.heroAlt": "GreenZillah und PinkZillah halten gemeinsam einen goldenen Pokal."
+  "home.heroAlt": "GreenZillah und PinkZillah halten gemeinsam einen goldenen Pokal.",
+  "nav.tests": "Test-Battles",
+  "tests.intro": "Versteckte Battles zum Ausprobieren. Nur Admins und Tester sehen sie.",
+  "tests.none": "Gerade gibt es keine Test-Battles.",
+  "tests.noAccess": "Dieser Bereich ist nur für Tester und Admins.",
+  "profile.tester": "Tester"
 }

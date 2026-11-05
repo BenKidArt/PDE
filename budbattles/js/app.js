@@ -12,6 +12,7 @@ import { renderProfile, renderNewPassword } from './views/profile.js';
 import { renderTerms } from './views/terms.js';
 import { renderAdmin } from './views/admin.js';
 import { renderSoon } from './views/soon.js';
+import { renderTests } from './views/tests.js';
 import { esc } from './ui.js';
 
 const routes = {
@@ -25,6 +26,7 @@ const routes = {
   'new-password': renderNewPassword,
   terms: renderTerms,
   admin: renderAdmin,
+  tests: renderTests,
 };
 
 // Bottom bar: the five things people use most.
@@ -45,6 +47,7 @@ const MENU = [
   { key: 'gallery', path: 'gallery', soon: true },
   { key: 'business', path: 'business', soon: true },
   { key: 'profile', path: 'profile' },
+  { key: 'tests', path: 'tests', testersOnly: true },
   { key: 'admin', path: 'admin', adminOnly: true },
   { key: 'terms', path: 'terms' },
 ];
@@ -56,9 +59,13 @@ function parseHash() {
   return { page, id: id ? decodeURIComponent(id) : undefined };
 }
 
+// Pages that belong to one battle. While you look at one, the bottom bar's
+// Battle / Enter / Standings buttons open THAT battle (also a test battle).
+const BATTLE_PAGES = ['battle', 'enter', 'standings'];
+
 async function render() {
   const { page, id } = parseHash();
-  await renderChrome(page);
+  await renderChrome(page, BATTLE_PAGES.includes(page) ? id : undefined);
   const main = document.getElementById('main');
   const view = routes[page];
   if (!view) {
@@ -83,7 +90,7 @@ async function render() {
   window.scrollTo(0, 0);
 }
 
-async function renderChrome(activePage) {
+async function renderChrome(activePage, battleId) {
   document.title = t('app.name');
   const user = await getCurrentUser();
   const isActive = (path) => path === activePage || (path === 'profile' && activePage === 'admin');
@@ -106,7 +113,7 @@ async function renderChrome(activePage) {
         <span class="eyebrow">${esc(t('menu.title'))}</span>
         <button type="button" class="menu-button" data-menu-close aria-label="${esc(t('menu.close'))}">✕</button>
       </div>
-      ${MENU.filter((m) => !m.adminOnly || user?.isAdmin).map((m) => `
+      ${MENU.filter((m) => (!m.adminOnly || user?.isAdmin) && (!m.testersOnly || user?.canTest)).map((m) => `
         <a href="#/${m.path}" class="menu-link ${isActive(m.path) ? 'active' : ''}" data-menu-close>
           <span>${esc(t(`nav.${m.key}`))}</span>
           ${m.soon ? `<span class="pill pill-upcoming">${esc(t('soon.badge'))}</span>` : ''}
@@ -126,8 +133,9 @@ async function renderChrome(activePage) {
       </label>`;
   }
 
+  const navHref = (n) => (battleId && BATTLE_PAGES.includes(n.path) ? `#/${n.path}/${encodeURIComponent(battleId)}` : `#/${n.path}`);
   document.getElementById('bottomnav').innerHTML = NAV.map((n) => `
-    <a href="#/${n.path}" class="${isActive(n.path) ? 'active' : ''}" ${n.path === activePage ? 'aria-current="page"' : ''}>
+    <a href="${navHref(n)}" class="${isActive(n.path) ? 'active' : ''}" ${n.path === activePage ? 'aria-current="page"' : ''}>
       <span class="nav-icon" aria-hidden="true">${n.icon}</span><span>${esc(t(`nav.${n.key}`))}</span>
     </a>`).join('');
 }
@@ -139,7 +147,36 @@ function setMenu(open) {
   if (open) menu.querySelector('.menu-link')?.focus();
 }
 
+// Badge name bubble: tap a badge icon to see what it is.
+let tipTimer;
+function showBadgeTip(btn) {
+  let tip = document.getElementById('badge-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.id = 'badge-tip';
+    tip.className = 'badge-tip';
+    tip.setAttribute('role', 'status');
+    document.body.appendChild(tip);
+  }
+  tip.textContent = btn.dataset.badgeName;
+  tip.hidden = false;
+  const r = btn.getBoundingClientRect();
+  const w = tip.offsetWidth;
+  tip.style.left = `${Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2))}px`;
+  tip.style.top = `${Math.max(8, r.top - tip.offsetHeight - 8)}px`;
+  clearTimeout(tipTimer);
+  tipTimer = setTimeout(() => { tip.hidden = true; }, 2500);
+}
+function hideBadgeTip() {
+  const tip = document.getElementById('badge-tip');
+  if (tip) tip.hidden = true;
+}
+window.addEventListener('scroll', hideBadgeTip, { passive: true });
+
 document.addEventListener('click', async (e) => {
+  const badge = e.target.closest('.badge-btn');
+  if (badge) { e.preventDefault(); e.stopPropagation(); return showBadgeTip(badge); }
+  hideBadgeTip();
   if (e.target.closest('[data-menu-open]')) return setMenu(true);
   if (e.target.closest('[data-menu-close]')) return setMenu(false);
   const btn = e.target.closest('[data-lang]');

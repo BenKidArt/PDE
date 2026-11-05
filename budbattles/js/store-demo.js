@@ -1,7 +1,7 @@
 // DEMO data layer: everything is saved in this browser only (IndexedDB +
 // localStorage). Used when js/config.js has no Supabase details.
 import { CONFIG } from './config.js';
-import { StoreError, battleStatus, setClockOffset, withRanks } from './shared.js';
+import { StoreError, battleStatus, setClockOffset, withRanks, toBadge } from './shared.js';
 
 const DB_NAME = 'budbattles-demo';
 const DB_VERSION = 2;
@@ -94,6 +94,15 @@ export async function getBattles() {
   return battlesCache;
 }
 
+let badgeCache;
+export async function getBadgeCatalog() {
+  if (!badgeCache) {
+    const res = await fetch('data/badges.json');
+    badgeCache = (await res.json()).badges.filter((b) => b.active).map(toBadge).sort((a, b) => a.sort - b.sort);
+  }
+  return badgeCache;
+}
+
 export async function getSettings() {
   const f = CONFIG.features;
   return { showPartner: f.partner, showPrize: f.prize, showStrain: f.strain };
@@ -116,7 +125,8 @@ export async function signUp({ email, password, displayName, ageConfirmed, terms
   const accounts = readJson(ACCOUNTS_KEY, {});
   const key = email.trim().toLowerCase();
   if (accounts[key]) throw new StoreError('error.emailTaken');
-  const user = { id: crypto.randomUUID(), email: key, displayName: displayName.trim(), isAdmin: true };
+  // Demo accounts are admins so every screen can be tried. Everyone gets the Welcome badge.
+  const user = { id: crypto.randomUUID(), email: key, displayName: displayName.trim(), isAdmin: true, isTester: false, canTest: true, badges: ['badge_star'] };
   accounts[key] = { ...user, pw: await hash(password), termsVersion: CONFIG.termsVersion, ageConfirmedAt: new Date().toISOString() };
   writeJson(ACCOUNTS_KEY, accounts);
   writeJson(SESSION_KEY, user);
@@ -128,7 +138,7 @@ export async function signIn({ email, password }) {
   const acc = readJson(ACCOUNTS_KEY, {})[email.trim().toLowerCase()];
   if (!acc || acc.pw !== await hash(password)) throw new StoreError('error.loginFailed');
   const { id, displayName, isAdmin } = acc;
-  writeJson(SESSION_KEY, { id, email: acc.email, displayName, isAdmin });
+  writeJson(SESSION_KEY, { id, email: acc.email, displayName, isAdmin, isTester: !!acc.isTester, canTest: true, badges: acc.badges || ['badge_star'] });
   emit('SIGNED_IN');
 }
 
@@ -220,10 +230,10 @@ export async function reviewEntry(id, status) {
 /** Demo only: adds a few sample entries from pretend growers, so there is something to review. */
 export async function seedDemoEntries(battleId) {
   const samples = [
-    { name: 'NightOwl', strain: 'Northern Lights', desc: 'Woche 9, voller Frost.', colors: ['#1c2a33', '#d8f3ff'], votes: 12 },
-    { name: 'BalkonBuds', strain: 'Gorilla Glue', desc: 'Harzig wie nie.', colors: ['#20301f', '#e9ffe0'], votes: 7 },
-    { name: 'TentQueen', strain: 'Wedding Cake', desc: 'Nahaufnahme mit Makrolinse.', colors: ['#2e1b2a', '#ffe3f4'], votes: 7 },
-    { name: 'GrowOpa', strain: 'Blue Dream', desc: 'Erster Grow, erstes Battle.', colors: ['#141e2e', '#bcd6ff'], votes: 3 },
+    { name: 'NightOwl', strain: 'Northern Lights', desc: 'Woche 9, voller Frost.', colors: ['#1c2a33', '#d8f3ff'], votes: 12, badges: ['badge_bulldog', 'badge_heart', 'badge_star'] },
+    { name: 'BalkonBuds', strain: 'Gorilla Glue', desc: 'Harzig wie nie.', colors: ['#20301f', '#e9ffe0'], votes: 7, badges: ['badge_heart', 'badge_star'] },
+    { name: 'TentQueen', strain: 'Wedding Cake', desc: 'Nahaufnahme mit Makrolinse.', colors: ['#2e1b2a', '#ffe3f4'], votes: 7, badges: ['badge_star'] },
+    { name: 'GrowOpa', strain: 'Blue Dream', desc: 'Erster Grow, erstes Battle.', colors: ['#141e2e', '#bcd6ff'], votes: 3, badges: ['badge_star'] },
   ];
   for (const sample of samples) {
     const canvas = document.createElement('canvas');
@@ -252,6 +262,7 @@ export async function seedDemoEntries(battleId) {
       height: 1200,
       status: 'pending',
       baseVotes: sample.votes, // pretend votes from other members
+      badges: sample.badges, // pretend badges
       createdAt: new Date().toISOString(),
     };
     try { await tx('readwrite', (s) => s.add(row)); } catch { /* already seeded */ }
@@ -286,6 +297,7 @@ export async function getStandings(battleId) {
     displayName: r.displayName || accounts.find((a) => a.id === r.userId)?.displayName || '?',
     votes: (r.baseVotes || 0) + votes.filter((v) => v.entryId === r.id).length,
     isMine: !!user && r.userId === user.id,
+    badges: r.badges || accounts.find((a) => a.id === r.userId)?.badges || [],
   }));
   list.sort((a, b) => b.votes - a.votes || a.createdAt.localeCompare(b.createdAt));
   return withRanks(list);

@@ -484,3 +484,23 @@ select {
 @media (prefers-reduced-motion: reduce) {
   .countdown::after, .btn-vote::after { animation: none; opacity: .5; }
 }
+
+/* ---------- Badges ---------- */
+.badges { display: inline-flex; align-items: center; gap: 2px; margin-left: 6px; vertical-align: middle; }
+.badge-btn {
+  display: inline-grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer;
+  width: 30px; height: 30px; border-radius: 50%;  /* comfortable tap target around a small icon */
+}
+.badge-btn img { width: 22px; height: 22px; object-fit: contain; }
+.badges-large .badge-btn { width: 40px; height: 40px; }
+.badges-large .badge-btn img { width: 32px; height: 32px; }
+.badge-btn:focus-visible { outline: 2px solid var(--gold, #f2c14e); outline-offset: 1px; }
+.profile-name { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.profile-name .badges { margin-left: 0; text-shadow: none; }
+.badge-tip {
+  position: fixed; z-index: 40; max-width: 70vw; padding: 7px 12px; border-radius: 10px;
+  background: #111712; color: var(--text); border: 1px solid rgba(242, 193, 78, .55);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .6); font-size: .85rem; font-weight: 700; pointer-events: none;
+}
+.tests-title { margin: 0; font-size: 1.15rem; text-transform: none; letter-spacing: 0; }
+.card .admin-links { margin-top: 10px; }

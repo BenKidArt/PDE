@@ -1,28 +1,28 @@
 // PROFILE: shows login / sign-up when logged out, your account when logged in.
-import { t } from '../i18n.js';
+import { t, tc } from '../i18n.js';
 import {
-  getCurrentUser, signIn, signUp, signOut, requestPasswordReset, updatePassword, isDemo,
+  getCurrentUser, signIn, signUp, signOut, requestPasswordReset, updatePassword, isDemo, getBadgeCatalog,
 } from '../store.js';
-import { esc } from '../ui.js';
+import { esc, badgeIcons } from '../ui.js';
 
 const PASSWORD_MIN = 8;
 
 export async function renderProfile(root) {
   const user = await getCurrentUser();
-  if (user) return renderAccount(root, user);
+  if (user) return renderAccount(root, user, await getBadgeCatalog());
   return renderAuth(root, 'login');
 }
 
-function renderAccount(root, user) {
+function renderAccount(root, user, catalog) {
   root.innerHTML = `
     <section class="hero hero-small">
       <p class="eyebrow">${esc(t('nav.profile'))}</p>
-      <h1 class="neon-title">${esc(user.displayName)}</h1>
+      <h1 class="neon-title profile-name">${esc(user.displayName)}${badgeIcons(user.badges, catalog, (b) => tc(b.name), 'large')}</h1>
     </section>
     <section class="card">
       <dl class="dates">
         <div class="date-row"><dt>${esc(t('auth.email'))}</dt><dd>${esc(user.email)}</dd></div>
-        ${user.isAdmin ? `<div class="date-row active"><dt>${esc(t('profile.role'))}</dt><dd>${esc(t('profile.admin'))}</dd></div>` : ''}
+        ${user.isAdmin || user.isTester ? `<div class="date-row active"><dt>${esc(t('profile.role'))}</dt><dd>${esc([user.isAdmin && t('profile.admin'), user.isTester && t('profile.tester')].filter(Boolean).join(' · '))}</dd></div>` : ''}
       </dl>
       <div class="actions">
         ${user.isAdmin ? `<a class="btn btn-primary" href="#/admin">${esc(t('admin.open'))}</a>` : ''}

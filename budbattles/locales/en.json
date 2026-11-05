@@ -184,9 +184,14 @@
   "error.voteOwn": "You can't vote for your own photo.",
   "error.alreadyVoted": "You have already voted in this battle.",
   "battle.testLabel": "TEST BATTLE",
-  "battle.testNotice": "Test battle: only visible to admins. Visitors and regular members can't see it.",
+  "battle.testNotice": "Test battle: only visible to admins and testers. Visitors and regular members can't see it.",
   "admin.openBattle": "Battle page",
   "admin.openEnter": "Enter",
   "admin.openStandings": "Standings",
-  "home.heroAlt": "GreenZillah and PinkZillah holding a golden trophy together."
+  "home.heroAlt": "GreenZillah and PinkZillah holding a golden trophy together.",
+  "nav.tests": "Test battles",
+  "tests.intro": "Hidden battles for trying things out. Only admins and testers can see them.",
+  "tests.none": "There are no test battles right now.",
+  "tests.noAccess": "This area is for testers and admins only.",
+  "profile.tester": "Tester"
 }

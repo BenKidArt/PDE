@@ -1,0 +1,113 @@
+{
+  "_note": "Demo copy of the badges table. kind: 'award' (given by admin/automatically) or 'buyable' (needs price_points; points are not built yet).",
+  "badges": [
+    {
+      "id": "badge_star",
+      "image": "assets/badges/badge_star.webp",
+      "name_de": "Willkommen",
+      "name_en": "Welcome",
+      "description_de": "Für alle, die sich registriert haben.",
+      "description_en": "For everyone who signed up.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 30
+    },
+    {
+      "id": "badge_heart",
+      "image": "assets/badges/badge_heart.webp",
+      "name_de": "Gründungsmitglied",
+      "name_en": "Founding Member",
+      "description_de": "Eine der ersten 25 Einsendungen in Battle #1.",
+      "description_en": "One of the first 25 entries in Battle #1.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 20
+    },
+    {
+      "id": "badge_bulldog",
+      "image": "assets/badges/badge_bulldog.webp",
+      "name_de": "Top 3",
+      "name_en": "Top 3",
+      "description_de": "Unter den besten drei eines Battles.",
+      "description_en": "Finished in the top three of a battle.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 10
+    },
+    {
+      "id": "badge_monkey",
+      "image": "assets/badges/badge_monkey.webp",
+      "name_de": "Monkey",
+      "name_en": "Monkey",
+      "description_de": "",
+      "description_en": "",
+      "kind": "award",
+      "price_points": null,
+      "active": false,
+      "sort": 100
+    },
+    {
+      "id": "badge_skunk",
+      "image": "assets/badges/badge_skunk.webp",
+      "name_de": "Skunk",
+      "name_en": "Skunk",
+      "description_de": "",
+      "description_en": "",
+      "kind": "award",
+      "price_points": null,
+      "active": false,
+      "sort": 100
+    },
+    {
+      "id": "badge_panda",
+      "image": "assets/badges/badge_panda.webp",
+      "name_de": "Panda",
+      "name_en": "Panda",
+      "description_de": "",
+      "description_en": "",
+      "kind": "award",
+      "price_points": null,
+      "active": false,
+      "sort": 100
+    },
+    {
+      "id": "badge_octopus",
+      "image": "assets/badges/badge_octopus.webp",
+      "name_de": "Octopus",
+      "name_en": "Octopus",
+      "description_de": "",
+      "description_en": "",
+      "kind": "award",
+      "price_points": null,
+      "active": false,
+      "sort": 100
+    },
+    {
+      "id": "badge_rat",
+      "image": "assets/badges/badge_rat.webp",
+      "name_de": "Rat",
+      "name_en": "Rat",
+      "description_de": "",
+      "description_en": "",
+      "kind": "award",
+      "price_points": null,
+      "active": false,
+      "sort": 100
+    },
+    {
+      "id": "badge_mobster",
+      "image": "assets/badges/badge_mobster.webp",
+      "name_de": "Mobster",
+      "name_en": "Mobster",
+      "description_de": "",
+      "description_en": "",
+      "kind": "award",
+      "price_points": null,
+      "active": false,
+      "sort": 100
+    }
+  ]
+}
