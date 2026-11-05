@@ -5,6 +5,7 @@ import {
 } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { esc } from '../ui.js';
+import { testNotice } from './battle.js';
 
 const STRAIN_MAX = 60;
 const DESC_MAX = 280;
@@ -17,7 +18,7 @@ export async function renderEnter(root, { id } = {}) {
   }
   const [user, settings] = await Promise.all([getCurrentUser(), getSettings()]);
 
-  const header = `
+  const header = `${testNotice(battle)}
     <section class="hero hero-small">
       <p class="eyebrow">${esc(tc(battle.theme))}</p>
       <h1 class="neon-title">${esc(t('enter.title'))}</h1>

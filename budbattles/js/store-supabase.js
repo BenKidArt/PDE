@@ -41,6 +41,7 @@ export async function initStore() {
     const userId = session?.user?.id ?? null;
     if (lastUserId !== undefined && userId !== lastUserId) {
       profileCache = null;
+      battlesCache = null; // admins see more battles (test battles) than visitors
       emit(userId ? 'SIGNED_IN' : 'SIGNED_OUT');
     }
     lastUserId = userId;
@@ -75,6 +76,7 @@ function toBattle(r) {
   return {
     id: r.id,
     number: r.number,
+    isTest: !!r.is_test, // hidden test battle: the database only shows it to admins
     theme: { de: r.theme_de, en: r.theme_en },
     summary: { de: r.summary_de, en: r.summary_en },
     partner: r.partner_name ? { name: r.partner_name, logo: r.partner_logo_url, url: r.partner_url } : null,

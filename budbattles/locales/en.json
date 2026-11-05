@@ -182,5 +182,10 @@
   "vote.loginNeeded": "Log in to vote.",
   "error.voteClosed": "Voting isn't possible right now.",
   "error.voteOwn": "You can't vote for your own photo.",
-  "error.alreadyVoted": "You have already voted in this battle."
+  "error.alreadyVoted": "You have already voted in this battle.",
+  "battle.testLabel": "TEST BATTLE",
+  "battle.testNotice": "Test battle: only visible to admins. Visitors and regular members can't see it.",
+  "admin.openBattle": "Battle page",
+  "admin.openEnter": "Enter",
+  "admin.openStandings": "Standings"
 }

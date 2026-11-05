@@ -182,5 +182,10 @@
   "vote.loginNeeded": "Melde dich an, um abzustimmen.",
   "error.voteClosed": "Abstimmen ist gerade nicht möglich.",
   "error.voteOwn": "Für dein eigenes Foto kannst du nicht stimmen.",
-  "error.alreadyVoted": "Du hast in diesem Battle schon abgestimmt."
+  "error.alreadyVoted": "Du hast in diesem Battle schon abgestimmt.",
+  "battle.testLabel": "TEST-BATTLE",
+  "battle.testNotice": "Test-Battle: nur für Admins sichtbar. Besucher und normale Mitglieder sehen es nicht.",
+  "admin.openBattle": "Battle-Seite",
+  "admin.openEnter": "Mitmachen",
+  "admin.openStandings": "Ranking"
 }

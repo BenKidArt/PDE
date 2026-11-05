@@ -4,7 +4,7 @@ import {
   getBattle, getCurrentBattle, battleStatus, getStandings, getMyVote, castVote, getCurrentUser,
 } from '../store.js';
 import { esc } from '../ui.js';
-import { battleLabel } from './battle.js';
+import { battleLabel, testNotice } from './battle.js';
 
 const REFRESH_MS = 15000; // "live": refresh every 15 seconds while the page is open
 
@@ -16,7 +16,7 @@ export async function renderStandings(root, { id } = {}) {
   }
   const user = await getCurrentUser();
 
-  root.innerHTML = `
+  root.innerHTML = `${testNotice(battle)}
     <section class="hero hero-small">
       <p class="eyebrow">${esc(battleLabel(battle))} · ${esc(tc(battle.theme))}</p>
       <h1 class="neon-title">${esc(t('standings.title'))}</h1>

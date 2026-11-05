@@ -13,7 +13,7 @@ const impl = isDemo ? await import('./store-demo.js') : await import('./store-su
 
 /** The battle to show by default: the running one, else the next, else the latest. */
 export async function getCurrentBattle(at = now()) {
-  const list = await impl.getBattles();
+  const list = (await impl.getBattles()).filter((b) => !b.isTest); // test battles never become the default
   const running = list.find((b) => new Date(b.start) <= at && at < new Date(b.votingEnds));
   if (running) return running;
   const upcoming = list.filter((b) => new Date(b.start) > at).sort((a, b) => new Date(a.start) - new Date(b.start));

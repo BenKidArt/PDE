@@ -59,3 +59,11 @@ For the rules, put one rule per line. For the dates, entries open at `start_at`,
 - Supabase's built-in email sender only allows a few emails per hour. Before launch, we'll connect
   a proper email service (free tiers exist) and translate the email texts into German.
 - Free projects are paused after 7 days without any visitors. Opening the dashboard wakes them up.
+
+## Database updates
+After `schema.sql`, run the files in `supabase/migrations/` in number order, each once
+(SQL Editor → New query → paste → Run):
+- `002_test_battles.sql`: hidden test battles that only admins can see (also creates one test battle)
+
+To remove the test battle and its photos later, run:
+`delete from public.battles where id = 'test-battle';`

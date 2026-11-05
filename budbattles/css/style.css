@@ -358,3 +358,16 @@ select {
 .rank-votes .tabular { font-size: 1.15rem; color: var(--pink); font-variant-numeric: tabular-nums; }
 .rank-myvote { color: var(--green); font-weight: 700; }
 .rank-body .btn-small { margin-top: 6px; justify-self: start; }
+
+/* ---------- Test battles (admins only) ---------- */
+.test-notice {
+  margin: 12px 0 0; padding: 10px 14px; border-radius: 12px;
+  border: 1px dashed var(--amber); background: rgba(255, 201, 74, .08); color: var(--amber);
+  font-size: .85rem; font-weight: 700;
+}
+.admin-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; min-height: 36px; padding: 0 12px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--text); text-decoration: none; font-size: .85rem; font-weight: 600;
+}
+.chip:hover, .chip:focus-visible { border-color: var(--green); color: var(--green); }

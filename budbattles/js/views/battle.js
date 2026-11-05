@@ -19,7 +19,7 @@ export async function renderBattle(root, { id } = {}) {
   const showPartner = settings.showPartner && battle.partner;
   const rules = tc(battle.rules) || [];
 
-  root.innerHTML = `
+  root.innerHTML = `${testNotice(battle)}
     <section class="hero">
       <p class="eyebrow">${esc(battleLabel(battle))}</p>
       <h1 class="neon-title">${esc(tc(battle.theme))}</h1>
@@ -77,7 +77,13 @@ export async function renderBattle(root, { id } = {}) {
 }
 
 export function battleLabel(battle) {
+  if (battle.isTest) return t('battle.testLabel');
   return battle.number ? t('battle.numbered', { n: battle.number }) : t('battle.title');
+}
+
+/** Shown on every page of a hidden test battle. */
+export function testNotice(battle) {
+  return battle?.isTest ? `<p class="test-notice" role="note">🧪 ${esc(t('battle.testNotice'))}</p>` : '';
 }
 
 /** Countdown block for a battle; started by startCountdowns(). */
