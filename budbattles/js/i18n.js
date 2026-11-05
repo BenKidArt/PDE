@@ -25,6 +25,10 @@ export async function setLang(lang, { persist = true } = {}) {
   strings = await res.json();
   current = lang;
   document.documentElement.lang = lang;
+  // The app translates itself. Stop the browser's auto-translate from rewriting
+  // the page (it mixed languages and made the countdown flicker).
+  document.documentElement.setAttribute('translate', 'no');
+  document.documentElement.classList.add('notranslate');
   if (persist) {
     try { localStorage.setItem(STORAGE_KEY, lang); } catch { /* ignore */ }
   }

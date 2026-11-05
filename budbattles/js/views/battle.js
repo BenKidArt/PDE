@@ -93,10 +93,17 @@ export function countdownHtml(battle, status = battleStatus(battle)) {
 export function startCountdowns(root) {
   root.querySelectorAll('[data-countdown]').forEach((el) => {
     const target = new Date(el.dataset.countdown);
+    // Built once; afterwards only the digits change, and every number has a fixed
+    // width (2 digits, tabular figures), so the box never jumps or wraps.
+    el.innerHTML = ['d', 'h', 'm', 's'].map((u) => `<span class="cd-part"><span class="cd-num" data-u="${u}"></span><span class="cd-unit">${esc(t(`time.${u}`))}</span></span>`).join(' ');
+    const nums = Object.fromEntries([...el.querySelectorAll('[data-u]')].map((n) => [n.dataset.u, n]));
     const tick = () => {
       if (!el.isConnected) { clearInterval(timer); return; } // user left the page
-      const { d, h, m, s } = splitDuration(target - now());
-      el.textContent = `${d}${t('time.d')} ${h}${t('time.h')} ${m}${t('time.m')} ${s}${t('time.s')}`;
+      const parts = splitDuration(target - now());
+      for (const u of ['d', 'h', 'm', 's']) {
+        const text = u === 'd' ? String(parts.d) : String(parts[u]).padStart(2, '0');
+        if (nums[u].textContent !== text) nums[u].textContent = text;
+      }
     };
     const timer = setInterval(tick, 1000);
     tick();

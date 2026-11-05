@@ -111,7 +111,14 @@ p { margin: 0 0 .75rem; }
   background: rgba(255, 63, 164, .06);
 }
 .countdown-label { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
-.countdown-value { font-size: 1.5rem; font-weight: 800; color: var(--pink); text-shadow: var(--glow-pink); font-variant-numeric: tabular-nums; }
+.countdown-value {
+  display: flex; flex-wrap: nowrap; gap: .45em; white-space: nowrap;
+  font-size: clamp(1.25rem, 6.4vw, 1.6rem); font-weight: 800; color: var(--pink); text-shadow: var(--glow-pink);
+  font-variant-numeric: tabular-nums; line-height: 1.2;
+}
+.cd-part { display: inline-flex; align-items: baseline; }
+.cd-num { display: inline-block; min-width: 2ch; text-align: right; font-variant-numeric: tabular-nums; }
+.cd-unit { font-size: .7em; margin-left: .08em; opacity: .85; }
 
 /* ---------- Dates ---------- */
 .dates { margin: 0; display: grid; gap: 10px; }
