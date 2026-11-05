@@ -2,6 +2,30 @@
   "_note": "Demo copy of the badges table. kind: 'award' (given by admin/automatically) or 'buyable' (needs price_points; points are not built yet).",
   "badges": [
     {
+      "id": "badge_heir_daughter",
+      "image": "assets/badges/badge_heir_daughter.webp",
+      "name_de": "Battle-Champion",
+      "name_en": "Battle Champion",
+      "description_de": "Top-Foto eines Battles.",
+      "description_en": "Top photo of a battle.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 5
+    },
+    {
+      "id": "badge_heir_son",
+      "image": "assets/badges/badge_heir_son.webp",
+      "name_de": "Battle-Champion",
+      "name_en": "Battle Champion",
+      "description_de": "Top-Foto eines Battles.",
+      "description_en": "Top photo of a battle.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 5
+    },
+    {
       "id": "badge_star",
       "image": "assets/badges/badge_star.webp",
       "name_de": "Willkommen",
