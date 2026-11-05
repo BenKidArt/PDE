@@ -64,6 +64,8 @@ For the rules, put one rule per line. For the dates, entries open at `start_at`,
 After `schema.sql`, run the files in `supabase/migrations/` in number order, each once
 (SQL Editor → New query → paste → Run):
 - `002_test_battles.sql`: hidden test battles that only admins can see (also creates one test battle)
+- `003_testers_and_badges.sql`: tester role and badges
+- `004_automatic_badges.sql`: Founding Member, Top 3 and Battle Champion are handed out automatically
 
 To remove the test battle and its photos later, run:
 `delete from public.battles where id = 'test-battle';`

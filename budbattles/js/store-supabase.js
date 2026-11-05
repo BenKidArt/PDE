@@ -316,3 +316,29 @@ export async function withdrawEntry(entry) {
   if (error) fail(error);
   await sb.storage.from(BUCKET).remove([entry.photoPath]);
 }
+
+// ---------- Automatic badges (database update 004) ----------
+
+/** Hands out Top 3 badges and champion choices for battles whose voting ended. Safe to call often. */
+export async function finalizeBattles() {
+  const { error } = await sb.rpc('finalize_ended_battles');
+  if (error) console.warn('finalize_ended_battles', error.message); // e.g. update 004 not run yet
+}
+
+/** Battles where the logged-in member is #1 and still has to pick son or daughter. */
+export async function getPendingChampion() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return [];
+  const { data, error } = await sb.rpc('my_pending_champion');
+  if (error) return [];
+  return data.map((r) => ({
+    battleId: r.battle_id, number: r.number, isTest: r.is_test, theme: { de: r.theme_de, en: r.theme_en },
+  }));
+}
+
+export async function chooseChampionBadge(battleId, badgeId) {
+  const { error } = await sb.rpc('choose_champion_badge', { p_battle: battleId, p_badge: badgeId });
+  if (error) { console.error(error); throw new StoreError('error.championChoice'); }
+  profileCache = null; // reload the profile so the new badge shows
+}
+

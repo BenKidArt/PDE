@@ -193,5 +193,14 @@
   "tests.intro": "Versteckte Battles zum Ausprobieren. Nur Admins und Tester sehen sie.",
   "tests.none": "Gerade gibt es keine Test-Battles.",
   "tests.noAccess": "Dieser Bereich ist nur für Tester und Admins.",
-  "profile.tester": "Tester"
+  "profile.tester": "Tester",
+  "champion.title": "Du bist Battle-Champion!",
+  "champion.text": "Dein Foto ist die Nr. 1 in „{battle}“. Wähle deinen Champion-Badge:",
+  "champion.son": "Sohn",
+  "champion.daughter": "Tochter",
+  "champion.later": "Später entscheiden",
+  "champion.doneTitle": "Glückwunsch, Champion!",
+  "champion.done": "Dein Badge steht ab jetzt neben deinem Namen.",
+  "champion.ok": "Super",
+  "error.championChoice": "Das hat nicht geklappt. Bitte versuche es noch einmal."
 }

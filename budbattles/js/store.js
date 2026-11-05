@@ -48,6 +48,9 @@ export const {
   getMyVote, // (battleId) → entryId you voted for, or null
   castVote, // (battleId, entryId)
   listLatestApproved, // (limit) → newest approved entries
+  finalizeBattles, // Top 3 + champion choices for ended battles (safe to call often)
+  getPendingChampion, // [{ battleId, number, isTest, theme }] where you are #1 and must pick son/daughter
+  chooseChampionBadge, // (battleId, 'badge_heir_son' | 'badge_heir_daughter')
 } = impl;
 
 // Demo only (undefined with Supabase):

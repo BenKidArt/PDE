@@ -13,6 +13,7 @@ import { renderTerms } from './views/terms.js';
 import { renderAdmin } from './views/admin.js';
 import { renderSoon } from './views/soon.js';
 import { renderTests } from './views/tests.js';
+import { checkChampion, resetChampionCheck } from './champion.js';
 import { esc } from './ui.js';
 
 const routes = {
@@ -200,8 +201,13 @@ window.addEventListener('hashchange', () => { setMenu(false); render(); });
 (async () => {
   await initI18n();
   await initStore();
-  onAuthEvent((event) => { if (event !== 'PASSWORD_RECOVERY') render(); });
+  onAuthEvent((event) => {
+    if (event === 'PASSWORD_RECOVERY') return;
+    render();
+    if (event === 'SIGNED_IN') { resetChampionCheck(); checkChampion(render); } // "on their next login"
+  });
   await render();
+  checkChampion(render); // also hands out Top 3 / champion choices for battles that just ended
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW registration failed', err));
   }

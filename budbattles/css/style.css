@@ -504,3 +504,31 @@ select {
 }
 .tests-title { margin: 0; font-size: 1.15rem; text-transform: none; letter-spacing: 0; }
 .card .admin-links { margin-top: 10px; }
+
+/* ---------- Champion popup ---------- */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: rgba(0, 0, 0, .75);
+}
+.modal {
+  width: min(100%, 420px); max-height: 100%; overflow-y: auto;
+  display: grid; gap: 12px; text-align: center; padding: 22px 18px;
+  border-radius: var(--radius); background: var(--card); color: var(--text);
+}
+.modal p { margin: 0; }
+.champion-modal, .modal:has(.champion-picked) {
+  border: 1.5px solid var(--gold, #f2c14e);
+  box-shadow: 0 0 0 1px rgba(242, 193, 78, .3), 0 0 26px rgba(242, 193, 78, .35);
+}
+.champion-eyebrow { color: var(--gold, #f2c14e); margin: 0; }
+.champion-title { margin: 0; font-size: 1.5rem; text-transform: none; letter-spacing: 0; color: var(--gold, #f2c14e); }
+.choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.choice {
+  display: grid; justify-items: center; gap: 6px; padding: 14px 8px; border-radius: 16px; cursor: pointer;
+  background: var(--bg-2); color: var(--text); border: 1.5px solid var(--line); font: 700 1rem var(--font);
+}
+.choice img { width: 88px; height: 88px; }
+.choice:hover, .choice:focus-visible { border-color: var(--gold, #f2c14e); outline: none; box-shadow: 0 0 16px rgba(242, 193, 78, .35); }
+.choice:disabled { opacity: .6; cursor: progress; }
+.champion-picked { justify-self: center; width: 96px; height: 96px; }

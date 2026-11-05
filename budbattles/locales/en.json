@@ -193,5 +193,14 @@
   "tests.intro": "Hidden battles for trying things out. Only admins and testers can see them.",
   "tests.none": "There are no test battles right now.",
   "tests.noAccess": "This area is for testers and admins only.",
-  "profile.tester": "Tester"
+  "profile.tester": "Tester",
+  "champion.title": "You're the Battle Champion!",
+  "champion.text": "Your photo is #1 in “{battle}”. Choose your champion badge:",
+  "champion.son": "Son",
+  "champion.daughter": "Daughter",
+  "champion.later": "Decide later",
+  "champion.doneTitle": "Congratulations, champion!",
+  "champion.done": "Your badge now shows next to your name.",
+  "champion.ok": "Great",
+  "error.championChoice": "That didn't work. Please try again."
 }

@@ -339,3 +339,8 @@ export async function listLatestApproved(limit = 6) {
 export async function withdrawEntry(entry) {
   await tx('readwrite', (s) => s.delete(entry.id));
 }
+
+// Automatic badges only exist with the real database.
+export async function finalizeBattles() {}
+export async function getPendingChampion() { return []; }
+export async function chooseChampionBadge() {}
