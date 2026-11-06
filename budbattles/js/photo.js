@@ -152,3 +152,43 @@ function ascii(bytes, start, n) {
   for (let k = 0; k < n && start + k < bytes.length; k++) s += String.fromCharCode(bytes[start + k]);
   return s;
 }
+
+/**
+ * Turns any picture into a small badge icon: trims the empty transparent
+ * border, centres it on a square and shrinks it to 128 × 128.
+ * Returns { blob, ext } – WebP where the browser can, otherwise PNG.
+ */
+export async function makeBadgeIcon(file) {
+  if (!file || !/^image\//.test(file.type)) throw new PhotoError('error.photoType');
+  if (file.size > MAX_INPUT_MB * 1024 * 1024) throw new PhotoError('error.photoTooBig', { max: MAX_INPUT_MB });
+  let src;
+  try { src = await decode(file); } catch { throw new PhotoError('error.photoRead'); }
+  const w = src.width, h = src.height;
+  const work = document.createElement('canvas');
+  work.width = w; work.height = h;
+  const wctx = work.getContext('2d', { willReadFrequently: true });
+  wctx.drawImage(src, 0, 0);
+  if (src.close) src.close();
+  // find the visible area (alpha > 8)
+  const px = wctx.getImageData(0, 0, w, h).data;
+  let x0 = w, y0 = h, x1 = -1, y1 = -1;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (px[(y * w + x) * 4 + 3] > 8) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    }
+  }
+  if (x1 < 0) { x0 = 0; y0 = 0; x1 = w - 1; y1 = h - 1; }
+  const bw = x1 - x0 + 1, bh = y1 - y0 + 1, side = Math.max(bw, bh);
+  const SIZE = 128;
+  const out = document.createElement('canvas');
+  out.width = SIZE; out.height = SIZE;
+  const octx = out.getContext('2d');
+  octx.imageSmoothingQuality = 'high';
+  const scale = SIZE / side;
+  octx.drawImage(work, x0, y0, bw, bh, (SIZE - bw * scale) / 2, (SIZE - bh * scale) / 2, bw * scale, bh * scale);
+  let blob = await new Promise((r) => out.toBlob(r, 'image/webp', 0.86));
+  if (!blob || blob.type !== 'image/webp') blob = await new Promise((r) => out.toBlob(r, 'image/png'));
+  if (!blob) throw new PhotoError('error.photoRead');
+  return { blob, ext: blob.type === 'image/webp' ? 'webp' : 'png' };
+}
+

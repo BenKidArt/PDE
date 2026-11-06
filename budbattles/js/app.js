@@ -13,6 +13,7 @@ import { renderTerms } from './views/terms.js';
 import { renderAdmin } from './views/admin.js';
 import { renderSoon } from './views/soon.js';
 import { renderTests } from './views/tests.js';
+import { renderBadges } from './views/badges.js';
 import { checkChampion, resetChampionCheck } from './champion.js';
 import { esc } from './ui.js';
 
@@ -28,6 +29,7 @@ const routes = {
   terms: renderTerms,
   admin: renderAdmin,
   tests: renderTests,
+  badges: renderBadges,
 };
 
 // Bottom bar: the five things people use most.
@@ -48,6 +50,7 @@ const MENU = [
   { key: 'gallery', path: 'gallery', soon: true },
   { key: 'business', path: 'business', soon: true },
   { key: 'profile', path: 'profile' },
+  { key: 'badges', path: 'badges' },
   { key: 'tests', path: 'tests', testersOnly: true },
   { key: 'admin', path: 'admin', adminOnly: true },
   { key: 'terms', path: 'terms' },

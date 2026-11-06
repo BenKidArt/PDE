@@ -1,5 +1,5 @@
 {
-  "_note": "Demo copy of the badges table. kind: 'award' (given by admin/automatically) or 'buyable' (needs price_points; points are not built yet).",
+  "_note": "Demo copy of the badges table. description = how to get it. kind: 'award' or 'buyable' (price_points, points not built yet). earned = won in the app, never tradeable. tradeable = may later be swapped badge-for-badge (not built yet).",
   "badges": [
     {
       "id": "badge_heir_daughter",
@@ -11,7 +11,9 @@
       "kind": "award",
       "price_points": null,
       "active": true,
-      "sort": 5
+      "sort": 5,
+      "earned": true,
+      "tradeable": false
     },
     {
       "id": "badge_heir_son",
@@ -23,7 +25,9 @@
       "kind": "award",
       "price_points": null,
       "active": true,
-      "sort": 5
+      "sort": 5,
+      "earned": true,
+      "tradeable": false
     },
     {
       "id": "badge_star",
@@ -35,7 +39,9 @@
       "kind": "award",
       "price_points": null,
       "active": true,
-      "sort": 30
+      "sort": 30,
+      "earned": true,
+      "tradeable": false
     },
     {
       "id": "badge_heart",
@@ -47,7 +53,9 @@
       "kind": "award",
       "price_points": null,
       "active": true,
-      "sort": 20
+      "sort": 20,
+      "earned": true,
+      "tradeable": false
     },
     {
       "id": "badge_bulldog",
@@ -59,7 +67,9 @@
       "kind": "award",
       "price_points": null,
       "active": true,
-      "sort": 10
+      "sort": 10,
+      "earned": true,
+      "tradeable": false
     },
     {
       "id": "badge_monkey",
@@ -71,7 +81,9 @@
       "kind": "award",
       "price_points": null,
       "active": false,
-      "sort": 100
+      "sort": 100,
+      "earned": false,
+      "tradeable": false
     },
     {
       "id": "badge_skunk",
@@ -83,7 +95,9 @@
       "kind": "award",
       "price_points": null,
       "active": false,
-      "sort": 100
+      "sort": 100,
+      "earned": false,
+      "tradeable": false
     },
     {
       "id": "badge_panda",
@@ -95,7 +109,9 @@
       "kind": "award",
       "price_points": null,
       "active": true,
-      "sort": 12
+      "sort": 12,
+      "earned": true,
+      "tradeable": false
     },
     {
       "id": "badge_octopus",
@@ -107,7 +123,9 @@
       "kind": "award",
       "price_points": null,
       "active": false,
-      "sort": 100
+      "sort": 100,
+      "earned": false,
+      "tradeable": false
     },
     {
       "id": "badge_rat",
@@ -119,7 +137,9 @@
       "kind": "award",
       "price_points": null,
       "active": true,
-      "sort": 11
+      "sort": 11,
+      "earned": true,
+      "tradeable": false
     },
     {
       "id": "badge_mobster",
@@ -131,7 +151,9 @@
       "kind": "award",
       "price_points": null,
       "active": false,
-      "sort": 100
+      "sort": 100,
+      "earned": false,
+      "tradeable": false
     }
   ]
 }

@@ -94,13 +94,38 @@ export async function getBattles() {
   return battlesCache;
 }
 
-let badgeCache;
+// Demo: badges from data/badges.json plus the ones added/edited on this device.
+const BADGE_EDITS_KEY = 'bb.demo.badgeEdits';
+async function demoBadgeRows() {
+  const res = await fetch('data/badges.json');
+  const rows = (await res.json()).badges;
+  const edits = readJson(BADGE_EDITS_KEY, {});
+  const merged = rows.map((r) => (edits[r.id] ? { ...r, ...edits[r.id] } : r));
+  Object.values(edits).forEach((e) => { if (!rows.some((r) => r.id === e.id)) merged.push(e); });
+  return merged.sort((a, b) => a.sort - b.sort);
+}
 export async function getBadgeCatalog() {
-  if (!badgeCache) {
-    const res = await fetch('data/badges.json');
-    badgeCache = (await res.json()).badges.filter((b) => b.active).map(toBadge).sort((a, b) => a.sort - b.sort);
-  }
-  return badgeCache;
+  return (await demoBadgeRows()).filter((b) => b.active).map(toBadge);
+}
+export async function getAllBadges() {
+  return (await demoBadgeRows()).map(toBadge);
+}
+export async function saveBadge(fields, image) {
+  const rows = await demoBadgeRows();
+  if (fields.isNew && rows.some((r) => r.id === fields.id)) throw new StoreError('error.badgeExists');
+  if (fields.earned && fields.tradeable) throw new StoreError('error.badgeTradeEarned');
+  const imageUrl = image
+    ? await new Promise((resolve) => { const fr = new FileReader(); fr.onload = () => resolve(fr.result); fr.readAsDataURL(image.blob); })
+    : fields.image;
+  const edits = readJson(BADGE_EDITS_KEY, {});
+  const old = rows.find((r) => r.id === fields.id) || { kind: 'award', price_points: null, earned: false };
+  edits[fields.id] = {
+    ...old, id: fields.id, image: imageUrl,
+    name_de: fields.name.de, name_en: fields.name.en,
+    description_de: fields.description.de, description_en: fields.description.en,
+    tradeable: !!fields.tradeable && !old.earned, active: !!fields.active, sort: fields.sort ?? old.sort ?? 50,
+  };
+  writeJson(BADGE_EDITS_KEY, edits);
 }
 
 export async function getSettings() {

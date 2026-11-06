@@ -342,3 +342,43 @@ export async function chooseChampionBadge(battleId, badgeId) {
   profileCache = null; // reload the profile so the new badge shows
 }
 
+// ---------- Badges admin (database update 006) ----------
+
+/** Every badge incl. inactive ones (for the admin part of the Badges page). */
+export async function getAllBadges() {
+  const { data, error } = await sb.from('badges').select('*').order('sort');
+  if (error) fail(error);
+  return data.map(toBadge);
+}
+
+/**
+ * Add or edit a badge. image: { blob, ext } from makeBadgeIcon(), or null to keep the old one.
+ * fields: { id, isNew, name:{de,en}, description:{de,en}, tradeable, active, sort, earned }
+ */
+export async function saveBadge(fields, image) {
+  let imageUrl = fields.image;
+  if (image) {
+    const path = `${fields.id}-${Date.now()}.${image.ext}`; // new name each time → no stale cache
+    const up = await sb.storage.from('badge-images').upload(path, image.blob, { contentType: image.blob.type, upsert: false });
+    if (up.error) fail(up.error);
+    imageUrl = sb.storage.from('badge-images').getPublicUrl(path).data.publicUrl;
+  }
+  const row = {
+    image: imageUrl,
+    name_de: fields.name.de, name_en: fields.name.en,
+    description_de: fields.description.de, description_en: fields.description.en,
+    tradeable: !!fields.tradeable && !fields.earned,
+    active: !!fields.active,
+    sort: fields.sort ?? 50,
+  };
+  const { error } = fields.isNew
+    ? await sb.from('badges').insert({ id: fields.id, kind: 'award', earned: false, ...row })
+    : await sb.from('badges').update(row).eq('id', fields.id);
+  if (error) {
+    if (error.code === '23505') throw new StoreError('error.badgeExists');
+    if (error.code === '23514') throw new StoreError('error.badgeTradeEarned');
+    fail(error);
+  }
+  badgeCache = null;
+}
+

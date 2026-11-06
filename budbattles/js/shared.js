@@ -28,6 +28,9 @@ export function toBadge(r) {
     kind: r.kind, // 'award' | 'buyable'
     pricePoints: r.price_points ?? null, // only for 'buyable' (points come later)
     sort: r.sort,
+    active: r.active !== false,
+    earned: !!r.earned, // won in the app (Welcome, places, Champion …) – never tradeable
+    tradeable: !!r.tradeable && !r.earned, // may later be swapped badge-for-badge (not built yet)
   };
 }
 

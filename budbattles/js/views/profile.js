@@ -25,6 +25,7 @@ function renderAccount(root, user, catalog) {
         ${user.isAdmin || user.isTester ? `<div class="date-row active"><dt>${esc(t('profile.role'))}</dt><dd>${esc([user.isAdmin && t('profile.admin'), user.isTester && t('profile.tester')].filter(Boolean).join(' · '))}</dd></div>` : ''}
       </dl>
       <div class="actions">
+        <a class="btn btn-ghost" href="#/badges">${esc(t('badges.myBadges'))}</a>
         ${user.isAdmin ? `<a class="btn btn-primary" href="#/admin">${esc(t('admin.open'))}</a>` : ''}
         <button class="btn btn-ghost" type="button" data-logout>${esc(t('auth.logout'))}</button></div>
     </section>`;
