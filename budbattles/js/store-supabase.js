@@ -382,3 +382,12 @@ export async function saveBadge(fields, image) {
   badgeCache = null;
 }
 
+// ---------- Business page "Interested?" list (database update 008) ----------
+export async function registerBusinessInterest({ email, company, lang }) {
+  const { error } = await sb.rpc('register_business_interest', { p_email: email, p_company: company || null, p_lang: lang });
+  if (error) {
+    if (error.code === '23514') throw new StoreError('error.emailInvalid');
+    fail(error);
+  }
+}
+

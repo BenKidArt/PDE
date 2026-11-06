@@ -69,6 +69,7 @@ After `schema.sql`, run the files in `supabase/migrations/` in number order, eac
 - `005_place_badges.sql`: separate badges for 1st, 2nd and 3rd place
 - `006_badge_page_and_trading_prep.sql`: add/edit badges in the app (Badges page, admins), earned/tradeable fields
 - `007_collectible_badges.sql`: 18 collectible badges (active, tradeable later)
+- `008_business_interest.sql`: "Interested?" email list on the Business page (Table Editor → business_interest)
 
 To remove the test battle and its photos later, run:
 `delete from public.battles where id = 'test-battle';`

@@ -234,5 +234,11 @@
   "error.badgeName": "Bitte gib den Namen auf Deutsch und Englisch ein.",
   "error.badgeImage": "Bitte wähle ein Bild aus.",
   "error.badgeExists": "Ein Badge mit diesem Namen gibt es schon.",
-  "error.badgeTradeEarned": "Verdiente Badges können nicht tauschbar sein."
+  "error.badgeTradeEarned": "Verdiente Badges können nicht tauschbar sein.",
+  "interest.button": "Interesse? E-Mail hinterlassen",
+  "interest.company": "Firma oder Club (optional)",
+  "interest.consent": "Ich bin einverstanden, dass BudBattles mich zum Business-Bereich per E-Mail kontaktiert. Ich kann das jederzeit widerrufen.",
+  "interest.submit": "Eintragen",
+  "interest.thanks": "Danke! Wir melden uns, sobald der Business-Bereich startet.",
+  "error.interestConsent": "Bitte bestätige, dass wir dich kontaktieren dürfen."
 }

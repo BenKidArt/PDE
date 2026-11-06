@@ -234,5 +234,11 @@
   "error.badgeName": "Please enter the name in German and English.",
   "error.badgeImage": "Please choose an image.",
   "error.badgeExists": "A badge with this name already exists.",
-  "error.badgeTradeEarned": "Earned badges can't be tradeable."
+  "error.badgeTradeEarned": "Earned badges can't be tradeable.",
+  "interest.button": "Interested? Leave your email",
+  "interest.company": "Company or club (optional)",
+  "interest.consent": "I agree that BudBattles may contact me by email about the business area. I can withdraw this at any time.",
+  "interest.submit": "Sign up",
+  "interest.thanks": "Thanks! We'll get in touch as soon as the business area launches.",
+  "error.interestConsent": "Please confirm that we may contact you."
 }

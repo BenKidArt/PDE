@@ -369,3 +369,11 @@ export async function withdrawEntry(entry) {
 export async function finalizeBattles() {}
 export async function getPendingChampion() { return []; }
 export async function chooseChampionBadge() {}
+
+// Demo: the "Interested?" list is kept on this device only.
+export async function registerBusinessInterest({ email, company, lang }) {
+  const list = readJson('bb.demo.businessInterest', []).filter((x) => x.email !== email.toLowerCase());
+  list.push({ email: email.toLowerCase(), company: company || null, lang, createdAt: new Date().toISOString() });
+  writeJson('bb.demo.businessInterest', list);
+}
+

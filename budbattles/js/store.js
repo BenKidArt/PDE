@@ -53,6 +53,7 @@ export const {
   finalizeBattles, // Top 3 + champion choices for ended battles (safe to call often)
   getPendingChampion, // [{ battleId, number, isTest, theme }] where you are #1 and must pick son/daughter
   chooseChampionBadge, // (battleId, 'badge_heir_son' | 'badge_heir_daughter')
+  registerBusinessInterest, // ({ email, company, lang }) – Business page "Interested?" list
 } = impl;
 
 // Demo only (undefined with Supabase):
