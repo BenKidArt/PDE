@@ -68,6 +68,7 @@ After `schema.sql`, run the files in `supabase/migrations/` in number order, eac
 - `004_automatic_badges.sql`: Founding Member, place badges and Battle Champion are handed out automatically
 - `005_place_badges.sql`: separate badges for 1st, 2nd and 3rd place
 - `006_badge_page_and_trading_prep.sql`: add/edit badges in the app (Badges page, admins), earned/tradeable fields
+- `007_collectible_badges.sql`: 18 collectible badges (active, tradeable later)
 
 To remove the test battle and its photos later, run:
 `delete from public.battles where id = 'test-battle';`
