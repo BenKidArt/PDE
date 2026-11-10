@@ -28,3 +28,16 @@ export function badgeIcons(ids, catalog, name, size = 'small') {
       <img src="${esc(b.image)}" alt="" width="48" height="48" loading="lazy" decoding="async">
     </button>`).join('')}</span>`;
 }
+
+/**
+ * Profile picture. Empty = the default BB avatar. Later a member picks a
+ * picture from our badge/character set: then `avatar` is a badge id (or a URL).
+ * Used on profiles and on every entry card, so a chosen picture shows up everywhere.
+ */
+export const DEFAULT_AVATAR = 'icons/icon-192.png';
+export function avatarUrl(avatar) {
+  if (!avatar) return DEFAULT_AVATAR;
+  if (/^badge_[a-z0-9_]+$/.test(avatar)) return `assets/badges/${avatar}.webp`;
+  return avatar;
+}
+

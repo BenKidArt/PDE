@@ -135,9 +135,36 @@ export async function getSettings() {
 
 // ---------- Accounts (pretend, local only) ----------
 
+// The logged-in demo account (with its profile fields, read fresh each time).
 export async function getCurrentUser() {
-  return readJson(SESSION_KEY, null);
+  const session = readJson(SESSION_KEY, null);
+  if (!session) return null;
+  const acc = Object.values(readJson(ACCOUNTS_KEY, {})).find((a) => a.id === session.id);
+  return acc ? toUser(acc) : session;
 }
+
+function toUser(acc) {
+  return {
+    id: acc.id, email: acc.email, displayName: acc.username || acc.displayName,
+    isAdmin: !!acc.isAdmin, isTester: !!acc.isTester, canTest: true, badges: acc.badges || ['badge_star'],
+    username: acc.username ?? null, hasProfileNames: true, usernameChangedAt: acc.usernameChangedAt ?? null,
+    instagram: acc.instagram ?? null, avatar: acc.avatar ?? null, growSetup: acc.growSetup ?? null,
+    lights: acc.lights ?? null, medium: acc.medium ?? null, favStrain: acc.favStrain ?? null, bio: acc.bio ?? null,
+    memberSince: acc.memberSince ?? acc.ageConfirmedAt ?? null,
+  };
+}
+
+function updateAccount(id, patch) {
+  const accounts = readJson(ACCOUNTS_KEY, {});
+  const key = Object.keys(accounts).find((k) => accounts[k].id === id);
+  if (!key) throw new StoreError('error.generic');
+  accounts[key] = { ...accounts[key], ...patch };
+  writeJson(ACCOUNTS_KEY, accounts);
+  return accounts[key];
+}
+
+/** Profile key used in links (#/u/<key>): the profile name, else the account id. */
+const profileKeyOf = (acc) => acc?.username || acc?.id;
 
 export function onAuthEvent(cb) {
   listeners.add(cb);
@@ -151,10 +178,14 @@ export async function signUp({ email, password, displayName, ageConfirmed, terms
   const key = email.trim().toLowerCase();
   if (accounts[key]) throw new StoreError('error.emailTaken');
   // Demo accounts are admins so every screen can be tried. Everyone gets the Welcome badge.
-  const user = { id: crypto.randomUUID(), email: key, displayName: displayName.trim(), isAdmin: true, isTester: false, canTest: true, badges: ['badge_star'] };
-  accounts[key] = { ...user, pw: await hash(password), termsVersion: CONFIG.termsVersion, ageConfirmedAt: new Date().toISOString() };
+  const wanted = displayName.trim();
+  const nameOk = (await checkProfileName(wanted)) === 'ok';
+  const now = new Date().toISOString();
+  const user = { id: crypto.randomUUID(), email: key, displayName: wanted, isAdmin: true, isTester: false, canTest: true, badges: ['badge_star'] };
+  accounts[key] = { ...user, pw: await hash(password), termsVersion: CONFIG.termsVersion, ageConfirmedAt: now, memberSince: now,
+    username: nameOk ? wanted : null, usernameChangedAt: nameOk ? now : null };
   writeJson(ACCOUNTS_KEY, accounts);
-  writeJson(SESSION_KEY, user);
+  writeJson(SESSION_KEY, { id: user.id });
   emit('SIGNED_IN');
   return { needsConfirmation: false };
 }
@@ -162,8 +193,7 @@ export async function signUp({ email, password, displayName, ageConfirmed, terms
 export async function signIn({ email, password }) {
   const acc = readJson(ACCOUNTS_KEY, {})[email.trim().toLowerCase()];
   if (!acc || acc.pw !== await hash(password)) throw new StoreError('error.loginFailed');
-  const { id, displayName, isAdmin } = acc;
-  writeJson(SESSION_KEY, { id, email: acc.email, displayName, isAdmin, isTester: !!acc.isTester, canTest: true, badges: acc.badges || ['badge_star'] });
+  writeJson(SESSION_KEY, { id: acc.id });
   emit('SIGNED_IN');
 }
 
@@ -232,7 +262,8 @@ export async function listEntries(battleId) {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     .map((r) => ({
       ...toEntry(r),
-      displayName: r.displayName || accounts.find((a) => a.id === r.userId)?.displayName || '?',
+      displayName: r.displayName || nameOf(accounts.find((a) => a.id === r.userId)),
+      ...profileBits(r, accounts),
     }));
 }
 
@@ -319,7 +350,8 @@ export async function getStandings(battleId) {
   const accounts = Object.values(readJson(ACCOUNTS_KEY, {}));
   const list = rows.filter((r) => r.status === 'approved').map((r) => ({
     ...toEntry(r),
-    displayName: r.displayName || accounts.find((a) => a.id === r.userId)?.displayName || '?',
+    displayName: r.displayName || nameOf(accounts.find((a) => a.id === r.userId)),
+      ...profileBits(r, accounts),
     votes: (r.baseVotes || 0) + votes.filter((v) => v.entryId === r.id).length,
     isMine: !!user && r.userId === user.id,
     badges: r.badges || accounts.find((a) => a.id === r.userId)?.badges || [],
@@ -335,7 +367,7 @@ export async function getMyVote(battleId) {
   return vote?.entryId ?? null;
 }
 
-export async function castVote(battleId, entryId) {
+export async function castVote(battleId, entryId) { // (the bot check only exists with the real database)
   const user = await getCurrentUser();
   if (!user) throw new StoreError('vote.loginNeeded');
   const battle = (await getBattles()).find((b) => b.id === battleId);
@@ -358,7 +390,7 @@ export async function listLatestApproved(limit = 6) {
     .filter((r) => r.status === 'approved')
     .sort((a, b) => (b.reviewedAt || b.createdAt).localeCompare(a.reviewedAt || a.createdAt))
     .slice(0, limit)
-    .map((r) => ({ ...toEntry(r), displayName: r.displayName || accounts.find((a) => a.id === r.userId)?.displayName || '?' }));
+    .map((r) => ({ ...toEntry(r), displayName: r.displayName || nameOf(accounts.find((a) => a.id === r.userId)), ...profileBits(r, accounts) }));
 }
 
 export async function withdrawEntry(entry) {
@@ -375,5 +407,95 @@ export async function registerBusinessInterest({ email, company, lang }) {
   const list = readJson('bb.demo.businessInterest', []).filter((x) => x.email !== email.toLowerCase());
   list.push({ email: email.toLowerCase(), company: company || null, lang, createdAt: new Date().toISOString() });
   writeJson('bb.demo.businessInterest', list);
+}
+
+// ---------- Profile names, details, public profiles (demo) ----------
+
+const nameOf = (acc) => acc?.username || acc?.displayName || '?';
+function profileBits(r, accounts) {
+  const acc = accounts.find((a) => a.id === r.userId);
+  if (!acc) return { username: r.displayName || null, instagram: r.instagram || null, avatar: null, profileKey: r.displayName || null };
+  return { username: acc.username ?? null, instagram: acc.instagram ?? null, avatar: acc.avatar ?? null, profileKey: profileKeyOf(acc) };
+}
+
+const DEMO_BLOCKED = ['fuck', 'shit', 'nazi', 'hitler', 'fotze', 'hure', 'nutte', 'wichser', 'admin', 'budbattles'];
+export async function checkProfileName(name) {
+  if (!/^[A-Za-z0-9_]{3,20}$/.test(name || '')) return 'invalid';
+  if (DEMO_BLOCKED.some((w) => name.toLowerCase().includes(w))) return 'blocked';
+  const me = readJson(SESSION_KEY, null)?.id;
+  const accounts = Object.values(readJson(ACCOUNTS_KEY, {}));
+  const seeded = ['NightOwl', 'BalkonBuds', 'TentQueen', 'GrowOpa'];
+  if (accounts.some((a) => a.id !== me && (a.username || '').toLowerCase() === name.toLowerCase())
+    || seeded.some((n) => n.toLowerCase() === name.toLowerCase())) return 'taken';
+  return 'ok';
+}
+
+export async function setProfileName(name) {
+  const user = await getCurrentUser();
+  if (!user) throw new StoreError('vote.loginNeeded');
+  const st = await checkProfileName(name);
+  if (st !== 'ok') throw new StoreError({ invalid: 'error.nameInvalid', blocked: 'error.nameBlocked', taken: 'error.nameTaken' }[st]);
+  if (user.username && user.username.toLowerCase() === name.toLowerCase()) { updateAccount(user.id, { username: name }); return; }
+  if (user.usernameChangedAt && Date.now() - new Date(user.usernameChangedAt) < 30 * 864e5) throw new StoreError('error.nameTooSoon');
+  updateAccount(user.id, { username: name, usernameChangedAt: new Date().toISOString() });
+}
+
+export async function updateProfileDetails(d) {
+  const user = await getCurrentUser();
+  if (!user) throw new StoreError('vote.loginNeeded');
+  const insta = (d.instagram || '').trim().replace(/^@/, '');
+  if (insta && !/^[A-Za-z0-9._]{1,30}$/.test(insta)) throw new StoreError('error.instagramInvalid');
+  updateAccount(user.id, {
+    instagram: insta || null, growSetup: d.growSetup || null, lights: (d.lights || '').trim() || null,
+    medium: d.medium || null, favStrain: (d.favStrain || '').trim() || null, bio: (d.bio || '').trim().slice(0, 150) || null,
+  });
+}
+
+export async function getPublicProfile(key) {
+  const me = readJson(SESSION_KEY, null)?.id;
+  const accounts = Object.values(readJson(ACCOUNTS_KEY, {}));
+  const acc = accounts.find((a) => a.id === key || (a.username || '').toLowerCase() === String(key).toLowerCase());
+  const rows = await tx('readonly', (s) => s.getAll());
+  const votesAll = await tx('readonly', (s) => s.getAll(), 'votes');
+  const battles = await getBattles();
+  const mine = rows.filter((r) => r.status === 'approved' && (acc ? r.userId === acc.id : r.displayName === key));
+  if (!acc && !mine.length) return null;
+  const history = [];
+  for (const r of mine) {
+    const b = battles.find((x) => x.id === r.battleId);
+    const st = (await getStandings(r.battleId)).find((e) => e.id === r.id);
+    const phase = b ? battleStatus(b) : 'ended';
+    history.push({ entryId: r.id, battleId: r.battleId, number: b?.number, theme: b?.theme || { de: r.battleId, en: r.battleId },
+      photoUrl: URL.createObjectURL(r.photo), strain: r.strain, votes: st?.votes ?? 0,
+      place: phase === 'voting' || phase === 'ended' ? st?.rank ?? null : null, ended: phase === 'ended' });
+  }
+  const ended = history.filter((h) => h.ended && h.place);
+  return {
+    id: acc?.id || key, isMe: !!acc && acc.id === me, username: acc?.username ?? key, displayName: acc ? nameOf(acc) : key,
+    instagram: acc?.instagram ?? null, avatar: acc?.avatar ?? null, memberSince: acc?.memberSince ?? null,
+    growSetup: acc?.growSetup ?? null, lights: acc?.lights ?? null, medium: acc?.medium ?? null, favStrain: acc?.favStrain ?? null, bio: acc?.bio ?? null,
+    nameChangedAt: acc && acc.id === me ? acc.usernameChangedAt ?? null : null,
+    badges: acc ? acc.badges || ['badge_star'] : mine[0]?.badges || [],
+    stats: { battles: new Set(mine.map((r) => r.battleId)).size, best_place: ended.length ? Math.min(...ended.map((h) => h.place)) : null,
+      votes_given: acc ? votesAll.filter((v) => v.userId === acc.id).length : 0 },
+    history,
+  };
+}
+
+// ---------- Admin: suspicious votes (demo: only the votes made on this device) ----------
+export async function getVoteReport(battleId) {
+  const standings = await getStandings(battleId);
+  const votes = await tx('readonly', (s) => s.getAll(), 'votes');
+  return standings.map((e) => ({ entryId: e.id, displayName: e.displayName, votes: e.votes,
+    newAccountVotes: votes.filter((v) => v.entryId === e.id).length, maxSameNetwork: 0, maxSameDevice: votes.filter((v) => v.entryId === e.id).length,
+    flagged: false }));
+}
+export async function getEntryVotes(entryId) {
+  const accounts = Object.values(readJson(ACCOUNTS_KEY, {}));
+  const votes = (await tx('readonly', (s) => s.getAll(), 'votes')).filter((v) => v.entryId === entryId);
+  return votes.map((v) => ({ voterId: v.userId, voterName: nameOf(accounts.find((a) => a.id === v.userId)), votedAt: v.createdAt, ageHours: 0, sameNetwork: 1, sameDevice: votes.length }));
+}
+export async function cancelVote(battleId, voterId) {
+  await tx('readwrite', (s) => s.delete([battleId, voterId]), 'votes');
 }
 

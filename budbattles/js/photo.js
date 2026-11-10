@@ -7,8 +7,10 @@
 // metadata block is still found.
 
 export const MAX_INPUT_MB = 25;
-export const MAX_EDGE_PX = 2048; // longest side after resizing
-export const JPEG_QUALITY = 0.86;
+export const MAX_EDGE_PX = 1600; // longest side after resizing (saves Supabase bandwidth)
+export const JPEG_QUALITY = 0.86; // start quality …
+export const TARGET_MAX_KB = 500; // … stepped down only until the file is at most this big
+const MIN_QUALITY = 0.62;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
 
 export class PhotoError extends Error {
@@ -52,9 +54,15 @@ export async function cleanPhoto(file) {
   ctx.drawImage(source, 0, 0, width, height);
   if (source.close) source.close();
 
-  const blob = await new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new PhotoError('error.photoRead'))), 'image/jpeg', JPEG_QUALITY),
-  );
+  // Good quality first; only if the file is bigger than ~500 KB, step the quality down a little.
+  const encode = (q) => new Promise((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new PhotoError('error.photoRead'))), 'image/jpeg', q));
+  let quality = JPEG_QUALITY;
+  let blob = await encode(quality);
+  while (blob.size > TARGET_MAX_KB * 1024 && quality > MIN_QUALITY) {
+    quality = Math.max(MIN_QUALITY, quality - 0.06);
+    blob = await encode(quality);
+  }
 
   // Safety check: the new file must not contain any metadata block.
   // Only a colour profile ('icc') is allowed: browsers add it themselves and
@@ -65,7 +73,7 @@ export async function cleanPhoto(file) {
     throw new PhotoError('error.photoMetadata');
   }
 
-  return { blob, width, height, hadGps, hadMetadata };
+  return { blob, width, height, hadGps, hadMetadata, quality };
 }
 
 async function decode(file) {

@@ -1,13 +1,16 @@
 // START PAGE: current battle with countdown, newest approved photos, how it works.
 import { t, tc } from '../i18n.js';
-import { getCurrentBattle, battleStatus, listLatestApproved } from '../store.js';
+import { getCurrentBattle, battleStatus, getStandings } from '../store.js';
+import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
 import { esc } from '../ui.js';
 import { battleLabel, countdownHtml, startCountdowns } from './battle.js';
 
-const LATEST = 6;
+const LATEST = 10;
 
 export async function renderHome(root) {
-  const [battle, latest] = await Promise.all([getCurrentBattle(), listLatestApproved(LATEST)]);
+  const battle = await getCurrentBattle();
+  let entries = [];
+  try { entries = battle ? await getStandings(battle.id) : []; } catch { /* start page still shows */ }
   const status = battle && battleStatus(battle);
   const enc = (id) => encodeURIComponent(id);
 
@@ -40,16 +43,15 @@ export async function renderHome(root) {
     <section class="home-section">
       <div class="section-head">
         <h2>${esc(t('home.latest'))}</h2>
-        ${latest.length && battle ? `<a class="link small" href="#/standings/${enc(battle.id)}">${esc(t('home.seeAll'))}</a>` : ''}
+        ${entries.length && battle ? `<a class="link small" href="#/standings/${enc(battle.id)}">${esc(t('home.seeAll'))}</a>` : ''}
       </div>
-      ${latest.length ? `
-        <div class="thumb-grid">
-          ${latest.map((e) => `
-            <a class="thumb" href="#/standings/${enc(e.battleId)}">
-              <img src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" loading="lazy">
-              <span class="thumb-caption">${esc(e.displayName)}</span>
-            </a>`).join('')}
-        </div>`
+      ${entries.length ? `
+        <ul class="ncard-scroller">
+          ${homeOrder(entries, status).slice(0, LATEST).map((e) => neonCardHtml(e, {
+            eyebrow: cardEyebrow(battle), pill: pillFor(e, entries, status), compact: true,
+            top: (status === 'voting' || status === 'ended') && e.rank === 1 && e.votes > 0,
+          })).join('')}
+        </ul>`
       : `<p class="muted card">${esc(t('home.latestEmpty'))}</p>`}
     </section>
 
@@ -66,3 +68,10 @@ export async function renderHome(root) {
 
   startCountdowns(root);
 }
+
+/** Before voting: newest first. From voting on: in ranking order. */
+function homeOrder(entries, status) {
+  if (status === 'voting' || status === 'ended') return entries;
+  return [...entries].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+}
+

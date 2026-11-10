@@ -1,38 +1,23 @@
-// PROFILE: shows login / sign-up when logged out, your account when logged in.
-import { t, tc } from '../i18n.js';
+// PROFILE: login / sign-up when logged out, your big profile page when logged in.
+import { t } from '../i18n.js';
 import {
-  getCurrentUser, signIn, signUp, signOut, requestPasswordReset, updatePassword, isDemo, getBadgeCatalog,
+  getCurrentUser, signIn, signUp, requestPasswordReset, updatePassword, isDemo, checkProfileName,
 } from '../store.js';
-import { esc, badgeIcons } from '../ui.js';
+import { esc } from '../ui.js';
+import { mountTurnstile, turnstileEnabled } from '../turnstile.js';
+import { renderProfilePage } from './profilepage.js';
 
 const PASSWORD_MIN = 8;
 
 export async function renderProfile(root) {
   const user = await getCurrentUser();
-  if (user) return renderAccount(root, user, await getBadgeCatalog());
+  if (user) return renderProfilePage(root, user.username || user.id, { onLogout: () => renderProfile(root) });
   return renderAuth(root, 'login');
 }
 
-function renderAccount(root, user, catalog) {
-  root.innerHTML = `
-    <section class="hero hero-small">
-      <p class="eyebrow">${esc(t('nav.profile'))}</p>
-      <h1 class="neon-title profile-name">${esc(user.displayName)}${badgeIcons(user.badges, catalog, (b) => tc(b.name), 'large')}</h1>
-    </section>
-    <section class="card">
-      <dl class="dates">
-        <div class="date-row"><dt>${esc(t('auth.email'))}</dt><dd>${esc(user.email)}</dd></div>
-        ${user.isAdmin || user.isTester ? `<div class="date-row active"><dt>${esc(t('profile.role'))}</dt><dd>${esc([user.isAdmin && t('profile.admin'), user.isTester && t('profile.tester')].filter(Boolean).join(' · '))}</dd></div>` : ''}
-      </dl>
-      <div class="actions">
-        <a class="btn btn-ghost" href="#/badges">${esc(t('badges.myBadges'))}</a>
-        ${user.isAdmin ? `<a class="btn btn-primary" href="#/admin">${esc(t('admin.open'))}</a>` : ''}
-        <button class="btn btn-ghost" type="button" data-logout>${esc(t('auth.logout'))}</button></div>
-    </section>`;
-  root.querySelector('[data-logout]').addEventListener('click', async () => {
-    await signOut();
-    renderProfile(root);
-  });
+/** Someone's public profile: #/u/<profile name> */
+export async function renderUserProfile(root, { id } = {}) {
+  return renderProfilePage(root, id || '', { onLogout: () => { location.hash = '#/profile'; } });
 }
 
 function renderAuth(root, mode) {
@@ -48,6 +33,7 @@ function renderAuth(root, mode) {
         ${tabs}
         ${field('email', 'email', t('auth.email'), 'email')}
         ${field('password', 'password', t('auth.password'), 'current-password')}
+        <div data-ts></div>
         <p class="error" role="alert" data-error hidden></p>
         <p class="badge-ok" role="status" data-ok hidden></p>
         <button class="btn btn-primary btn-block" type="submit">${esc(t('auth.login'))}</button>
@@ -56,14 +42,15 @@ function renderAuth(root, mode) {
     signup: `
       <form class="card form" novalidate data-form>
         ${tabs}
-        ${field('displayName', 'text', t('auth.displayName'), 'nickname', 'maxlength="40" minlength="2"')}
-        <p class="hint">${esc(t('auth.displayNameHint'))}</p>
+        ${field('displayName', 'text', t('profile.nameLabel'), 'nickname', 'maxlength="20" minlength="3"')}
+        <p class="hint" data-name-hint>${esc(t('profile.nameRules'))}</p>
         ${field('email', 'email', t('auth.email'), 'email')}
         ${field('password', 'password', t('auth.password'), 'new-password', `minlength="${PASSWORD_MIN}"`)}
         <p class="hint">${esc(t('auth.passwordHint', { min: PASSWORD_MIN }))}</p>
         <label class="check"><input type="checkbox" name="age"><span>${esc(t('auth.ageConfirm'))}</span></label>
         <label class="check"><input type="checkbox" name="terms"><span>${esc(t('auth.termsAcceptBefore'))}
           <a href="#/terms" target="_blank">${esc(t('auth.termsLink'))}</a>${esc(t('auth.termsAcceptAfter'))}</span></label>
+        <div data-ts></div>
         <p class="error" role="alert" data-error hidden></p>
         <button class="btn btn-primary btn-block" type="submit">${esc(t('auth.signup'))}</button>
       </form>`,
@@ -84,12 +71,37 @@ function renderAuth(root, mode) {
   const showError = (key, vars) => { errorEl.textContent = t(key, vars); errorEl.hidden = false; if (okEl) okEl.hidden = true; };
 
   form.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => renderAuth(root, b.dataset.mode)));
+  let botCheck = { getToken: () => null, reset() {} };
+  mountTurnstile(form.querySelector('[data-ts]'), mode).then((w) => { botCheck = w; });
+  const needToken = () => {
+    const token = botCheck.getToken();
+    if (turnstileEnabled() && !token) { showError('error.botCheckWait'); return undefined; }
+    return token;
+  };
+
+  // profile name: live check while typing (letters, numbers, _ ; 3–20; unique; no bad words)
+  const nameInput = form.querySelector('[name=displayName]');
+  const nameHint = form.querySelector('[data-name-hint]');
+  let nameTimer;
+  nameInput?.addEventListener('input', () => {
+    clearTimeout(nameTimer);
+    nameTimer = setTimeout(async () => {
+      const v = nameInput.value.trim();
+      if (!v) { nameHint.textContent = t('profile.nameRules'); nameHint.className = 'hint'; return; }
+      const st = /^[A-Za-z0-9_]{3,20}$/.test(v) ? await checkProfileName(v) : 'invalid';
+      nameHint.textContent = t(`profile.nameStatus.${st}`);
+      nameHint.className = st === 'ok' ? 'hint badge-ok' : 'hint error';
+    }, 350);
+  });
 
   form.querySelector('[data-forgot]')?.addEventListener('click', async () => {
     const email = form.email.value.trim();
     if (!validEmail(email)) return showError('error.emailInvalid');
+    const token = needToken();
+    if (token === undefined) return;
     try {
-      await requestPasswordReset(email);
+      await requestPasswordReset(email, token);
+      botCheck.reset();
       errorEl.hidden = true;
       okEl.textContent = t('auth.resetSent');
       okEl.hidden = false;
@@ -105,7 +117,10 @@ function renderAuth(root, mode) {
 
     if (mode === 'signup') {
       const displayName = form.displayName.value.trim();
-      if (displayName.length < 2) return showError('error.displayNameShort');
+      if (!/^[A-Za-z0-9_]{3,20}$/.test(displayName)) return showError('error.nameInvalid');
+      const st = await checkProfileName(displayName);
+      const nameErrors = { invalid: 'error.nameInvalid', blocked: 'error.nameBlocked', taken: 'error.nameTaken' };
+      if (nameErrors[st]) return showError(nameErrors[st]);
       if (password.length < PASSWORD_MIN) return showError('error.passwordShort', { min: PASSWORD_MIN });
       if (!form.age.checked) return showError('error.ageRequired');
       if (!form.terms.checked) return showError('error.termsRequired');
@@ -113,11 +128,13 @@ function renderAuth(root, mode) {
       return showError('error.passwordRequired');
     }
 
+    const captchaToken = needToken();
+    if (captchaToken === undefined) return;
     submit.disabled = true;
     try {
       if (mode === 'signup') {
         const { needsConfirmation } = await signUp({
-          email, password, displayName: form.displayName.value, ageConfirmed: true, termsAccepted: true,
+          email, password, displayName: form.displayName.value.trim(), ageConfirmed: true, termsAccepted: true, captchaToken,
         });
         if (needsConfirmation) {
           root.innerHTML = `<section class="hero hero-small"><h1 class="neon-title">${esc(t('auth.checkEmailTitle'))}</h1></section>
@@ -125,10 +142,11 @@ function renderAuth(root, mode) {
           return;
         }
       } else {
-        await signIn({ email, password });
+        await signIn({ email, password, captchaToken });
       }
       location.hash = '#/battle';
     } catch (e) {
+      botCheck.reset(); // a Turnstile token works only once
       showError(e.code || 'error.generic');
     } finally {
       submit.disabled = false;

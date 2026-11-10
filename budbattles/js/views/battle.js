@@ -1,8 +1,9 @@
 // BATTLE PAGE: theme, dates, partner, rules, and the prize (members only).
 import { t, tc, formatDate } from '../i18n.js';
 import {
-  getBattle, getCurrentBattle, battleStatus, countEntries, getSettings, getCurrentUser, getPrize, now,
+  getBattle, getCurrentBattle, battleStatus, countEntries, getSettings, getCurrentUser, getPrize, now, getStandings,
 } from '../store.js';
+import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
 import { esc, splitDuration } from '../ui.js';
 
 export async function renderBattle(root, { id } = {}) {
@@ -71,9 +72,30 @@ export async function renderBattle(root, { id } = {}) {
         ${rules.map((r) => `<li>${esc(r)}</li>`).join('')}
       </ol>
     </section>` : ''}
+
+    <section class="home-section" data-entries hidden>
+      <div class="section-head">
+        <h2>${esc(t('battle.entries'))}</h2>
+        <a class="link small" href="#/standings/${encodeURIComponent(battle.id)}">${esc(t(status === 'voting' ? 'battle.ctaVote' : 'battle.ctaStandings'))} →</a>
+      </div>
+      <ul class="ncard-grid" data-entry-list></ul>
+    </section>
   `;
 
   startCountdowns(root);
+
+  // every approved entry as a neon card (loaded after the page is visible)
+  try {
+    const entries = await getStandings(battle.id);
+    const box = root.querySelector('[data-entries]');
+    if (!entries.length || !box?.isConnected) return;
+    const eyebrow = cardEyebrow(battle);
+    const showVotes = status === 'voting' || status === 'ended';
+    box.querySelector('[data-entry-list]').innerHTML = entries.map((e) => neonCardHtml(e, {
+      eyebrow, pill: pillFor(e, entries, status), top: showVotes && e.rank === 1 && e.votes > 0, compact: true,
+    })).join('');
+    box.hidden = false;
+  } catch { /* the rest of the page still works */ }
 }
 
 export function battleLabel(battle) {

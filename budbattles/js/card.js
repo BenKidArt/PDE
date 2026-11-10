@@ -1,6 +1,8 @@
 // ENTRY CARD: a 1080 × 1350 picture of an approved entry, for Telegram / Instagram.
 // Drawn in the browser (no external service): logo, battle name, photo in a
-// green + pink neon frame, pink rank pill, grower name in a neon pill, strain in pink.
+// green + pink neon frame, pink rank pill, profile picture + name (+ Instagram) in a
+// neon pill, strain in pink. Same design as the on-screen card (entrycard.js).
+import { avatarUrl } from './ui.js';
 
 export const CARD_W = 1080;
 export const CARD_H = 1350;
@@ -71,7 +73,11 @@ export async function drawEntryCard(data) {
   canvas.width = CARD_W;
   canvas.height = CARD_H;
   const ctx = canvas.getContext('2d');
-  const [photo, logo] = await Promise.all([loadImage(data.photoUrl), loadImage('assets/logo-full.webp').catch(() => null)]);
+  const [photo, logo, avatar] = await Promise.all([
+    loadImage(data.photoUrl),
+    loadImage('assets/logo-full.webp').catch(() => null),
+    loadImage(avatarUrl(data.avatar)).catch(() => null),
+  ]);
 
   // ---- background: near black with soft green and pink light
   ctx.fillStyle = C.bg;
@@ -137,12 +143,16 @@ export async function drawEntryCard(data) {
     ctx.restore();
   }
 
-  // ---- grower name in a neon pill button
+  // ---- profile picture + name (+ Instagram) in a neon pill button
   ctx.save();
-  ctx.font = `800 50px ${FONT}`;
-  const name = fit(ctx, data.displayName, 640);
+  const insta = data.instagram ? `@${data.instagram}` : '';
+  const nameSize = insta ? 44 : 50;
+  ctx.font = `800 ${nameSize}px ${FONT}`;
+  const name = fit(ctx, data.displayName, 620);
   const nameW = ctx.measureText(name).width;
-  const bh = 112, iconD = 76, bw = Math.min(900, nameW + iconD + 110);
+  ctx.font = `600 30px ${FONT}`;
+  const insW = insta ? ctx.measureText(fit(ctx, insta, 620)).width : 0;
+  const bh = 112, iconD = 76, bw = Math.min(900, Math.max(nameW, insW) + iconD + 110);
   const bx = (CARD_W - bw) / 2, by = 1062;
   roundRect(ctx, bx, by, bw, bh, bh / 2);
   const fill = ctx.createLinearGradient(0, by, 0, by + bh);
@@ -153,33 +163,35 @@ export async function drawEntryCard(data) {
   ctx.fillStyle = fill;
   ctx.fill();
   neonStroke(ctx, C.green, 5, 24);
-  roundRect(ctx, bx - 11, by - 11, bw + 22, bh + 22, (bh + 22) / 2);
+  roundRect(ctx, bx - 16, by - 16, bw + 32, bh + 32, (bh + 32) / 2);
   neonStroke(ctx, C.pink, 4, 22);
-  // person icon in a circle
+  // round profile picture (default: BB avatar)
   const cx = bx + 18 + iconD / 2, cy = by + bh / 2;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, iconD / 2, 0, Math.PI * 2);
+  ctx.fillStyle = '#000';
+  ctx.fill();
+  ctx.clip();
+  if (avatar) ctx.drawImage(avatar, cx - iconD / 2, cy - iconD / 2, iconD, iconD);
+  ctx.restore();
   ctx.beginPath();
   ctx.arc(cx, cy, iconD / 2, 0, Math.PI * 2);
   neonStroke(ctx, C.green, 4, 14);
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, iconD / 2 - 4, 0, Math.PI * 2);
-  ctx.clip();
-  ctx.strokeStyle = C.green;
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.arc(cx, cy - 9, 12, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(cx, cy + 32, 25, Math.PI * 1.15, Math.PI * 1.85);
-  ctx.stroke();
-  ctx.restore();
-  // divider + name
+  // divider + name (+ Instagram under it)
   ctx.fillStyle = 'rgba(57,255,136,.55)';
   ctx.fillRect(bx + 18 + iconD + 20, by + 26, 3, bh - 52);
-  ctx.fillStyle = C.text;
-  ctx.textBaseline = 'middle';
+  const tx = bx + 18 + iconD + 44;
   ctx.textAlign = 'left';
-  ctx.fillText(name, bx + 18 + iconD + 44, cy + 2);
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = C.text;
+  ctx.font = `800 ${nameSize}px ${FONT}`;
+  ctx.fillText(name, tx, insta ? cy - 15 : cy + 2);
+  if (insta) {
+    ctx.font = `600 30px ${FONT}`;
+    ctx.fillStyle = C.muted;
+    ctx.fillText(fit(ctx, insta, 620), tx, cy + 26);
+  }
   ctx.restore();
 
   // ---- strain in pink

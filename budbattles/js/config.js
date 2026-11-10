@@ -5,6 +5,13 @@ export const CONFIG = {
   supabaseUrl: 'https://chjkseolzvdtlurafvim.supabase.co',
   supabaseKey: 'sb_publishable_PUh0RWXSPQSO8UGYeY9BJQ_9EmSTyRo', // the "publishable" key (older projects call it "anon public")
 
+  // Cloudflare Turnstile bot check (sign-up, login, voting). The SITE key is public.
+  // Leave empty to switch the bot check off. The SECRET key never goes here.
+  turnstileSiteKey: '',
+
+  // Anti-cheat: at most this many accounts per device (checked again by the database when voting).
+  accountsPerDevice: 3,
+
   // Version of the terms people accept at sign-up. Change it when the terms change.
   termsVersion: '2026-11-draft',
 

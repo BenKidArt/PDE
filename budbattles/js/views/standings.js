@@ -5,6 +5,8 @@ import {
 } from '../store.js';
 import { esc, badgeIcons } from '../ui.js';
 import { battleLabel, testNotice } from './battle.js';
+import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
+import { mountTurnstile, turnstileEnabled } from '../turnstile.js';
 
 const REFRESH_MS = 15000; // "live": refresh every 15 seconds while the page is open
 
@@ -23,7 +25,7 @@ export async function renderStandings(root, { id } = {}) {
       <p class="muted small" data-phase></p>
     </section>
     <div data-notice></div>
-    <ol class="ranking" data-list aria-live="polite"></ol>
+    <ol class="ncard-list" data-list aria-live="polite"></ol>
     <p class="muted small center" data-updated></p>`;
 
   const listEl = root.querySelector('[data-list]');
@@ -32,6 +34,7 @@ export async function renderStandings(root, { id } = {}) {
   const updatedEl = root.querySelector('[data-updated]');
   let armedId = null; // first tap arms a vote, second tap confirms it
   let busy = false;
+  let botCheck = null; // Turnstile widget of the armed card
 
   async function refresh() {
     if (!root.isConnected) return false;
@@ -71,55 +74,59 @@ export async function renderStandings(root, { id } = {}) {
 
     const showVotes = status === 'voting' || status === 'ended';
     const canVote = status === 'voting' && user && !myVote;
+    const eyebrow = cardEyebrow(battle);
     listEl.innerHTML = entries.map((e) => {
-      const top = showVotes && e.rank === 1 && e.votes > 0; // only the leader gets the gold glow
-      return `
-      <li class="entry-card ${top ? 'entry-top' : ''} ${e.id === myVote ? 'entry-voted' : ''}" data-entry="${esc(e.id)}">
-        <div class="entry-frame">
-          <img src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" loading="lazy" data-zoom>
-          ${showVotes ? `<span class="rank-pill ${top ? 'rank-pill-gold' : ''}" aria-label="${esc(t('standings.rank', { rank: e.rank }))}">#${e.rank}</span>` : ''}
-          ${status === 'ended' && top ? `<span class="featured-pill">★ ${esc(t('standings.featured'))}</span>` : ''}
-        </div>
-        <div class="entry-body">
-          <p class="entry-name"><strong>${esc(e.displayName)}</strong>${badgeIcons(e.badges, badgeCatalog, (b) => tc(b.name))}
-            ${e.isMine ? `<span class="pill pill-open">${esc(t('standings.yours'))}</span>` : ''}</p>
-          <div class="entry-row">
-            <div class="entry-info">
-              ${e.strain ? `<p class="entry-strain">${esc(e.strain)}</p>` : ''}
-              ${showVotes ? `<p class="entry-votes"><span class="tabular">${e.votes}</span> ${esc(t(e.votes === 1 ? 'standings.vote' : 'standings.votes'))}</p>` : ''}
-            </div>
-            ${canVote && !e.isMine ? `<button type="button" class="btn btn-vote ${armedId === e.id ? 'is-armed' : ''}" data-vote>
-              ${esc(t(armedId === e.id ? 'vote.confirm' : 'vote.button'))}</button>` : ''}
-            ${e.id === myVote ? `<span class="your-vote">✓ ${esc(t('vote.yourVote'))}</span>` : ''}
+      const top = showVotes && e.rank === 1 && e.votes > 0; // the leader's pill turns gold
+      const below = `
+        <div class="ncard-below">
+          <div class="ncard-meta">
+            ${badgeIcons(e.badges, badgeCatalog, (b) => tc(b.name))}
+            ${e.isMine ? `<span class="pill pill-open">${esc(t('standings.yours'))}</span>` : ''}
+            ${showVotes ? `<span class="entry-votes"><span class="tabular">${e.votes}</span> ${esc(t(e.votes === 1 ? 'standings.vote' : 'standings.votes'))}</span>` : ''}
+            ${status === 'ended' && top ? `<span class="pill pill-gold">★ ${esc(t('standings.featured'))}</span>` : ''}
           </div>
-          ${e.description ? `<p class="small muted">${esc(e.description)}</p>` : ''}
-          <p class="error small" data-error hidden></p>
+          ${canVote && !e.isMine ? `<button type="button" class="btn btn-vote" data-vote>${esc(t('vote.button'))}</button>` : ''}
+          ${e.id === myVote ? `<span class="your-vote">✓ ${esc(t('vote.yourVote'))}</span>` : ''}
         </div>
-      </li>`;
+        <div data-ts></div>
+        <p class="error small" data-error hidden></p>`;
+      return neonCardHtml(e, { eyebrow, pill: pillFor(e, entries, status), top, below });
     }).join('');
 
-    listEl.querySelectorAll('[data-zoom]').forEach((img) => img.addEventListener('click', () => {
-      img.closest('.entry-card').classList.toggle('expanded');
-    }));
     listEl.querySelectorAll('[data-vote]').forEach((btn) => btn.addEventListener('click', async () => {
-      const entryId = btn.closest('[data-entry]').dataset.entry;
+      const cardEl = btn.closest('[data-entry]');
+      const entryId = cardEl.dataset.entry;
+      const err = cardEl.querySelector('[data-error]');
+      err.hidden = true;
       if (armedId !== entryId) {
+        // first tap: arm this card (and show the bot check), disarm any other
+        listEl.querySelectorAll('[data-vote].is-armed').forEach((b) => { b.classList.remove('is-armed'); b.textContent = t('vote.button'); });
+        listEl.querySelectorAll('[data-ts]').forEach((slot) => { slot.innerHTML = ''; });
         armedId = entryId;
-        draw(status, entries, myVote);
+        btn.classList.add('is-armed');
+        btn.textContent = t('vote.confirm');
+        botCheck = await mountTurnstile(cardEl.querySelector('[data-ts]'), 'vote');
         return;
       }
       if (busy) return;
+      const token = botCheck?.getToken();
+      if (turnstileEnabled() && !token) {
+        err.textContent = t('error.botCheckWait');
+        err.hidden = false;
+        return;
+      }
       busy = true;
       btn.disabled = true;
       try {
-        await castVote(battle.id, entryId);
+        await castVote(battle.id, entryId, token);
         armedId = null;
+        botCheck = null;
         await refresh();
       } catch (e) {
-        const err = btn.closest('[data-entry]').querySelector('[data-error]');
         err.textContent = t(e.code || 'error.generic');
         err.hidden = false;
         btn.disabled = false;
+        botCheck?.reset();
       } finally {
         busy = false;
       }

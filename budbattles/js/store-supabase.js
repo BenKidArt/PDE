@@ -1,5 +1,6 @@
 // REAL data layer: Supabase (database, photo storage and login), servers in Frankfurt.
 import { CONFIG } from './config.js';
+import { getDeviceId } from './device.js';
 import { StoreError, withRanks, toBadge } from './shared.js';
 
 const BUCKET = 'entry-photos';
@@ -119,11 +120,14 @@ export async function getCurrentUser() {
   if (!session) return null;
   if (profileCache?.id === session.user.id) return profileCache;
   let [{ data, error }, own] = await Promise.all([
-    sb.from('profiles').select('display_name, is_admin, is_tester').eq('id', session.user.id).maybeSingle(),
+    sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at').eq('id', session.user.id).maybeSingle(),
     sb.from('user_badges').select('badge_id').eq('user_id', session.user.id),
   ]);
   if (error) {
-    // Safety net: database update 003 (testers + badges) not run yet → load without the tester flag.
+    // Safety net: database update 010 / 003 not run yet → load without the newer profile fields.
+    ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester').eq('id', session.user.id).maybeSingle());
+  }
+  if (error) {
     ({ data, error } = await sb.from('profiles').select('display_name, is_admin').eq('id', session.user.id).maybeSingle());
   }
   if (error) fail(error);
@@ -135,7 +139,19 @@ export async function getCurrentUser() {
     isTester: !!data?.is_tester,
     canTest: !!(data?.is_admin || data?.is_tester), // may see and use hidden test battles
     badges: (own.data || []).map((b) => b.badge_id),
+    username: data?.username ?? null, // null = must still choose a profile name
+    hasProfileNames: !!data && 'username' in data, // false until database update 010 ran
+    usernameChangedAt: data?.username_changed_at ?? null,
+    instagram: data?.instagram ?? null,
+    avatar: data?.avatar ?? null,
+    growSetup: data?.grow_setup ?? null,
+    lights: data?.lights ?? null,
+    medium: data?.medium ?? null,
+    favStrain: data?.fav_strain ?? null,
+    bio: data?.bio ?? null,
+    memberSince: data?.created_at ?? null,
   };
+  sb.rpc('register_device', { p_device: getDeviceId() }).then(() => {}, () => {}); // for the anti-cheat limits
   return profileCache;
 }
 
@@ -146,13 +162,16 @@ export function onAuthEvent(cb) {
 
 const backHere = () => location.origin + location.pathname;
 
-export async function signUp({ email, password, displayName, ageConfirmed, termsAccepted }) {
+export async function signUp({ email, password, displayName, ageConfirmed, termsAccepted, captchaToken }) {
   if (!ageConfirmed) throw new StoreError('error.ageRequired');
   if (!termsAccepted) throw new StoreError('error.termsRequired');
+  const devCount = await sb.rpc('device_account_count', { p_device: getDeviceId() });
+  if (!devCount.error && devCount.data >= CONFIG.accountsPerDevice) throw new StoreError('error.tooManyAccounts');
   const { data, error } = await sb.auth.signUp({
     email: email.trim(),
     password,
     options: {
+      captchaToken: captchaToken || undefined,
       emailRedirectTo: backHere(),
       data: { display_name: displayName.trim(), age_confirmed: true, terms_version: CONFIG.termsVersion },
     },
@@ -161,8 +180,8 @@ export async function signUp({ email, password, displayName, ageConfirmed, terms
   return { needsConfirmation: !data.session };
 }
 
-export async function signIn({ email, password }) {
-  const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+export async function signIn({ email, password, captchaToken }) {
+  const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password, options: { captchaToken: captchaToken || undefined } });
   if (error) fail(error);
 }
 
@@ -171,8 +190,8 @@ export async function signOut() {
   if (error) fail(error);
 }
 
-export async function requestPasswordReset(email) {
-  const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: backHere() });
+export async function requestPasswordReset(email, captchaToken) {
+  const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: backHere(), captchaToken: captchaToken || undefined });
   if (error) fail(error);
 }
 
@@ -235,10 +254,19 @@ export async function addEntry({ battleId, strain, description, photo, width, he
 // ---------- Admin (the database only allows this for admins) ----------
 
 export async function listEntries(battleId) {
-  const { data, error } = await sb.from('entries').select('*, profiles(display_name)')
+  let { data, error } = await sb.from('entries').select('*, profiles(display_name, username, instagram, avatar)')
     .eq('battle_id', battleId).order('created_at', { ascending: true });
+  if (error) { // before database update 010
+    ({ data, error } = await sb.from('entries').select('*, profiles(display_name)').eq('battle_id', battleId).order('created_at', { ascending: true }));
+  }
   if (error) fail(error);
-  return data.map((r) => ({ ...toEntry(r), displayName: r.profiles?.display_name || '?' }));
+  return data.map((r) => ({
+    ...toEntry(r),
+    displayName: r.profiles?.username || r.profiles?.display_name || '?',
+    username: r.profiles?.username ?? null,
+    instagram: r.profiles?.instagram ?? null,
+    avatar: r.profiles?.avatar ?? null,
+  }));
 }
 
 export async function reviewEntry(id, status) {
@@ -281,6 +309,10 @@ export async function getStandings(battleId) {
     isMine: r.is_mine,
     createdAt: r.created_at,
     badges: r.badges || [],
+    username: r.username ?? null,
+    instagram: r.instagram ?? null,
+    avatar: r.avatar ?? null,
+    profileKey: r.profile_key ?? null, // opens #/u/<key>
   })));
 }
 
@@ -292,13 +324,22 @@ export async function getMyVote(battleId) {
   return data?.entry_id ?? null;
 }
 
-export async function castVote(battleId, entryId) {
+const VOTE_ERRORS = {
+  already_voted: 'error.alreadyVoted', voting_closed: 'error.voteClosed', invalid_entry: 'error.voteClosed',
+  vote_cancelled: 'error.voteCancelled', email_not_confirmed: 'error.voteEmailConfirm', account_too_new: 'error.voteTooNew',
+  too_many_accounts: 'error.tooManyAccounts', rate_limited: 'error.voteRateLimited', bot_check_failed: 'error.botCheck',
+  login_required: 'vote.loginNeeded',
+};
+
+/** Votes go through the database function cast_vote(), which runs all anti-cheat checks. */
+export async function castVote(battleId, entryId, captchaToken) {
   if (!(await getCurrentUser())) throw new StoreError('vote.loginNeeded');
-  const { error } = await sb.from('votes').insert({ battle_id: battleId, entry_id: entryId });
+  const { error } = await sb.rpc('cast_vote', { p_battle: battleId, p_entry: entryId, p_token: captchaToken || null, p_device: getDeviceId() });
   if (!error) return;
   console.error(error);
+  const key = Object.keys(VOTE_ERRORS).find((k) => (error.message || '').includes(k));
+  if (key) throw new StoreError(VOTE_ERRORS[key]);
   if (error.code === '23505') throw new StoreError('error.alreadyVoted');
-  if (error.code === '42501') throw new StoreError('error.voteClosed'); // outside voting time, own photo, …
   fail(error);
 }
 
@@ -389,5 +430,81 @@ export async function registerBusinessInterest({ email, company, lang }) {
     if (error.code === '23514') throw new StoreError('error.emailInvalid');
     fail(error);
   }
+}
+
+// ---------- Profile name, profile details, public profiles (database update 010) ----------
+
+/** 'ok' | 'invalid' | 'blocked' | 'taken' */
+export async function checkProfileName(name) {
+  const { data, error } = await sb.rpc('profile_name_available', { p_name: name });
+  // the final check happens when saving; an unexpected answer must not block the form
+  if (error || !['ok', 'invalid', 'blocked', 'taken'].includes(data)) return 'ok';
+  return data;
+}
+
+const NAME_ERRORS = { name_invalid: 'error.nameInvalid', name_blocked: 'error.nameBlocked', name_taken: 'error.nameTaken', name_change_too_soon: 'error.nameTooSoon' };
+
+export async function setProfileName(name) {
+  const { error } = await sb.rpc('set_profile_name', { p_name: name });
+  if (error) {
+    const key = Object.keys(NAME_ERRORS).find((k) => (error.message || '').includes(k));
+    if (key) throw new StoreError(NAME_ERRORS[key]);
+    fail(error);
+  }
+  profileCache = null;
+}
+
+export async function updateProfileDetails(d) {
+  const { error } = await sb.rpc('update_profile_details', {
+    p_instagram: d.instagram ?? '', p_grow_setup: d.growSetup ?? '', p_lights: d.lights ?? '',
+    p_medium: d.medium ?? '', p_fav_strain: d.favStrain ?? '', p_bio: d.bio ?? '',
+  });
+  if (error) {
+    if (error.code === '23514') throw new StoreError((error.message || '').includes('instagram') ? 'error.instagramInvalid' : 'error.profileInvalid');
+    fail(error);
+  }
+  profileCache = null;
+}
+
+/** Anyone's public profile (no email). key = profile name or account id. */
+export async function getPublicProfile(key) {
+  const { data, error } = await sb.rpc('get_public_profile', { p_key: key });
+  if (error) fail(error);
+  if (!data) return null;
+  return {
+    id: data.id, isMe: !!data.is_me, username: data.username, displayName: data.display_name,
+    instagram: data.instagram, avatar: data.avatar, memberSince: data.member_since,
+    growSetup: data.grow_setup, lights: data.lights, medium: data.medium, favStrain: data.fav_strain, bio: data.bio,
+    nameChangedAt: data.name_changed_at, badges: data.badges || [], stats: data.stats || {},
+    history: (data.history || []).map((h) => ({
+      entryId: h.entry_id, battleId: h.battle_id, number: h.number, theme: { de: h.theme_de, en: h.theme_en },
+      photoUrl: publicUrl(h.photo_path), strain: h.strain, votes: h.votes, place: h.place, ended: h.ended,
+    })),
+  };
+}
+
+// ---------- Admin: suspicious votes ----------
+
+export async function getVoteReport(battleId) {
+  const { data, error } = await sb.rpc('admin_vote_report', { p_battle: battleId });
+  if (error) fail(error);
+  return data.map((r) => ({
+    entryId: r.entry_id, displayName: r.username || r.display_name, votes: r.votes, newAccountVotes: r.new_account_votes,
+    maxSameNetwork: r.max_same_network, maxSameDevice: r.max_same_device, flagged: r.flagged,
+  }));
+}
+
+export async function getEntryVotes(entryId) {
+  const { data, error } = await sb.rpc('admin_entry_votes', { p_entry: entryId });
+  if (error) fail(error);
+  return data.map((r) => ({
+    voterId: r.voter_id, voterName: r.voter_name, votedAt: r.voted_at, ageHours: r.voter_age_hours,
+    sameNetwork: r.same_network_votes, sameDevice: r.same_device_votes,
+  }));
+}
+
+export async function cancelVote(battleId, voterId, reason) {
+  const { error } = await sb.rpc('admin_cancel_vote', { p_battle: battleId, p_voter: voterId, p_reason: reason || '' });
+  if (error) fail(error);
 }
 

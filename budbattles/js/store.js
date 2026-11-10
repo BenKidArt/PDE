@@ -54,6 +54,13 @@ export const {
   getPendingChampion, // [{ battleId, number, isTest, theme }] where you are #1 and must pick son/daughter
   chooseChampionBadge, // (battleId, 'badge_heir_son' | 'badge_heir_daughter')
   registerBusinessInterest, // ({ email, company, lang }) – Business page "Interested?" list
+  checkProfileName, // (name) → 'ok' | 'invalid' | 'blocked' | 'taken'
+  setProfileName, // (name) – max once every 30 days
+  updateProfileDetails, // ({ instagram, growSetup, lights, medium, favStrain, bio })
+  getPublicProfile, // (key) → public profile (never the email) or null
+  getVoteReport, // admin: (battleId) → per entry vote statistics, flagged
+  getEntryVotes, // admin: (entryId) → single votes
+  cancelVote, // admin: (battleId, voterId, reason)
 } = impl;
 
 // Demo only (undefined with Supabase):

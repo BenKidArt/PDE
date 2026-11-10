@@ -71,6 +71,14 @@ After `schema.sql`, run the files in `supabase/migrations/` in number order, eac
 - `007_collectible_badges.sql`: 18 collectible badges (active, tradeable later)
 - `008_business_interest.sql`: "Interested?" email list on the Business page (Table Editor → business_interest)
 - `009_dense_ranking.sql`: place badges use dense places (1, 2, 2, 3)
+- `010_anticheat_and_profiles.sql`: anti-cheat voting, profile names + Instagram, big profiles
+
+## Turnstile bot check (Cloudflare, free)
+1. dash.cloudflare.com → sign up → **Turnstile** → **Add widget** → hostname `budbattles.netlify.app`, mode **Managed**.
+2. Send the **site key** to Claude (public). Keep the **secret key** private.
+3. Wait until the app update with the site key is live.
+4. Supabase → **Authentication → Attack Protection** → enable **CAPTCHA**, provider **Turnstile**, paste the secret key.
+5. Supabase → **Integrations → Vault** → **Add new secret**: name `turnstile_secret`, value = the secret key (for votes).
 
 To remove the test battle and its photos later, run:
 `delete from public.battles where id = 'test-battle';`

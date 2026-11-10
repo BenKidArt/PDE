@@ -52,7 +52,8 @@ export async function renderAdmin(root) {
   const drawLinks = () => {
     const id = encodeURIComponent(state.battleId);
     linksEl.innerHTML = [['battle', 'admin.openBattle'], ['enter', 'admin.openEnter'], ['standings', 'admin.openStandings']]
-      .map(([page, key]) => `<a class="chip" href="#/${page}/${id}">${esc(t(key))} →</a>`).join('');
+      .map(([page, key]) => `<a class="chip" href="#/${page}/${id}">${esc(t(key))} →</a>`).join('')
+      + `<a class="chip chip-warn" href="#/votes">⚠ ${esc(t('votecheck.title'))} →</a>`;
   };
   drawLinks();
 
@@ -122,12 +123,12 @@ export async function renderAdmin(root) {
       const box = listEl.querySelector(`[data-entry="${CSS.escape(e.id)}"] [data-card]`);
       if (!box) return; // the list was redrawn meanwhile
       const pill = ranks.has(e.id) ? `#${ranks.get(e.id)}` : `${t('card.entry')} #${approvedInOrder.indexOf(e) + 1}`;
-      const key = `${e.id}|${pill}|${e.displayName}|${e.strain}|${getLang()}`;
+      const key = `${e.id}|${pill}|${e.displayName}|${e.instagram}|${e.avatar}|${e.strain}|${getLang()}`;
       try {
         let file = cardCache.get(key);
         if (!file) {
           file = await entryCardFile({
-            photoUrl: e.photoUrl, displayName: e.displayName, strain: e.strain, pill,
+            photoUrl: e.photoUrl, displayName: e.displayName, strain: e.strain, pill, avatar: e.avatar, instagram: e.instagram,
             eyebrow: `${battleLabel(battle)} · ${tc(battle.theme)}`,
           }, `budbattles-${(e.displayName || 'entry').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`);
           cardCache.set(key, file);
@@ -206,7 +207,9 @@ function card(e) {
         : `<img class="review-photo" src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" data-zoom
         width="${e.width}" height="${e.height}" loading="lazy">`}
       <div class="review-body">
-        <p class="review-meta"><strong>${esc(e.displayName)}</strong> <span class="muted small">${esc(date)}</span></p>
+        <p class="review-meta"><strong>${e.username ? `<a href="#/u/${encodeURIComponent(e.username)}">${esc(e.displayName)}</a>` : esc(e.displayName)}</strong>
+          ${e.instagram ? `<a class="review-insta" href="https://instagram.com/${encodeURIComponent(e.instagram)}" target="_blank" rel="noopener noreferrer">@${esc(e.instagram)}</a>` : `<span class="muted small">${esc(t(e.username ? 'admin.noInstagram' : 'admin.noProfileName'))}</span>`}
+          <span class="muted small">${esc(date)}</span></p>
         ${e.strain ? `<p class="review-strain">${esc(e.strain)}</p>` : ''}
         ${e.description ? `<p class="small">${esc(e.description)}</p>` : ''}
       </div>

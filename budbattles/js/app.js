@@ -8,13 +8,15 @@ import { renderHome } from './views/home.js';
 import { renderBattle } from './views/battle.js';
 import { renderEnter } from './views/enter.js';
 import { renderStandings } from './views/standings.js';
-import { renderProfile, renderNewPassword } from './views/profile.js';
+import { renderProfile, renderNewPassword, renderUserProfile } from './views/profile.js';
 import { renderTerms } from './views/terms.js';
 import { renderAdmin } from './views/admin.js';
 import { renderSoon } from './views/soon.js';
 import { renderTests } from './views/tests.js';
 import { renderBadges } from './views/badges.js';
 import { checkChampion, resetChampionCheck } from './champion.js';
+import { checkProfileName_popup, resetProfileNameCheck } from './profilename.js';
+import { renderVoteCheck } from './views/votecheck.js';
 import { esc } from './ui.js';
 
 const routes = {
@@ -30,6 +32,8 @@ const routes = {
   admin: renderAdmin,
   tests: renderTests,
   badges: renderBadges,
+  u: renderUserProfile, // #/u/<profile name>
+  votes: renderVoteCheck, // admin: suspicious votes
 };
 
 // Bottom bar: the five things people use most.
@@ -97,7 +101,7 @@ async function render() {
 async function renderChrome(activePage, battleId) {
   document.title = t('app.name');
   const user = await getCurrentUser();
-  const isActive = (path) => path === activePage || (path === 'profile' && activePage === 'admin');
+  const isActive = (path) => path === activePage || (path === 'profile' && ['admin', 'votes'].includes(activePage));
 
   document.getElementById('topbar').innerHTML = `
     <a class="brand" href="#/" aria-label="${esc(t('app.name'))} – ${esc(t('nav.home'))}">
@@ -201,16 +205,21 @@ document.addEventListener('change', async (e) => {
 
 window.addEventListener('hashchange', () => { setMenu(false); render(); });
 
+async function popups() {
+  await checkProfileName_popup(render);
+  checkChampion(render);
+}
+
 (async () => {
   await initI18n();
   await initStore();
   onAuthEvent((event) => {
     if (event === 'PASSWORD_RECOVERY') return;
     render();
-    if (event === 'SIGNED_IN') { resetChampionCheck(); checkChampion(render); } // "on their next login"
+    if (event === 'SIGNED_IN') { resetProfileNameCheck(); resetChampionCheck(); popups(); } // "on their next login"
   });
   await render();
-  checkChampion(render); // also hands out Top 3 / champion choices for battles that just ended
+  popups(); // profile name first, then the champion choice (also hands out place badges for ended battles)
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('sw.js').catch((err) => console.warn('SW registration failed', err));
   }
