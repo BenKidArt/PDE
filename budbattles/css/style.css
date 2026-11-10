@@ -565,3 +565,10 @@ select {
 /* ---------- Business "Interested?" form ---------- */
 .interest-form { margin: 14px 0; }
 .interest-done { margin: 14px 0; font-size: 1rem; }
+
+/* ---------- Share cards (admin, approved entries) ---------- */
+.share-card { display: grid; gap: 10px; padding: 12px 12px 0; }
+.share-card-wait { text-align: center; padding: 60px 0; margin: 0; }
+.share-card-img { width: 100%; height: auto; aspect-ratio: 1080 / 1350; border-radius: 12px; display: block; }
+.share-card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.share-card-actions .btn { flex: 1 1 auto; }

@@ -2,8 +2,13 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
+  getStandings, battleStatus,
 } from '../store.js';
 import { esc } from '../ui.js';
+import { battleLabel } from './battle.js';
+import { entryCardFile } from '../card.js';
+
+const cardCache = new Map(); // finished card files, so switching tabs doesn't redraw them
 
 const TABS = ['pending', 'approved', 'rejected'];
 // Remembered while the app is open, so you land where you left off.
@@ -61,12 +66,18 @@ export async function renderAdmin(root) {
   const tabsEl = root.querySelector('[data-tabs]');
   const toastEl = root.querySelector('[data-toast]');
   let entries = [];
+  let ranks = new Map(); // entry id → live rank (only once voting has started)
   let toastTimer;
 
   async function load() {
     listEl.innerHTML = `<p class="muted center">${esc(t('app.loading'))}</p>`;
     try {
       entries = await listEntries(state.battleId);
+      const battle = battles.find((b) => b.id === state.battleId);
+      ranks = new Map();
+      if (battle && ['voting', 'ended'].includes(battleStatus(battle))) {
+        (await getStandings(state.battleId)).forEach((s) => ranks.set(s.id, s.rank));
+      }
     } catch (e) {
       listEl.innerHTML = `<p class="error">${esc(t(e.code || 'error.generic'))}</p>`;
       return;
@@ -89,7 +100,7 @@ export async function renderAdmin(root) {
     const seedButton = isDemo && seedDemoEntries && state.tab === 'pending'
       ? `<p class="center"><button class="btn btn-ghost btn-small" type="button" data-seed>${esc(t('admin.seedDemo'))}</button></p>` : '';
     listEl.innerHTML = shown.length
-      ? shown.map(card).join('') + seedButton
+      ? shown.map((e) => card(e)).join('') + seedButton
       : `<section class="card center"><p class="muted">${esc(t(`admin.empty.${state.tab}`))}</p>${seedButton}</section>`;
     listEl.querySelector('[data-seed]')?.addEventListener('click', async () => {
       await seedDemoEntries(state.battleId);
@@ -99,6 +110,49 @@ export async function renderAdmin(root) {
     listEl.querySelectorAll('[data-action]').forEach((btn) => btn.addEventListener('click', () => {
       act(btn.closest('[data-entry]').dataset.entry, btn.dataset.action, btn);
     }));
+    if (state.tab === 'approved') fillCards(shown);
+  }
+
+  /** Approved entries automatically become share cards (one after the other). */
+  async function fillCards(shown) {
+    const battle = battles.find((b) => b.id === state.battleId);
+    const approvedInOrder = entries.filter((e) => e.status === 'approved')
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    for (const e of shown) {
+      const box = listEl.querySelector(`[data-entry="${CSS.escape(e.id)}"] [data-card]`);
+      if (!box) return; // the list was redrawn meanwhile
+      const pill = ranks.has(e.id) ? `#${ranks.get(e.id)}` : `${t('card.entry')} #${approvedInOrder.indexOf(e) + 1}`;
+      const key = `${e.id}|${pill}|${e.displayName}|${e.strain}|${getLang()}`;
+      try {
+        let file = cardCache.get(key);
+        if (!file) {
+          file = await entryCardFile({
+            photoUrl: e.photoUrl, displayName: e.displayName, strain: e.strain, pill,
+            eyebrow: `${battleLabel(battle)} · ${tc(battle.theme)}`,
+          }, `budbattles-${(e.displayName || 'entry').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`);
+          cardCache.set(key, file);
+        }
+        if (!box.isConnected) return;
+        showCard(box, file);
+      } catch (err) {
+        console.error(err);
+        if (box.isConnected) box.innerHTML = `<p class="error small">${esc(t('card.failed'))}</p>`;
+      }
+    }
+  }
+
+  function showCard(box, file) {
+    const url = URL.createObjectURL(file);
+    const canShare = !!navigator.canShare?.({ files: [file] });
+    box.innerHTML = `
+      <img class="share-card-img" src="${url}" alt="${esc(t('card.alt'))}" width="1080" height="1350">
+      <div class="share-card-actions">
+        <a class="btn btn-primary" href="${url}" download="${esc(file.name)}">⬇ ${esc(t('card.download'))}</a>
+        ${canShare ? `<button type="button" class="btn btn-ghost" data-share>↗ ${esc(t('card.share'))}</button>` : ''}
+      </div>`;
+    box.querySelector('[data-share]')?.addEventListener('click', async () => {
+      try { await navigator.share({ files: [file] }); } catch { /* closed by the user */ }
+    });
   }
 
   async function act(id, status, btn) {
@@ -147,8 +201,10 @@ function card(e) {
   }[e.status];
   return `
     <article class="card review" data-entry="${esc(e.id)}">
-      <img class="review-photo" src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" data-zoom
-        width="${e.width}" height="${e.height}" loading="lazy">
+      ${e.status === 'approved'
+        ? `<div class="share-card" data-card><p class="muted small share-card-wait">${esc(t('card.making'))}</p></div>`
+        : `<img class="review-photo" src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" data-zoom
+        width="${e.width}" height="${e.height}" loading="lazy">`}
       <div class="review-body">
         <p class="review-meta"><strong>${esc(e.displayName)}</strong> <span class="muted small">${esc(date)}</span></p>
         ${e.strain ? `<p class="review-strain">${esc(e.strain)}</p>` : ''}

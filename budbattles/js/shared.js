@@ -34,11 +34,13 @@ export function toBadge(r) {
   };
 }
 
-/** Adds a rank to a list sorted by votes (ties share a rank: 1, 1, 3). */
+/** Adds a rank to a list sorted by votes. "Dense": ties share a place and
+ *  the next place is not skipped (1, 2, 2, 3, 3, 4). Same rule as the
+ *  1st/2nd/3rd place badges in the database. */
 export function withRanks(list) {
   let rank = 0;
   return list.map((e, i) => {
-    if (i === 0 || e.votes !== list[i - 1].votes) rank = i + 1;
+    if (i === 0 || e.votes !== list[i - 1].votes) rank += 1;
     return { ...e, rank };
   });
 }

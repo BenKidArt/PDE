@@ -240,5 +240,11 @@
   "interest.consent": "Ich bin einverstanden, dass BudBattles mich zum Business-Bereich per E-Mail kontaktiert. Ich kann das jederzeit widerrufen.",
   "interest.submit": "Eintragen",
   "interest.thanks": "Danke! Wir melden uns, sobald der Business-Bereich startet.",
-  "error.interestConsent": "Bitte bestätige, dass wir dich kontaktieren dürfen."
+  "error.interestConsent": "Bitte bestätige, dass wir dich kontaktieren dürfen.",
+  "card.entry": "Einsendung",
+  "card.download": "Karte herunterladen",
+  "card.share": "Teilen",
+  "card.making": "Karte wird erstellt …",
+  "card.failed": "Die Karte konnte nicht erstellt werden.",
+  "card.alt": "Entry-Karte zum Teilen"
 }
