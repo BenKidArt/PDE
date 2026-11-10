@@ -7,7 +7,7 @@ export const CONFIG = {
 
   // Cloudflare Turnstile bot check (sign-up, login, voting). The SITE key is public.
   // Leave empty to switch the bot check off. The SECRET key never goes here.
-  turnstileSiteKey: '',
+  turnstileSiteKey: '0x4AAAAAAF8BgK-6C32_fg0V',
 
   // Anti-cheat: at most this many accounts per device (checked again by the database when voting).
   accountsPerDevice: 3,
