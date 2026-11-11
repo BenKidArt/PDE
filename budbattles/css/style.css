@@ -751,24 +751,26 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .bb-chip {
   display: inline-flex; align-items: center; gap: 6px; box-sizing: border-box; min-height: 30px;
   padding: 5px 13px; border-radius: 999px; border: 2px solid #3dff8a;
-  background: rgba(61, 255, 138, .08); color: #c8ffe0;
+  background: rgba(61, 255, 138, .08); color: #3dff8a;
   font: 700 14px/1.25 var(--font); text-transform: none; letter-spacing: 0;
   white-space: nowrap; word-break: keep-all; text-decoration: none;
   /* neon tube: bright edge + wide soft glow + glowing text */
-  box-shadow: 0 0 4px #3dff8a, 0 0 12px rgba(61, 255, 138, .8), 0 0 28px rgba(61, 255, 138, .45), inset 0 0 10px rgba(61, 255, 138, .35);
-  text-shadow: 0 0 4px #3dff8a, 0 0 12px rgba(61, 255, 138, .8);
+  box-shadow: 0 0 10px rgba(61, 255, 138, .6);
+  text-shadow: 0 0 6px rgba(61, 255, 138, .6);
   transition: background-color .15s, color .15s, box-shadow .15s, transform .15s;
 }
 .bb-chip-icon { font-size: 14px; line-height: 1; }
 button.bb-chip, label.bb-chip, a.bb-chip { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-button.bb-chip:hover, label.bb-chip:hover, a.bb-chip:hover, a.bb-chip:focus-visible {
-  background: rgba(61, 255, 138, .16);
-  box-shadow: 0 0 6px #3dff8a, 0 0 16px rgba(61, 255, 138, .9), 0 0 34px rgba(61, 255, 138, .55), inset 0 0 12px rgba(61, 255, 138, .45);
+@media (hover: hover) {
+  button.bb-chip:hover:not([aria-pressed="true"]), label.bb-chip:hover:not(:has(input:checked)), a.bb-chip:hover {
+    background: rgba(61, 255, 138, .14); box-shadow: 0 0 14px rgba(61, 255, 138, .8);
+  }
 }
+a.bb-chip:focus-visible { background: rgba(61, 255, 138, .14); box-shadow: 0 0 14px rgba(61, 255, 138, .8); }
 button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale(.97); }
 .bb-chip[aria-pressed="true"], .bb-chip:has(input:checked) {
-  background: #3dff8a; color: #04140a; border-color: #3dff8a; text-shadow: none;
-  box-shadow: 0 0 6px #fff, 0 0 14px #3dff8a, 0 0 34px rgba(61, 255, 138, .8);
+  background: #3dff8a; color: #04140a; border: 2px solid #3dff8a; text-shadow: none;
+  box-shadow: 0 0 18px #3dff8a, 0 0 4px #3dff8a;
 }
 .bb-chip:disabled, .bb-chip[aria-disabled="true"], .bb-chip:has(input:disabled) { opacity: .4; box-shadow: none; text-shadow: none; cursor: default; }
 .bb-chip:focus-visible, .bb-chip:has(input:focus-visible) { outline: 2px solid #3dff8a; outline-offset: 2px; }
@@ -870,7 +872,7 @@ button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale
 }
 .wl-signup { --t-text: 1.05s; }
 .wl-login { --t-text: .85s; }
-.wl-logout { --t-text: 2.1s; }
+.wl-logout { --t-text: 2.45s; }
 .wl-overlay.wl-out { animation: wl-fade-out .25s ease-in both; }
 .wl-stage { position: relative; display: grid; justify-items: center; gap: 14px; padding: 0 16px; text-align: center; width: 100%; }
 .wl-scene { --c: min(40vw, 170px); --ch: calc(var(--c) * 1.5); --dw: min(26vw, 112px); position: relative; container-type: inline-size; width: min(92vw, 420px); height: calc(var(--ch) + 16px); }
@@ -878,7 +880,12 @@ button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale
   position: absolute; left: 50%; bottom: 8px; width: var(--c); height: var(--ch); margin-left: calc(var(--c) / -2);
   transform-origin: 50% 100%; z-index: 2;
 }
-.wl-char img { position: relative; width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; display: block; z-index: 1; filter: drop-shadow(0 0 12px rgba(57, 255, 136, .5)); }
+.wl-frames { position: absolute; inset: 0; z-index: 1; transform-origin: 50% 100%; }
+.wl-frames img { position: absolute; inset: 0; visibility: hidden; }
+.wl-frames img.on { visibility: visible; }
+/* flipbook characters: shown at their real canvas ratio, never bigger than the frame pixels */
+.wl-flip .wl-scene { --c: var(--cw); --ch: var(--chh); }
+.wl-char img { width: 100%; height: 100%; object-fit: contain; object-position: 50% 100%; display: block; z-index: 1; filter: drop-shadow(0 0 12px rgba(57, 255, 136, .5)); }
 /* neon glow behind the character (pictures have transparent backgrounds) */
 .wl-glow {
   position: absolute; inset: 0 -30%; border-radius: 50%; z-index: 0; pointer-events: none;
@@ -886,21 +893,14 @@ button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale
   filter: blur(8px); animation: wl-neon-on .8s .1s steps(1) both, wl-pulse 1.2s .9s ease-in-out infinite alternate;
 }
 
-/* SIGN-UP: kangaroo hops in from the left in 3 hops, squash-and-stretch on landing */
-.wl-signup .wl-char { animation: wl-hop 1.1s cubic-bezier(.3, .7, .4, 1) both; }
-@keyframes wl-hop {
-  0% { transform: translate(-80vw, 0) scale(1, 1); }
-  10% { transform: translate(-64vw, -60px) scale(.95, 1.06); }
-  21% { transform: translate(-48vw, 0) scale(1.12, .86); }
-  25% { transform: translate(-46vw, 0) scale(1, 1); }
-  37% { transform: translate(-27vw, -70px) scale(.95, 1.06); }
-  49% { transform: translate(-10vw, 0) scale(1.12, .86); }
-  53% { transform: translate(-8vw, 0) scale(1, 1); }
-  67% { transform: translate(0, -55px) scale(.95, 1.07); }
-  80% { transform: translate(0, 0) scale(1.2, .78); }
-  89% { transform: translate(0, -10px) scale(.93, 1.09); }
-  100% { transform: translate(0, 0) scale(1, 1); }
-}
+/* SIGN-UP: kangaroo flipbook hop + landing dust (driven by js/welcome.js) */
+.wl-puff { position: absolute; width: 14px; height: 14px; border-radius: 50%; pointer-events: none; z-index: 3;
+  background: radial-gradient(circle, rgba(220, 255, 235, .7), rgba(61, 255, 138, .25) 60%, transparent 70%); }
+.wl-puff-spark { width: 6px; height: 6px; background: #3dff8a; box-shadow: 0 0 8px #3dff8a; }
+/* LOGOUT: spark burst when the door slams */
+.wl-burst { position: absolute; width: 10px; height: 10px; border-radius: 50%; pointer-events: none; z-index: 5;
+  background: #3dff8a; box-shadow: 0 0 10px #3dff8a, 0 0 18px rgba(61, 255, 138, .7); }
+.wl-burst.pink { background: var(--pink); box-shadow: 0 0 10px var(--pink), 0 0 18px rgba(255, 63, 164, .7); }
 
 /* LOGIN: penguin slides in sideways on his ice block, little wobble when he stops */
 .wl-login .wl-char { animation: wl-slide .8s cubic-bezier(.15, .7, .3, 1) both, wl-wobble .5s .78s ease-in-out both; }
@@ -910,38 +910,24 @@ button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale
 /* LOGOUT: neon door on the right, hippie sways, walks through it, door slams shut */
 .wl-door {
   /* no z-index/transform here: light (1) < hippie (2) < door leaf (3) < frame (4), so he walks in BEHIND the frame */
-  position: absolute; right: 2%; bottom: 8px; width: var(--dw); height: min(50vw, 210px);
+  position: absolute; right: 2%; bottom: 8px; width: min(32vw, 124px); height: 244px;
 }
-.wl-logout .wl-scene { animation: wl-thud .28s 1.95s ease-out both; }
 .wl-door-light {
   position: absolute; inset: 5px; border-radius: 40px 40px 2px 2px; z-index: 1;
   background: radial-gradient(80% 70% at 50% 60%, #ffe6a3, #ffb454 45%, #ff7a3d 85%); box-shadow: 0 0 30px rgba(255, 180, 84, .7);
-  animation: wl-fade-in .25s both, wl-light-off .3s 1.85s ease-in both;
+  animation: wl-fade-in .25s both;
 }
 .wl-door-leaf {
   position: absolute; inset: 5px; border-radius: 40px 40px 2px 2px; z-index: 3; transform-origin: 0 50%;
   background: linear-gradient(160deg, #241632, #120c1a); border: 2px solid var(--pink); box-shadow: inset 0 0 14px rgba(255, 63, 164, .45);
-  transform: perspective(420px) rotateY(68deg); animation: wl-fade-in .25s both, wl-door-shut .3s 1.68s cubic-bezier(.5, 0, .9, .5) both;
+  transform: perspective(420px) rotateY(68deg); animation: wl-fade-in .25s both;
 }
 .wl-door-knob { position: absolute; right: 12%; top: 54%; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
 .wl-door-frame {
   position: absolute; inset: 0; z-index: 4; border-radius: 46px 46px 4px 4px; pointer-events: none;
   border: 4px solid var(--green); box-shadow: 0 0 0 3px #050806, 0 0 0 5px var(--pink), 0 0 22px rgba(57, 255, 136, .75), 0 0 36px rgba(255, 63, 164, .4);
-  animation: wl-fade-in .25s both, wl-neon-on .5s .05s steps(1) both, wl-flicker .5s 1.98s steps(1) both;
+  animation: wl-fade-in .25s both, wl-neon-on .5s .05s steps(1) both;
 }
-.wl-logout .wl-char { --to: calc(48cqw - var(--dw) / 2); animation: wl-sway .9s .1s ease-in-out both, wl-walk .78s .95s ease-in both; }
-@keyframes wl-sway { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 75% { transform: rotate(7deg); } }
-@keyframes wl-walk {
-  0% { transform: translateX(0) rotate(0) scale(1); opacity: 1; }
-  25% { transform: translateX(calc(var(--to) * .25)) rotate(6deg) scale(.94); }
-  50% { transform: translateX(calc(var(--to) * .5)) rotate(-6deg) scale(.86); }
-  75% { transform: translateX(calc(var(--to) * .78)) rotate(5deg) scale(.74); opacity: 1; }
-  100% { transform: translateX(var(--to)) rotate(0) scale(.6); opacity: 0; }
-}
-@keyframes wl-door-shut { 0% { transform: perspective(420px) rotateY(68deg); } 100% { transform: perspective(420px) rotateY(0); } }
-@keyframes wl-light-off { to { opacity: 0; } }
-@keyframes wl-thud { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-4px, 2px); } 45% { transform: translate(4px, -1px); } 70% { transform: translate(-2px, 1px); } }
-@keyframes wl-flicker { 0% { filter: brightness(1.6); } 20% { filter: brightness(.3); } 40% { filter: brightness(1.3); } 60% { filter: brightness(.5); } 80%, 100% { filter: none; } }
 
 /* text: pops in big with a bounce + neon flicker, second line a moment later in pink */
 .wl-text { margin: 0; display: grid; gap: 4px; max-width: 100%; }
