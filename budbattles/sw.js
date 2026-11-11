@@ -1,10 +1,10 @@
 // Service worker: lets the app open fast and work with a weak connection.
 // Bump VERSION whenever you publish changes so phones fetch the new files.
-const VERSION = 'bb-v25';
+const VERSION = 'bb-v26';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/style.css', 'assets/fonts/dm-sans-latin-400-normal.woff2', 'assets/fonts/dm-sans-latin-500-normal.woff2', 'assets/fonts/dm-sans-latin-600-normal.woff2', 'assets/fonts/dm-sans-latin-700-normal.woff2',
   'js/app.js', 'js/config.js', 'js/i18n.js', 'js/store.js', 'js/store-demo.js', 'js/store-supabase.js',
-  'js/shared.js', 'js/photo.js', 'js/ui.js', 'js/champion.js', 'js/card.js', 'js/entrycard.js', 'js/device.js', 'js/turnstile.js', 'js/profilename.js', 'js/welcome.js', 'js/links.js', 'js/install.js', 'js/strainmatch.js', 'js/vendor/supabase-2.119.0.js',
+  'js/shared.js', 'js/photo.js', 'js/ui.js', 'js/champion.js', 'js/card.js', 'js/entrycard.js', 'js/device.js', 'js/turnstile.js', 'js/profilename.js', 'js/welcome.js', 'js/links.js', 'js/setups.js', 'js/install.js', 'js/strainmatch.js', 'js/vendor/supabase-2.119.0.js',
   'js/views/home.js', 'js/views/battle.js', 'js/views/enter.js', 'js/views/standings.js',
   'js/views/profile.js', 'js/views/terms.js', 'js/views/admin.js', 'js/views/soon.js', 'js/views/tests.js', 'js/views/badges.js', 'js/views/profilepage.js', 'js/views/votecheck.js', 'js/views/strainmatch.js',
   'locales/de.json', 'locales/en.json', 'data/battles.json', 'data/badges.json', 'data/strains.json',

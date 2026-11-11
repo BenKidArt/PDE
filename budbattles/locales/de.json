@@ -472,5 +472,15 @@
   "links.ph.tiktok": "@deinname",
   "links.ph.threads": "@deinname",
   "links.hint": "Nur Links oder @Namen der jeweiligen Seite. Sie erscheinen als kleine Icons unter deinem Namen.",
-  "links.invalid": "{site}: bitte einen gültigen Link oder @Namen eingeben."
+  "links.invalid": "{site}: bitte einen gültigen Link oder @Namen eingeben.",
+  "setups.title": "Setups",
+  "setups.max": "(bis zu {n})",
+  "setups.nth": "Setup {n}",
+  "setups.main": "Hauptsetup",
+  "setups.remove": "Setup entfernen",
+  "setups.add": "Setup hinzufügen",
+  "setups.name": "Name",
+  "setups.namePh": "z. B. Zelt 1",
+  "setups.more": "+{n} Setup(s)",
+  "setups.matchFor": "Passend für welches Setup?"
 }

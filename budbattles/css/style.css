@@ -1123,3 +1123,26 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 .pf-link-ico { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: var(--muted); background: var(--card); border: 1px solid var(--line); }
 .pf-link-ico svg { width: 20px; height: 20px; }
 .pf-link-field input.is-invalid { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(255, 90, 110, .15); }
+
+/* MULTIPLE SETUPS */
+.setups-field { border: 0; padding: 0; margin: 0; display: grid; gap: 12px; min-width: 0; }
+.setup-list { display: grid; gap: 12px; }
+.setup-card { display: grid; gap: 14px; padding: 14px; border-radius: 16px; background: rgba(255, 255, 255, .02); border: 1px solid var(--line); }
+.setup-card:has([name=setup-main]:checked) { border-color: var(--mint-line, rgba(142, 226, 159, .28)); }
+.setup-card-head { display: flex; align-items: center; gap: 10px; }
+.setup-card-title { flex: 1; font-size: 1rem; }
+.setup-main { display: inline-flex; align-items: center; gap: 6px; font-size: .82rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+.setup-main input { accent-color: var(--mint); width: 18px; height: 18px; }
+.setup-main:has(input:checked) { color: var(--mint); }
+.setup-remove { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; }
+.setup-card .field { gap: 6px; }
+.setup-card input[type=text], .setup-card select { width: 100%; }
+.setups-field [data-add-setup] { justify-self: start; margin-top: 0; }
+.pf-setup-list { display: grid; gap: 10px; margin-bottom: 14px; }
+.pf-setup-item { display: grid; gap: 8px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, .02); border: 1px solid var(--line); }
+.pf-setup-item.is-main { border-color: var(--mint-line, rgba(142, 226, 159, .28)); }
+.pf-setup-item-head { display: flex; align-items: center; gap: 8px; }
+.pf-setup-item-head b { font-size: 1rem; }
+.pf-main-tag { margin-left: auto; padding: 2px 9px; border-radius: 999px; font-size: .7rem; font-weight: 700; background: var(--mint); color: var(--mint-ink, #0b1a10); }
+.pf-setup-meta { margin: 0; font-size: .85rem; color: var(--muted); }
+.match-picker { display: grid; gap: 6px; margin: 0 0 14px; }

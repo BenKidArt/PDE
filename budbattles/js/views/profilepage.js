@@ -10,6 +10,7 @@ import { neonCardHtml } from '../entrycard.js';
 import { battleLabel } from './battle.js';
 import { showWelcome } from '../welcome.js';
 import { LINK_KINDS, LINK_ICONS, normalizeLink, linkUrl, linkInputValue } from '../links.js';
+import { MAX_SETUPS, setupsOf, mainSetup, setupName, legacyFields } from '../setups.js';
 
 export const SETUPS = [
   { id: 'zelt', icon: '⛺' },
@@ -53,15 +54,16 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
     return;
   }
   const isMe = p.isMe || (me && me.id === p.id);
-  const setup = SETUPS.find((s) => s.id === p.growSetup);
+  const setupList = setupsOf(p);
+  const main = mainSetup(setupList);
+  const setup = SETUPS.find((s) => s.id === main?.type);
   const badges = p.badges.map((id) => catalog.find((b) => b.id === id)).filter(Boolean).sort((a, b) => a.sort - b.sort);
   const since = p.memberSince ? new Intl.DateTimeFormat(getLang() === 'de' ? 'de-DE' : 'en-GB', { month: 'long', year: 'numeric' }).format(new Date(p.memberSince)) : null;
   const best = p.stats.best_place ? `#${p.stats.best_place}` : '–';
 
   // filled options as chips (empty ones are hidden)
   const chipRows = [
-    ['experience', p.experience], ['growStyle', p.growStyle], ['seedType', p.seedType], ['spaceSize', p.spaceSize],
-    ['training', p.training], ['flavours', p.flavours],
+    ['experience', p.experience], ['growStyle', p.growStyle], ['flavours', p.flavours],
   ].filter(([, v]) => (Array.isArray(v) ? v.length : v));
 
   root.innerHTML = `
@@ -79,6 +81,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
           ${since ? `<span class="pf-since">${esc(t('profile.memberSince', { date: since }))}</span>` : ''}
           ${p.badges.includes('badge_heart') ? chipHtml(t('profile.founder'), '♥') : ''}
           ${setup ? chipHtml(t(`setupShort.${setup.id}`), setup.icon) : ''}
+          ${setupList.length > 1 ? chipHtml(t('setups.more', { n: setupList.length - 1 })) : ''}
         </div>
       </section>
 
@@ -90,14 +93,12 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
 
       <section class="pf-card pf-setup">
         <h2>${setup ? `${setup.icon} ` : ''}${esc(t('profile.setupTitle'))}</h2>
-        ${setup || p.lights || p.medium || p.favStrain || p.bio || p.breeder || chipRows.length ? `
-          <dl class="pf-facts">
-            ${setup ? fact(t('profile.setup'), `${setup.icon} ${t(`setupShort.${setup.id}`)}`) : ''}
-            ${p.lights ? fact(t('profile.lights'), p.lights) : ''}
-            ${p.medium ? fact(t('profile.medium'), t(`medium.${p.medium}`)) : ''}
+        ${setupList.length || p.favStrain || p.bio || p.breeder || chipRows.length ? `
+          ${setupList.length ? `<div class="pf-setup-list">${setupList.map((s, i) => [s, i]).sort((a, b) => b[0].main - a[0].main).map(([s, i]) => setupBlock(s, i, setupList)).join('')}</div>` : ''}
+          ${p.favStrain || p.breeder ? `<dl class="pf-facts">
             ${p.favStrain ? fact(t('profile.favStrain'), p.favStrain) : ''}
             ${p.breeder ? fact(t('profile.breeder'), p.breeder) : ''}
-          </dl>
+          </dl>` : ''}
           ${chipRows.length ? `<div class="pf-chip-rows">${chipRows.map(([g, v]) => `
             <div class="pf-chip-row"><span class="pf-chip-label">${esc(t(`opt.${g}.title`))}</span>
               <span class="pf-chips">${(Array.isArray(v) ? v : [v]).map((x) => chipHtml(g === 'spaceSize' ? spaceLabel(p) : optLabel(g, x))).join('')}</span></div>`).join('')}
@@ -176,6 +177,65 @@ function takeReturnTo() {
   return false;
 }
 
+/** One setup on the public profile: name, main tag, size/seeds/training chips, light + medium. */
+function setupBlock(s, i, list) {
+  const type = SETUPS.find((x) => x.id === s.type);
+  const chips = [
+    s.spaceSize ? spaceLabel(s) : '', s.seedType ? optLabel('seedType', s.seedType) : '',
+    ...(s.training || []).map((x) => optLabel('training', x)),
+  ].filter(Boolean);
+  const meta = [s.lights ? `💡 ${s.lights}` : '', s.medium ? `🪴 ${t(`medium.${s.medium}`)}` : ''].filter(Boolean);
+  return `<div class="pf-setup-item${s.main ? ' is-main' : ''}">
+    <div class="pf-setup-item-head">
+      <span class="pf-setup-item-icon" aria-hidden="true">${type ? type.icon : '🌱'}</span>
+      <b>${esc(setupName(s, i, list, t))}</b>
+      ${s.main && list.length > 1 ? `<span class="pf-main-tag">${esc(t('setups.main'))}</span>` : ''}
+    </div>
+    ${chips.length ? `<div class="pf-chips">${chips.map((c) => chipHtml(c)).join('')}</div>` : ''}
+    ${meta.length ? `<p class="pf-setup-meta">${meta.map(esc).join(' · ')}</p>` : ''}
+  </div>`;
+}
+
+/** One setup card in the editor. */
+function setupCardHtml(s, i) {
+  const custom = s.spaceSize === 'custom' || s.spaceSize === 'other';
+  const val = (v) => esc(v ?? '');
+  return `<section class="setup-card" data-setup-card>
+    <div class="setup-card-head">
+      <b class="setup-card-title" data-setup-title>${esc(t('setups.nth', { n: i + 1 }))}</b>
+      <label class="setup-main"><input type="radio" name="setup-main" ${s.main ? 'checked' : ''}><span>${esc(t('setups.main'))}</span></label>
+      <button type="button" class="setup-remove" data-remove-setup aria-label="${esc(t('setups.remove'))}" title="${esc(t('setups.remove'))}">✕</button>
+    </div>
+    <div class="field">
+      <span class="label">${esc(t('profile.setup'))} <span class="muted small">${esc(t('profile.setupUnselect'))}</span></span>
+      <div class="opt-chips">${SETUPS.map((x) => `<button type="button" class="bb-chip pf-setup-opt" data-setup="${x.id}" aria-pressed="${s.type === x.id}">
+        <span class="bb-chip-icon" aria-hidden="true">${x.icon}</span>${esc(t(`setupShort.${x.id}`))}</button>`).join('')}</div>
+    </div>
+    <label class="field"><span class="label">${esc(t('setups.name'))} <span class="muted small">${esc(t('links.optional'))}</span></span>
+      <input type="text" data-f="name" maxlength="24" placeholder="${esc(t('setups.namePh'))}" value="${val(s.name)}"></label>
+    ${chipGroup('spaceSize', s.spaceSize === 'other' ? 'custom' : s.spaceSize)}
+    <div class="space-custom" data-space-custom ${custom ? '' : 'hidden'}>
+      <div class="space-row">
+        <label><span>${esc(t('space.width'))}</span><input data-f="sw" type="number" inputmode="numeric" min="20" max="2000" placeholder="240" value="${val(s.spaceW)}"></label>
+        <span class="space-x" aria-hidden="true">×</span>
+        <label><span>${esc(t('space.depth'))}</span><input data-f="sd" type="number" inputmode="numeric" min="20" max="2000" placeholder="120" value="${val(s.spaceD)}"></label>
+      </div>
+      <div class="space-row">
+        <label><span>${esc(t('space.heightFrom'))}</span><input data-f="sh1" type="number" inputmode="numeric" min="20" max="600" placeholder="150" value="${val(s.spaceHMin)}"></label>
+        <span class="space-x" aria-hidden="true">–</span>
+        <label><span>${esc(t('space.heightTo'))}</span><input data-f="sh2" type="number" inputmode="numeric" min="20" max="600" placeholder="180" value="${val(s.spaceHMax && s.spaceHMax !== s.spaceHMin ? s.spaceHMax : '')}"></label>
+      </div>
+      <p class="hint">${esc(t('space.heightHint'))}</p>
+    </div>
+    <label class="field"><span class="label">${esc(t('profile.lights'))}</span>
+      <input type="text" data-f="lights" maxlength="40" placeholder="${esc(t('profile.lightsPh'))}" value="${val(s.lights)}"></label>
+    <label class="field"><span class="label">${esc(t('profile.medium'))}</span>
+      <select data-f="medium"><option value="">–</option>${MEDIA.map((m) => `<option value="${m}" ${s.medium === m ? 'selected' : ''}>${esc(t(`medium.${m}`))}</option>`).join('')}</select></label>
+    ${chipGroup('seedType', s.seedType)}
+    ${chipGroup('training', s.training)}
+  </section>`;
+}
+
 /** Small link icons under the name; empty ones are hidden. */
 function linksHtml(p) {
   const items = LINK_KINDS.filter((k) => p[k]);
@@ -209,6 +269,7 @@ function openEditor(root, me, key, onLogout) {
   const nextChange = changedAt ? new Date(changedAt.getTime() + NAME_CHANGE_DAYS * 864e5) : null;
   const nameLocked = !!(me.username && nextChange && nextChange > new Date());
   const fmt = (d) => new Intl.DateTimeFormat(getLang() === 'de' ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+  const startSetups = setupsOf(me);
   slot.innerHTML = `
     <form class="form pf-form" novalidate>
       <h2>${esc(t('profile.edit'))}</h2>
@@ -227,35 +288,15 @@ function openEditor(root, me, key, onLogout) {
         </label>`).join('')}
         <p class="hint">${esc(t('links.hint'))}</p>
       </fieldset>
-      <fieldset class="field pf-setups">
-        <legend class="label">${esc(t('profile.setup'))} <span class="muted small">${esc(t('profile.setupUnselect'))}</span></legend>
-        ${SETUPS.map((s) => `<button type="button" class="bb-chip pf-setup-opt" data-setup="${s.id}" aria-pressed="${me.growSetup === s.id}">
-          <span class="bb-chip-icon" aria-hidden="true">${s.icon}</span>${esc(t(`setupShort.${s.id}`))}</button>`).join('')}
+      <fieldset class="field setups-field">
+        <legend class="label">${esc(t('setups.title'))} <span class="muted small">${esc(t('setups.max', { n: MAX_SETUPS }))}</span></legend>
+        <div class="setup-list" data-setup-list>${(startSetups.length ? startSetups : [{ main: true }]).map((s, i) => setupCardHtml(s, i)).join('')}</div>
+        <button type="button" class="btn btn-ghost btn-small" data-add-setup>＋ ${esc(t('setups.add'))}</button>
       </fieldset>
       ${chipGroup('growStage', me.growStage)}
       ${chipGroup('experience', me.experience)}
-      ${chipGroup('spaceSize', me.spaceSize === 'other' ? 'custom' : me.spaceSize)}
-      <div class="space-custom" data-space-custom ${me.spaceSize === 'custom' || me.spaceSize === 'other' ? '' : 'hidden'}>
-        <div class="space-row">
-          <label><span>${esc(t('space.width'))}</span><input id="pf-sw" type="number" inputmode="numeric" min="20" max="2000" placeholder="240" value="${esc(me.spaceW || '')}"></label>
-          <span class="space-x" aria-hidden="true">×</span>
-          <label><span>${esc(t('space.depth'))}</span><input id="pf-sd" type="number" inputmode="numeric" min="20" max="2000" placeholder="120" value="${esc(me.spaceD || '')}"></label>
-        </div>
-        <div class="space-row">
-          <label><span>${esc(t('space.heightFrom'))}</span><input id="pf-sh1" type="number" inputmode="numeric" min="20" max="600" placeholder="150" value="${esc(me.spaceHMin || '')}"></label>
-          <span class="space-x" aria-hidden="true">–</span>
-          <label><span>${esc(t('space.heightTo'))}</span><input id="pf-sh2" type="number" inputmode="numeric" min="20" max="600" placeholder="180" value="${esc(me.spaceHMax && me.spaceHMax !== me.spaceHMin ? me.spaceHMax : '')}"></label>
-        </div>
-        <p class="hint">${esc(t('space.heightHint'))}</p>
-      </div>
-      ${chipGroup('seedType', me.seedType)}
       ${chipGroup('growStyle', me.growStyle)}
-      ${chipGroup('training', me.training)}
       ${chipGroup('flavours', me.flavours)}
-      <div class="field"><label class="label" for="pf-lights">${esc(t('profile.lights'))}</label>
-        <input id="pf-lights" type="text" maxlength="40" placeholder="${esc(t('profile.lightsPh'))}" value="${esc(me.lights || '')}"></div>
-      <div class="field"><label class="label" for="pf-medium">${esc(t('profile.medium'))}</label>
-        <select id="pf-medium"><option value="">–</option>${MEDIA.map((m) => `<option value="${m}" ${me.medium === m ? 'selected' : ''}>${esc(t(`medium.${m}`))}</option>`).join('')}</select></div>
       <div class="field"><label class="label" for="pf-strain">${esc(t('profile.favStrain'))}</label>
         <input id="pf-strain" type="text" maxlength="40" value="${esc(me.favStrain || '')}"></div>
       <div class="field"><label class="label" for="pf-breeder">${esc(t('profile.breeder'))}</label>
@@ -280,39 +321,77 @@ function openEditor(root, me, key, onLogout) {
   const bio = form.querySelector('#pf-bio');
   bio.addEventListener('input', () => { form.querySelector('[data-count]').textContent = `${bio.value.length}/${BIO_MAX}`; });
   form.querySelectorAll('.pf-link-field input').forEach((i) => i.addEventListener('input', () => i.classList.remove('is-invalid')));
-  // tap-to-choose chips
-  const customBox = form.querySelector('[data-space-custom]');
-  form.querySelectorAll('.opt-group').forEach((g) => g.addEventListener('click', (e) => {
+  const list = form.querySelector('[data-setup-list]');
+  const addBtn = form.querySelector('[data-add-setup]');
+  // theme preview follows the main setup's type
+  const preview = () => {
+    const mainCard = [...list.querySelectorAll('[data-setup-card]')].find((c) => c.querySelector('[name=setup-main]').checked);
+    root.querySelector('.pf').className = pfClass(mainCard?.querySelector('[data-setup][aria-pressed="true"]')?.dataset.setup || '');
+  };
+  const renumber = () => {
+    const cards = [...list.querySelectorAll('[data-setup-card]')];
+    cards.forEach((c, i) => { c.querySelector('[data-setup-title]').textContent = t('setups.nth', { n: i + 1 }); });
+    if (cards.length && !cards.some((c) => c.querySelector('[name=setup-main]').checked)) cards[0].querySelector('[name=setup-main]').checked = true;
+    addBtn.hidden = cards.length >= MAX_SETUPS;
+    cards.forEach((c) => { c.querySelector('[data-remove-setup]').hidden = cards.length < 2; });
+    preview();
+  };
+  // all taps in one place (cards can be added later)
+  form.addEventListener('click', (e) => {
     const chip = e.target.closest('.opt-chip');
-    if (!chip) return;
-    const on = chip.getAttribute('aria-pressed') !== 'true';
-    if (g.dataset.multi !== '1') g.querySelectorAll('.opt-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
-    chip.setAttribute('aria-pressed', String(on));
-    if (g.dataset.group === 'spaceSize') {
-      customBox.hidden = !(on && chip.dataset.value === 'custom');
-      if (!customBox.hidden) form.querySelector('#pf-sw').focus();
+    if (chip) {
+      const g = chip.closest('.opt-group');
+      const on = chip.getAttribute('aria-pressed') !== 'true';
+      if (g.dataset.multi !== '1') g.querySelectorAll('.opt-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+      chip.setAttribute('aria-pressed', String(on));
+      if (g.dataset.group === 'spaceSize') {
+        const box = g.closest('[data-setup-card]').querySelector('[data-space-custom]');
+        box.hidden = !(on && chip.dataset.value === 'custom');
+        if (!box.hidden) box.querySelector('[data-f=sw]').focus();
+      }
+      return;
     }
-  }));
+    const type = e.target.closest('[data-setup]');
+    if (type) { // tap to choose, tap again to clear
+      const card = type.closest('[data-setup-card]');
+      const on = type.getAttribute('aria-pressed') !== 'true';
+      card.querySelectorAll('[data-setup]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      type.setAttribute('aria-pressed', String(on));
+      preview();
+      return;
+    }
+    if (e.target.closest('[data-remove-setup]')) {
+      e.target.closest('[data-setup-card]').remove();
+      renumber();
+    }
+  });
+  list.addEventListener('change', (e) => { if (e.target.name === 'setup-main') preview(); });
+  addBtn.addEventListener('click', () => {
+    const n = list.querySelectorAll('[data-setup-card]').length;
+    if (n >= MAX_SETUPS) return;
+    list.insertAdjacentHTML('beforeend', setupCardHtml({}, n));
+    renumber();
+    list.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  renumber();
   form.querySelectorAll('[data-accent]').forEach((b) => b.addEventListener('click', () => {
     const on = b.getAttribute('aria-pressed') !== 'true';
     form.querySelectorAll('[data-accent]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
     b.setAttribute('aria-pressed', String(on));
     root.querySelector('.pf-avatar').className = `pf-avatar pf-accent-${on ? b.dataset.accent : 'theme'}`;
   }));
-  // setup: tap to choose, tap again to clear (empty = default theme); preview the theme
-  form.querySelectorAll('[data-setup]').forEach((b) => b.addEventListener('click', () => {
-    const on = b.getAttribute('aria-pressed') !== 'true';
-    form.querySelectorAll('[data-setup]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
-    b.setAttribute('aria-pressed', String(on));
-    root.querySelector('.pf').className = pfClass(on ? b.dataset.setup : '');
-  }));
   form.querySelector('[data-cancel]').addEventListener('click', () => {
     if (takeReturnTo()) return; // came from Strain Match: go back there
     renderProfilePage(root, key, { onLogout });
   });
-  const chosen = (group) => {
-    const vals = [...form.querySelectorAll(`[data-group="${group}"] .opt-chip[aria-pressed="true"]`)].map((c) => c.dataset.value);
+  const chosenIn = (scope, group) => {
+    const vals = [...scope.querySelectorAll(`[data-group="${group}"] .opt-chip[aria-pressed="true"]`)].map((c) => c.dataset.value);
     return OPTIONS[group].multi ? vals : vals[0] || '';
+  };
+  // grower-level options live outside the setup cards
+  const chosen = (group) => {
+    const own = [...form.querySelectorAll(`[data-group="${group}"]`)].find((g) => !g.closest('[data-setup-card]'));
+    return own ? chosenIn(own.parentElement, group) : (OPTIONS[group].multi ? [] : '');
   };
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -333,36 +412,46 @@ function openEditor(root, me, key, onLogout) {
       }
       links[k] = v;
     }
-    // custom space size: width × depth required, height optional (a range for sloping ceilings)
-    const num = (id) => { const v = parseInt(form.querySelector(id).value, 10); return Number.isFinite(v) ? v : null; };
-    const space = chosen('spaceSize');
-    let sw = null, sd = null, sh1 = null, sh2 = null;
-    if (space === 'custom') {
-      sw = num('#pf-sw'); sd = num('#pf-sd'); sh1 = num('#pf-sh1'); sh2 = num('#pf-sh2');
-      if (!sh1 && sh2) { sh1 = sh2; }
-      if (sh1 && !sh2) sh2 = sh1;
-      if (sh1 && sh2 && sh2 < sh1) [sh1, sh2] = [sh2, sh1];
-      const okWD = (v) => v && v >= 20 && v <= 2000;
-      const okH = (v) => !v || (v >= 20 && v <= 600);
-      if (!okWD(sw) || !okWD(sd) || !okH(sh1) || !okH(sh2)) {
-        err.textContent = t('error.spaceCustom'); err.hidden = false; btn.disabled = false;
-        customBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
+    // setups (up to 3); custom size: width × depth required, height optional (a range for sloping ceilings)
+    const setups = [];
+    for (const card of list.querySelectorAll('[data-setup-card]')) {
+      const f = (k) => card.querySelector(`[data-f=${k}]`);
+      const num = (k) => { const v = parseInt(f(k).value, 10); return Number.isFinite(v) ? v : null; };
+      const s = {
+        type: card.querySelector('[data-setup][aria-pressed="true"]')?.dataset.setup || null,
+        name: f('name').value.trim() || null, spaceSize: chosenIn(card, 'spaceSize') || null,
+        spaceW: null, spaceD: null, spaceHMin: null, spaceHMax: null,
+        lights: f('lights').value.trim() || null, medium: f('medium').value || null,
+        seedType: chosenIn(card, 'seedType') || null, training: chosenIn(card, 'training'),
+        main: card.querySelector('[name=setup-main]').checked,
+      };
+      if (s.spaceSize === 'custom') {
+        let sh1 = num('sh1'), sh2 = num('sh2');
+        if (!sh1 && sh2) sh1 = sh2;
+        if (sh1 && !sh2) sh2 = sh1;
+        if (sh1 && sh2 && sh2 < sh1) [sh1, sh2] = [sh2, sh1];
+        Object.assign(s, { spaceW: num('sw'), spaceD: num('sd'), spaceHMin: sh1, spaceHMax: sh2 });
+        const okWD = (v) => v && v >= 20 && v <= 2000;
+        const okH = (v) => !v || (v >= 20 && v <= 600);
+        if (!okWD(s.spaceW) || !okWD(s.spaceD) || !okH(sh1) || !okH(sh2)) {
+          err.textContent = t('error.spaceCustom'); err.hidden = false; btn.disabled = false;
+          card.querySelector('[data-space-custom]').scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
       }
+      if (s.type || s.name || s.spaceSize || s.lights || s.medium || s.seedType || s.training.length) setups.push(s);
     }
+    if (setups.length && !setups.some((s) => s.main)) setups[0].main = true;
     try {
       if (!nameLocked && name && name !== me.username) await setProfileName(name);
       await updateProfileDetails({
         ...links,
-        growSetup: form.querySelector('[data-setup][aria-pressed="true"]')?.dataset.setup || '',
-        spaceW: sw, spaceD: sd, spaceHMin: sh1, spaceHMax: sh2,
-        lights: form.querySelector('#pf-lights').value,
-        medium: form.querySelector('#pf-medium').value,
+        ...Object.fromEntries(Object.keys(OPTIONS).map((g) => [g, chosen(g)])),
+        setups, ...legacyFields(setups), // the main setup also fills the single-setup fields
         favStrain: form.querySelector('#pf-strain').value,
         breeder: form.querySelector('#pf-breeder').value,
         bio: bio.value,
         accent: form.querySelector('[data-accent][aria-pressed="true"]')?.dataset.accent || '',
-        ...Object.fromEntries(Object.keys(OPTIONS).map((g) => [g, chosen(g)])),
       });
       if (takeReturnTo()) return; // came from Strain Match: go back with the new matches
       const fresh = await getCurrentUser();

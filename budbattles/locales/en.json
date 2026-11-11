@@ -472,5 +472,15 @@
   "links.ph.tiktok": "@yourname",
   "links.ph.threads": "@yourname",
   "links.hint": "Only links or @handles for each site. They show as small icons under your name.",
-  "links.invalid": "{site}: please enter a valid link or @handle."
+  "links.invalid": "{site}: please enter a valid link or @handle.",
+  "setups.title": "Setups",
+  "setups.max": "(up to {n})",
+  "setups.nth": "Setup {n}",
+  "setups.main": "Main setup",
+  "setups.remove": "Remove setup",
+  "setups.add": "Add setup",
+  "setups.name": "Name",
+  "setups.namePh": "e.g. Tent 1",
+  "setups.more": "+{n} setup(s)",
+  "setups.matchFor": "Match for which setup?"
 }
