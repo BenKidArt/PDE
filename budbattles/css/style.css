@@ -871,7 +871,7 @@ button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale
   animation: wl-fade-in .18s ease-out both;
 }
 .wl-signup { --t-text: 1.05s; }
-.wl-login { --t-text: .85s; }
+.wl-login { --t-text: 2.35s; }
 .wl-logout { --t-text: 2.45s; }
 .wl-overlay.wl-out { animation: wl-fade-out .25s ease-in both; }
 .wl-stage { position: relative; display: grid; justify-items: center; gap: 14px; padding: 0 16px; text-align: center; width: 100%; }
@@ -897,15 +897,15 @@ button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale
 .wl-puff { position: absolute; width: 14px; height: 14px; border-radius: 50%; pointer-events: none; z-index: 3;
   background: radial-gradient(circle, rgba(220, 255, 235, .7), rgba(61, 255, 138, .25) 60%, transparent 70%); }
 .wl-puff-spark { width: 6px; height: 6px; background: #3dff8a; box-shadow: 0 0 8px #3dff8a; }
+/* LOGIN: ice spray + twinkles (penguin) */
+.wl-ice { width: 6px; height: 6px; border-radius: 2px; background: #e6fbff; box-shadow: 0 0 6px #9fe8ff; }
+.wl-twinkle { position: absolute; z-index: 5; font-size: 20px; line-height: 1; pointer-events: none; }
 /* LOGOUT: spark burst when the door slams */
 .wl-burst { position: absolute; width: 10px; height: 10px; border-radius: 50%; pointer-events: none; z-index: 5;
   background: #3dff8a; box-shadow: 0 0 10px #3dff8a, 0 0 18px rgba(61, 255, 138, .7); }
 .wl-burst.pink { background: var(--pink); box-shadow: 0 0 10px var(--pink), 0 0 18px rgba(255, 63, 164, .7); }
 
 /* LOGIN: penguin slides in sideways on his ice block, little wobble when he stops */
-.wl-login .wl-char { animation: wl-slide .8s cubic-bezier(.15, .7, .3, 1) both, wl-wobble .5s .78s ease-in-out both; }
-@keyframes wl-slide { 0% { transform: translateX(85vw) rotate(-5deg); } 100% { transform: translateX(0) rotate(0); } }
-@keyframes wl-wobble { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 55% { transform: rotate(6deg); } 80% { transform: rotate(-3deg); } }
 
 /* LOGOUT: neon door on the right, hippie sways, walks through it, door slams shut */
 .wl-door {
