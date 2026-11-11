@@ -19,9 +19,9 @@ export async function renderTests(root) {
       <div class="battle-card-head"><h2 class="tests-title">${esc(tc(b.theme))}</h2>
         <span class="pill pill-${status}">${esc(t(`battle.status.${status}`))}</span></div>
       <div class="admin-links">
-        <a class="chip" href="#/battle/${id}">${esc(t('admin.openBattle'))} →</a>
-        <a class="chip" href="#/enter/${id}">${esc(t('admin.openEnter'))} →</a>
-        <a class="chip" href="#/standings/${id}">${esc(t('admin.openStandings'))} →</a>
+        <a class="bb-chip" href="#/battle/${id}">${esc(t('admin.openBattle'))} →</a>
+        <a class="bb-chip" href="#/enter/${id}">${esc(t('admin.openEnter'))} →</a>
+        <a class="bb-chip" href="#/standings/${id}">${esc(t('admin.openStandings'))} →</a>
       </div></section>`;
   }).join('') : `<section class="card"><p class="muted">${esc(t('tests.none'))}</p></section>`);
 }

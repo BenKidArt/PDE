@@ -52,8 +52,8 @@ export async function renderAdmin(root) {
   const drawLinks = () => {
     const id = encodeURIComponent(state.battleId);
     linksEl.innerHTML = [['battle', 'admin.openBattle'], ['enter', 'admin.openEnter'], ['standings', 'admin.openStandings']]
-      .map(([page, key]) => `<a class="chip" href="#/${page}/${id}">${esc(t(key))} →</a>`).join('')
-      + `<a class="chip chip-warn" href="#/votes">⚠ ${esc(t('votecheck.title'))} →</a>`;
+      .map(([page, key]) => `<a class="bb-chip" href="#/${page}/${id}">${esc(t(key))} →</a>`).join('')
+      + `<a class="bb-chip" href="#/votes">⚠ ${esc(t('votecheck.title'))} →</a>`;
   };
   drawLinks();
 

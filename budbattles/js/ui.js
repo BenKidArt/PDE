@@ -41,3 +41,12 @@ export function avatarUrl(avatar) {
   return avatar;
 }
 
+
+/**
+ * THE chip of BudBattles (read-only version). Every chip in the app uses the
+ * same CSS class "bb-chip"; tap-to-choose chips are <button class="bb-chip">
+ * with aria-pressed, setup buttons are <label class="bb-chip"> with a radio.
+ */
+export function chipHtml(text, icon = '') {
+  return `<span class="bb-chip">${icon ? `<span class="bb-chip-icon" aria-hidden="true">${icon}</span>` : ''}${esc(text)}</span>`;
+}

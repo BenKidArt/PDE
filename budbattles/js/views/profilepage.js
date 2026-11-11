@@ -5,7 +5,7 @@ import { t, tc, getLang } from '../i18n.js';
 import {
   getPublicProfile, getBadgeCatalog, getCurrentUser, signOut, setProfileName, updateProfileDetails,
 } from '../store.js';
-import { esc, avatarUrl } from '../ui.js';
+import { esc, chipHtml, avatarUrl } from '../ui.js';
 import { neonCardHtml } from '../entrycard.js';
 import { battleLabel } from './battle.js';
 import { showWelcome } from '../welcome.js';
@@ -61,12 +61,12 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
           ${isMe && !p.avatar ? `<span class="pf-soon">${esc(t('profile.avatarSoon'))}</span>` : ''}
         </div>
         <h1 class="pf-name">${esc(p.displayName)}</h1>
-        ${p.growStage ? `<span class="pf-stage">● ${esc(optLabel('growStage', p.growStage))}</span>` : ''}
+        ${p.growStage ? `<span class="pf-stage">${chipHtml(optLabel('growStage', p.growStage), '●')}</span>` : ''}
         ${p.instagram ? `<a class="pf-insta" href="https://instagram.com/${encodeURIComponent(p.instagram)}" target="_blank" rel="noopener noreferrer">@${esc(p.instagram)}</a>` : ''}
         <div class="pf-tags">
           ${since ? `<span class="pf-since">${esc(t('profile.memberSince', { date: since }))}</span>` : ''}
-          ${p.badges.includes('badge_heart') ? `<span class="pf-tag pf-tag-founder">♥ ${esc(t('profile.founder'))}</span>` : ''}
-          ${setup ? `<span class="pf-tag">${setup.icon} ${esc(t(`setupShort.${setup.id}`))}</span>` : ''}
+          ${p.badges.includes('badge_heart') ? chipHtml(t('profile.founder'), '♥') : ''}
+          ${setup ? chipHtml(t(`setupShort.${setup.id}`), setup.icon) : ''}
         </div>
       </section>
 
@@ -88,7 +88,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
           </dl>
           ${chipRows.length ? `<div class="pf-chip-rows">${chipRows.map(([g, v]) => `
             <div class="pf-chip-row"><span class="pf-chip-label">${esc(t(`opt.${g}.title`))}</span>
-              <span class="pf-chips">${(Array.isArray(v) ? v : [v]).map((x) => `<span class="pf-chip">${esc(optLabel(g, x))}</span>`).join('')}</span></div>`).join('')}
+              <span class="pf-chips">${(Array.isArray(v) ? v : [v]).map((x) => chipHtml(optLabel(g, x))).join('')}</span></div>`).join('')}
           </div>` : ''}
           ${p.bio ? `<p class="pf-bio">${esc(p.bio)}</p>` : ''}`
         : `<p class="muted small">${esc(t(isMe ? 'profile.setupEmptyMe' : 'profile.setupEmpty'))}</p>`}
@@ -168,7 +168,7 @@ function chipGroup(group, current) {
     <fieldset class="field opt-group" data-group="${group}" data-multi="${multi ? 1 : 0}">
       <legend class="label">${esc(t(`opt.${group}.title`))}${multi ? ` <span class="muted small">${esc(t('opt.multi'))}</span>` : ''}</legend>
       <div class="opt-chips">
-        ${values.map((v) => `<button type="button" class="opt-chip" data-value="${v}" aria-pressed="${chosen.has(v)}">${esc(optLabel(group, v))}</button>`).join('')}
+        ${values.map((v) => `<button type="button" class="bb-chip opt-chip" data-value="${v}" aria-pressed="${chosen.has(v)}">${esc(optLabel(group, v))}</button>`).join('')}
       </div>
     </fieldset>`;
 }
@@ -193,9 +193,9 @@ function openEditor(root, me, key, onLogout) {
       </div>
       <fieldset class="field pf-setups">
         <legend class="label">${esc(t('profile.setup'))}</legend>
-        ${SETUPS.map((s) => `<label class="pf-setup-opt" data-setup="${s.id}">
+        ${SETUPS.map((s) => `<label class="bb-chip pf-setup-opt" data-setup="${s.id}">
           <input type="radio" name="setup" value="${s.id}" ${me.growSetup === s.id ? 'checked' : ''}>
-          <span aria-hidden="true">${s.icon}</span><b>${esc(t(`setupShort.${s.id}`))}</b></label>`).join('')}
+          <span class="bb-chip-icon" aria-hidden="true">${s.icon}</span>${esc(t(`setupShort.${s.id}`))}</label>`).join('')}
       </fieldset>
       ${chipGroup('growStage', me.growStage)}
       ${chipGroup('experience', me.experience)}

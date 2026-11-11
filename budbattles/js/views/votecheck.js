@@ -25,7 +25,7 @@ export async function renderVoteCheck(root) {
     <div class="admin-bar">
       <label class="label" for="vc-battle">${esc(t('nav.battle'))}</label>
       <select id="vc-battle">${battles.map((b) => `<option value="${esc(b.id)}" ${b.id === battleId ? 'selected' : ''}>${b.isTest ? `${esc(t('battle.testLabel'))} · ` : ''}${esc(tc(b.theme))}</option>`).join('')}</select>
-      <div class="admin-links"><a class="chip" href="#/admin">← ${esc(t('admin.title'))}</a></div>
+      <div class="admin-links"><a class="bb-chip" href="#/admin">← ${esc(t('admin.title'))}</a></div>
     </div>
     <div data-list><p class="muted center">${esc(t('app.loading'))}</p></div>`;
 

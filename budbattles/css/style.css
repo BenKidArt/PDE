@@ -712,7 +712,7 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .pf-name { margin: 10px 0 0; font-size: clamp(1.7rem, 8vw, 2.3rem); font-weight: 800; color: var(--text); text-shadow: 0 0 22px var(--pf-glow); overflow-wrap: break-word; }
 .pf-insta { color: var(--pf-accent); font-weight: 700; text-decoration: none; }
 .pf-insta:hover { text-decoration: underline; }
-.pf-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 8px; margin-top: 4px; }
+.pf-tags { justify-content: center; align-items: center; margin-top: 4px; }
 .pf-since { color: var(--muted); font-size: .85rem; align-self: center; }
 
 .pf-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
@@ -738,41 +738,48 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .pf-soon-tile { opacity: .7; display: grid; gap: 4px; justify-items: start; }
 .pf-soon-tile p { margin: 0; }
 .pf-form { display: grid; gap: 14px; }
-.pf-setups { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .pf-setups legend { margin-bottom: 6px; }
-.pf-setup-opt { position: relative; cursor: pointer; }
-.pf-setup-opt input { position: absolute; opacity: 0; pointer-events: none; }
-.pf-setup-opt span { font-size: .85rem; line-height: 1; }
-.pf-setup-opt:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
 
 /* chips on the public profile */
 .pf-chip-rows { display: grid; gap: 10px; margin-top: 14px; }
 .pf-chip-row { display: grid; gap: 5px; }
 .pf-chip-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
-.pf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-/* ONE chip style for the whole app = the Strain Match chip:
-   small, thin green neon outline, green text, subtle glow, dark see-through background.
-   Selected = stronger glow + light see-through green fill (never a solid block). */
-.pf-chip, .opt-chip, .pf-setup-opt, .pf-tag, .pf-stage, .chip {
-  --c: var(--green); --c-rgb: 57, 255, 136;
-  display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px;
-  font: 700 .75rem/1.25 var(--font); white-space: nowrap; text-decoration: none;
-  color: var(--c); background: rgba(0, 0, 0, .35); border: 1px solid var(--c);
-  box-shadow: 0 0 6px rgba(var(--c-rgb), .18);
+/* =====================================================================
+   THE CHIP – one shared style for every chip and option button in the app
+   (class "bb-chip"). Read-only chips = the "not selected" look.
+   ===================================================================== */
+.bb-chip {
+  display: inline-flex; align-items: center; gap: 6px; box-sizing: border-box; min-height: 30px;
+  padding: 5px 13px; border-radius: 999px; border: 1.5px solid #3dff8a;
+  background: rgba(61, 255, 138, .06); color: #3dff8a;
+  font: 700 14px/1.25 var(--font); text-transform: none; letter-spacing: 0;
+  white-space: nowrap; word-break: keep-all; text-decoration: none;
+  box-shadow: 0 0 6px rgba(61, 255, 138, .35);
+  transition: background-color .15s, color .15s, box-shadow .15s, transform .15s;
 }
-.opt-chip, .pf-setup-opt { cursor: pointer; }
-.opt-chip[aria-pressed="true"], .pf-setup-opt:has(input:checked) {
-  background: rgba(var(--c-rgb), .18); box-shadow: 0 0 12px rgba(var(--c-rgb), .55), inset 0 0 6px rgba(var(--c-rgb), .25);
-  text-shadow: 0 0 6px rgba(var(--c-rgb), .5);
+.bb-chip-icon { font-size: 14px; line-height: 1; }
+button.bb-chip, label.bb-chip, a.bb-chip { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+button.bb-chip:hover, label.bb-chip:hover, a.bb-chip:hover, a.bb-chip:focus-visible {
+  background: rgba(61, 255, 138, .14); box-shadow: 0 0 9px rgba(61, 255, 138, .5);
 }
-.opt-chip:hover:not([aria-pressed="true"]), .pf-setup-opt:hover:not(:has(input:checked)), .chip:hover, .chip:focus-visible { box-shadow: 0 0 9px rgba(var(--c-rgb), .35); }
-.pf-tag { --c: var(--pf-accent); --c-rgb: var(--pf-rgb, 57, 255, 136); } /* setup chip next to "Mitglied seit" keeps the theme colour */
-.pf-tag-founder { --c: var(--pink); --c-rgb: 255, 63, 164; }
-.chip-warn { --c: var(--amber); --c-rgb: 255, 201, 74; }
+button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale(.97); }
+.bb-chip[aria-pressed="true"], .bb-chip:has(input:checked) {
+  background: #3dff8a; color: #04140a; border-color: #3dff8a;
+  box-shadow: 0 0 14px rgba(61, 255, 138, .75), 0 0 2px #3dff8a;
+}
+.bb-chip:disabled, .bb-chip[aria-disabled="true"], .bb-chip:has(input:disabled) { opacity: .4; box-shadow: none; cursor: default; }
+.bb-chip:focus-visible, .bb-chip:has(input:focus-visible) { outline: 2px solid #3dff8a; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .bb-chip { transition: none; } .bb-chip:active { transform: none; } }
+.pf-setup-opt input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
+.pf-setup-opt { position: relative; }
+/* chip rows: 8px gap, wrap to the next line */
+.pf-chips, .opt-chips, .match-tags, .pf-setups, .pf-tags, .admin-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.pf-stage { display: inline-flex; }
 /* tap-to-choose chips in the editor */
 .opt-group { border: 0; padding: 0; margin: 0; min-width: 0; }
-.opt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.opt-chip:focus-visible, .accent-swatch:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+.opt-chips { margin-top: 6px; }
+.pf-setups { border: 0; padding: 0; margin: 0; }
+.accent-swatch:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 .accent-swatches { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
 .accent-swatch { width: 44px; height: 44px; border-radius: 50%; padding: 0; cursor: pointer; background: #000; border: 2px solid var(--line); display: grid; place-items: center; }
 .accent-swatch span { width: 28px; height: 28px; border-radius: 50%; background: var(--pf-accent); box-shadow: 0 0 10px var(--pf-glow); }
@@ -793,7 +800,6 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .match-pct { display: grid; justify-items: center; line-height: 1; padding: 6px 10px; border-radius: 12px; border: 1.5px solid var(--green); box-shadow: 0 0 12px rgba(57, 255, 136, .35); }
 .match-pct b { color: var(--green); font-size: 1.2rem; font-variant-numeric: tabular-nums; }
 .match-pct small { font-size: .62rem; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
-.match-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .match-flavours { margin: 0; font-size: .85rem; color: var(--pink); font-weight: 700; }
 .match-flavours span { opacity: .6; }
 .match-flavours span.is-fav { opacity: 1; text-shadow: 0 0 10px rgba(255, 63, 164, .6); }

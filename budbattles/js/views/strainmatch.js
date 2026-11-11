@@ -2,7 +2,7 @@
 // Pure information – no shops, prices, links or promotion.
 import { t, getLang } from '../i18n.js';
 import { getCurrentUser, getStrains } from '../store.js';
-import { esc } from '../ui.js';
+import { esc, chipHtml } from '../ui.js';
 import { matchStrains, profileSignals } from '../strainmatch.js';
 
 export async function renderStrainMatch(root) {
@@ -61,7 +61,7 @@ export async function renderStrainMatch(root) {
             <span class="match-pct"><b>${m.percent}%</b><small>${esc(t('match.fit'))}</small></span>
           </div>
           <div class="match-tags">
-            ${chips(s).map((c) => `<span class="pf-chip">${esc(c)}</span>`).join('')}
+            ${chips(s).map((c) => chipHtml(c)).join('')}
           </div>
           <p class="match-flavours">${(s.flavours || []).map((f) => `<span class="${(user.flavours || []).includes(f) ? 'is-fav' : ''}">${esc(t(`opt.flavours.${f}`))}</span>`).join(' · ')}</p>
           ${m.reasons.length ? `<ul class="match-why">${m.reasons.map((r) => `<li>✓ ${esc(reason(r))}</li>`).join('')}</ul>` : ''}
