@@ -50,7 +50,7 @@ export async function renderStrainMatch(root) {
   ].filter(Boolean);
 
   root.innerHTML = `${head}
-    <ol class="match-list${user.accent ? ` pf-chips-${esc(user.accent)}` : ''}">
+    <ol class="match-list">
       ${results.map((m, i) => {
         const s = m.strain;
         return `

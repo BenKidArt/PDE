@@ -738,11 +738,11 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .pf-soon-tile { opacity: .7; display: grid; gap: 4px; justify-items: start; }
 .pf-soon-tile p { margin: 0; }
 .pf-form { display: grid; gap: 14px; }
-.pf-setups { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.pf-setups { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .pf-setups legend { margin-bottom: 6px; }
 .pf-setup-opt { position: relative; cursor: pointer; }
 .pf-setup-opt input { position: absolute; opacity: 0; pointer-events: none; }
-.pf-setup-opt span { font-size: .95rem; line-height: 1; }
+.pf-setup-opt span { font-size: .85rem; line-height: 1; }
 .pf-setup-opt:has(input:focus-visible) { outline: 2px solid var(--green); outline-offset: 2px; }
 
 /* chips on the public profile */
@@ -750,35 +750,28 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .pf-chip-row { display: grid; gap: 5px; }
 .pf-chip-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
 .pf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-/* ONE chip style for the whole app (like the Strain Match chips):
-   dark background, thin neon outline, rounded. Selected = filled + glow. */
-.pf { --pf-chip: var(--pf-accent); --pf-chip-glow: var(--pf-glow); }
-.pf-chips-green { --pf-chip: var(--green); --pf-chip-glow: rgba(57, 255, 136, .5); }
-.pf-chips-pink { --pf-chip: var(--pink); --pf-chip-glow: rgba(255, 63, 164, .5); }
-.pf-chips-gold { --pf-chip: #ffc94a; --pf-chip-glow: rgba(255, 201, 74, .5); }
-.pf-chips-cyan { --pf-chip: #3ff0ff; --pf-chip-glow: rgba(63, 240, 255, .5); }
-.pf-chips-purple { --pf-chip: #b36bff; --pf-chip-glow: rgba(179, 107, 255, .5); }
-.pf-chips-orange { --pf-chip: #ff8a3d; --pf-chip-glow: rgba(255, 138, 61, .5); }
+/* ONE chip style for the whole app = the Strain Match chip:
+   small, thin green neon outline, green text, subtle glow, dark see-through background.
+   Selected = stronger glow + light see-through green fill (never a solid block). */
 .pf-chip, .opt-chip, .pf-setup-opt, .pf-tag, .pf-stage, .chip {
-  --c: var(--pf-chip, var(--green));
-  display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: 999px;
-  font: 700 .85rem/1.25 var(--font); white-space: nowrap; text-decoration: none;
-  color: var(--c); background: rgba(6, 9, 7, .7); border: 1px solid var(--c);
+  --c: var(--green); --c-rgb: 57, 255, 136;
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px;
+  font: 700 .75rem/1.25 var(--font); white-space: nowrap; text-decoration: none;
+  color: var(--c); background: rgba(0, 0, 0, .35); border: 1px solid var(--c);
+  box-shadow: 0 0 6px rgba(var(--c-rgb), .18);
 }
-.opt-chip, .pf-setup-opt { min-height: 38px; padding: 7px 15px; font-size: .9rem; cursor: pointer; }
+.opt-chip, .pf-setup-opt { cursor: pointer; }
 .opt-chip[aria-pressed="true"], .pf-setup-opt:has(input:checked) {
-  color: #07090a; background: var(--c); border-color: var(--c); box-shadow: 0 0 14px var(--pf-chip-glow, rgba(57, 255, 136, .45));
+  background: rgba(var(--c-rgb), .18); box-shadow: 0 0 12px rgba(var(--c-rgb), .55), inset 0 0 6px rgba(var(--c-rgb), .25);
+  text-shadow: 0 0 6px rgba(var(--c-rgb), .5);
 }
-.opt-chip:hover:not([aria-pressed="true"]), .pf-setup-opt:hover:not(:has(input:checked)) { box-shadow: 0 0 10px var(--pf-chip-glow, rgba(57, 255, 136, .3)); }
-.pf-tag { --c: var(--pf-accent); font-size: .8rem; padding: 3px 11px; }
-.pf-tag-founder { --c: var(--pink); }
-.pf-stage { font-size: .8rem; padding: 3px 12px; box-shadow: 0 0 10px var(--pf-chip-glow, rgba(57, 255, 136, .25)); }
-.match-tags .pf-chip { font-size: .76rem; padding: 3px 10px; }
-.chip { min-height: 36px; font-weight: 600; }
-.chip:hover, .chip:focus-visible { box-shadow: 0 0 10px rgba(57, 255, 136, .35); }
+.opt-chip:hover:not([aria-pressed="true"]), .pf-setup-opt:hover:not(:has(input:checked)), .chip:hover, .chip:focus-visible { box-shadow: 0 0 9px rgba(var(--c-rgb), .35); }
+.pf-tag { --c: var(--pf-accent); --c-rgb: var(--pf-rgb, 57, 255, 136); } /* setup chip next to "Mitglied seit" keeps the theme colour */
+.pf-tag-founder { --c: var(--pink); --c-rgb: 255, 63, 164; }
+.chip-warn { --c: var(--amber); --c-rgb: 255, 201, 74; }
 /* tap-to-choose chips in the editor */
 .opt-group { border: 0; padding: 0; margin: 0; min-width: 0; }
-.opt-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.opt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .opt-chip:focus-visible, .accent-swatch:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 .accent-swatches { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
 .accent-swatch { width: 44px; height: 44px; border-radius: 50%; padding: 0; cursor: pointer; background: #000; border: 2px solid var(--line); display: grid; place-items: center; }
@@ -840,7 +833,6 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .name-title { font-size: 1.4rem; text-transform: none; letter-spacing: 0; }
 
 /* ---------- admin: suspicious votes ---------- */
-.chip-warn { --c: var(--amber); }
 .vc-list { list-style: none; margin: 10px 0; padding: 0; display: grid; gap: 10px; }
 .vc-row { margin: 0; }
 .vc-flagged { border-color: rgba(255, 90, 110, .6); }

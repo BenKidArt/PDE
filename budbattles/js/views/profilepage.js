@@ -53,7 +53,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   ].filter(([, v]) => (Array.isArray(v) ? v.length : v));
 
   root.innerHTML = `
-    <div class="${pfClass(setup?.id, p.accent)}">
+    <div class="${pfClass(setup?.id)}">
       <section class="pf-head">
         <div class="pf-art" aria-hidden="true"></div>
         <div class="pf-avatar pf-accent-${esc(p.accent || 'theme')}">
@@ -151,9 +151,9 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   if (openNow) openEditor(root, me, key, onLogout);
 }
 
-/** Page class: theme colours from the setup, chip colour from the chosen glow colour. */
-function pfClass(setupId, accent) {
-  return `pf pf-theme-${setupId || 'none'}${accent ? ` pf-chips-${accent}` : ''}`;
+/** Page class: theme colours from the setup (the glow colour only changes the picture ring). */
+function pfClass(setupId) {
+  return `pf pf-theme-${setupId || 'none'}`;
 }
 
 function fact(label, value) {
@@ -244,11 +244,10 @@ function openEditor(root, me, key, onLogout) {
     form.querySelectorAll('[data-accent]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
     b.setAttribute('aria-pressed', String(on));
     root.querySelector('.pf-avatar').className = `pf-avatar pf-accent-${on ? b.dataset.accent : 'theme'}`;
-    root.querySelector('.pf').className = pfClass(form.querySelector('input[name=setup]:checked')?.value || me.growSetup, on ? b.dataset.accent : '');
   }));
   // preview the theme while choosing a setup
   form.querySelectorAll('input[name=setup]').forEach((r) => r.addEventListener('change', () => {
-    root.querySelector('.pf').className = pfClass(r.value, form.querySelector('[data-accent][aria-pressed="true"]')?.dataset.accent || '');
+    root.querySelector('.pf').className = pfClass(r.value);
   }));
   form.querySelector('[data-cancel]').addEventListener('click', () => renderProfilePage(root, key, { onLogout }));
   const chosen = (group) => {
