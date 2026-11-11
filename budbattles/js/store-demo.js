@@ -151,6 +151,16 @@ function toUser(acc) {
     instagram: acc.instagram ?? null, avatar: acc.avatar ?? null, growSetup: acc.growSetup ?? null,
     lights: acc.lights ?? null, medium: acc.medium ?? null, favStrain: acc.favStrain ?? null, bio: acc.bio ?? null,
     memberSince: acc.memberSince ?? acc.ageConfirmedAt ?? null,
+    ...demoOptions(acc),
+  };
+}
+
+const OPTION_KEYS = ['experience', 'growStyle', 'seedType', 'training', 'spaceSize', 'growStage', 'flavours', 'breeder', 'accent'];
+function demoOptions(acc) {
+  return {
+    experience: acc?.experience ?? null, growStyle: acc?.growStyle ?? null, seedType: acc?.seedType ?? null,
+    training: acc?.training || [], spaceSize: acc?.spaceSize ?? null, growStage: acc?.growStage ?? null,
+    flavours: acc?.flavours || [], breeder: acc?.breeder ?? null, accent: acc?.accent ?? null,
   };
 }
 
@@ -440,14 +450,16 @@ export async function setProfileName(name) {
   updateAccount(user.id, { username: name, usernameChangedAt: new Date().toISOString() });
 }
 
-export async function updateProfileDetails(d) {
+export async function updateProfileDetails(changes) {
   const user = await getCurrentUser();
   if (!user) throw new StoreError('vote.loginNeeded');
+  const d = { ...user, ...changes }; // fields not given keep their value
   const insta = (d.instagram || '').trim().replace(/^@/, '');
   if (insta && !/^[A-Za-z0-9._]{1,30}$/.test(insta)) throw new StoreError('error.instagramInvalid');
   updateAccount(user.id, {
     instagram: insta || null, growSetup: d.growSetup || null, lights: (d.lights || '').trim() || null,
     medium: d.medium || null, favStrain: (d.favStrain || '').trim() || null, bio: (d.bio || '').trim().slice(0, 150) || null,
+    ...Object.fromEntries(OPTION_KEYS.map((k) => [k, Array.isArray(d[k]) ? d[k] : (typeof d[k] === 'string' ? d[k].trim() || null : d[k] ?? null)])),
   });
 }
 
@@ -475,6 +487,7 @@ export async function getPublicProfile(key) {
     instagram: acc?.instagram ?? null, avatar: acc?.avatar ?? null, memberSince: acc?.memberSince ?? null,
     growSetup: acc?.growSetup ?? null, lights: acc?.lights ?? null, medium: acc?.medium ?? null, favStrain: acc?.favStrain ?? null, bio: acc?.bio ?? null,
     nameChangedAt: acc && acc.id === me ? acc.usernameChangedAt ?? null : null,
+    ...demoOptions(acc),
     badges: acc ? acc.badges || ['badge_star'] : mine[0]?.badges || [],
     stats: { battles: new Set(mine.map((r) => r.battleId)).size, best_place: ended.length ? Math.min(...ended.map((h) => h.place)) : null,
       votes_given: acc ? votesAll.filter((v) => v.userId === acc.id).length : 0 },
@@ -497,5 +510,11 @@ export async function getEntryVotes(entryId) {
 }
 export async function cancelVote(battleId, voterId) {
   await tx('readwrite', (s) => s.delete([battleId, voterId]), 'votes');
+}
+
+let demoStrains;
+export async function getStrains() {
+  if (!demoStrains) demoStrains = (await (await fetch('data/strains.json')).json()).strains.filter((s) => s.active !== false);
+  return demoStrains;
 }
 

@@ -6,6 +6,7 @@ import {
 import { esc } from '../ui.js';
 import { mountTurnstile, turnstileEnabled } from '../turnstile.js';
 import { renderProfilePage } from './profilepage.js';
+import { showWelcome, expectWelcome, cancelWelcome } from '../welcome.js';
 
 const PASSWORD_MIN = 8;
 
@@ -131,11 +132,13 @@ function renderAuth(root, mode) {
     const captchaToken = needToken();
     if (captchaToken === undefined) return;
     submit.disabled = true;
+    expectWelcome();
     try {
       if (mode === 'signup') {
         const { needsConfirmation } = await signUp({
           email, password, displayName: form.displayName.value.trim(), ageConfirmed: true, termsAccepted: true, captchaToken,
         });
+        showWelcome('signup'); // "Willkommen bei BudBattles!"
         if (needsConfirmation) {
           root.innerHTML = `<section class="hero hero-small"><h1 class="neon-title">${esc(t('auth.checkEmailTitle'))}</h1></section>
             <section class="card card-success"><p>${esc(t('auth.checkEmailText', { email }))}</p></section>`;
@@ -143,9 +146,12 @@ function renderAuth(root, mode) {
         }
       } else {
         await signIn({ email, password, captchaToken });
+        const me = await getCurrentUser();
+        showWelcome('login', me?.username || me?.displayName || ''); // "Willkommen zurück, …!"
       }
       location.hash = '#/battle';
     } catch (e) {
+      cancelWelcome();
       botCheck.reset(); // a Turnstile token works only once
       showError(e.code || 'error.generic');
     } finally {

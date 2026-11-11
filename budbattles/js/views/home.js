@@ -2,6 +2,7 @@
 import { t, tc } from '../i18n.js';
 import { getCurrentBattle, battleStatus, getStandings } from '../store.js';
 import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
+import { canInstall, bannerClosed, closeBanner, startInstall } from '../install.js';
 import { esc } from '../ui.js';
 import { battleLabel, countdownHtml, startCountdowns } from './battle.js';
 
@@ -23,6 +24,14 @@ export async function renderHome(root) {
       <h1 class="home-title">${esc(t('home.title'))}</h1>
       <p class="hero-summary">${esc(t('app.tagline'))}</p>
     </section>
+
+    ${canInstall() && !bannerClosed() ? `
+    <aside class="install-banner" data-install-banner>
+      <img src="icons/icon-192.png" alt="" width="44" height="44">
+      <div class="install-banner-text"><b>${esc(t('install.bannerTitle'))}</b><span>${esc(t('install.bannerText'))}</span></div>
+      <button type="button" class="btn btn-primary btn-small" data-install-go>${esc(t('install.button'))}</button>
+      <button type="button" class="install-close" data-install-close aria-label="${esc(t('install.close'))}">✕</button>
+    </aside>` : ''}
 
     ${battle ? `
     <section class="card battle-card">
@@ -67,6 +76,11 @@ export async function renderHome(root) {
     </section>`;
 
   startCountdowns(root);
+  root.querySelector('[data-install-go]')?.addEventListener('click', () => startInstall());
+  root.querySelector('[data-install-close]')?.addEventListener('click', () => {
+    closeBanner();
+    root.querySelector('[data-install-banner]')?.remove();
+  });
 }
 
 /** Before voting: newest first. From voting on: in ranking order. */

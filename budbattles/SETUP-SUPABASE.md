@@ -72,6 +72,7 @@ After `schema.sql`, run the files in `supabase/migrations/` in number order, eac
 - `008_business_interest.sql`: "Interested?" email list on the Business page (Table Editor → business_interest)
 - `009_dense_ranking.sql`: place badges use dense places (1, 2, 2, 3)
 - `010_anticheat_and_profiles.sql`: anti-cheat voting, profile names + Instagram, big profiles
+- `011_profile_options_and_strain_match.sql`: more profile options (experience, grow style, seeds, training, space, grow stage, flavours, breeder, glow colour) + the editable Strain Match list (table `strains`)
 
 ## Turnstile bot check (Cloudflare, free)
 1. dash.cloudflare.com → sign up → **Turnstile** → **Add widget** → hostname `budbattles.netlify.app`, mode **Managed**.

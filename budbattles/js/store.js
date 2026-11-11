@@ -61,6 +61,7 @@ export const {
   getVoteReport, // admin: (battleId) → per entry vote statistics, flagged
   getEntryVotes, // admin: (entryId) → single votes
   cancelVote, // admin: (battleId, voterId, reason)
+  getStrains, // Strain Match: strain info list (info only)
 } = impl;
 
 // Demo only (undefined with Supabase):

@@ -1,0 +1,964 @@
+{
+ "_note": "Demo copy of the strains table (Supabase). Info only: no shops, prices or links. Typical values, not guarantees.",
+ "strains": [
+  {
+   "name": "Northern Lights",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 7,
+   "flower_max": 8,
+   "flavours": [
+    "earthy",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "White Widow",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Blue Dream",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 9,
+   "flower_max": 10,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Gorilla Glue",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "gassy",
+    "earthy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Girl Scout Cookies",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 9,
+   "flower_max": 10,
+   "flavours": [
+    "sweet",
+    "earthy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Gelato",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "fruity"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Wedding Cake",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "earthy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "OG Kush",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "gassy",
+    "citrus"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Sour Diesel",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 10,
+   "flower_max": 11,
+   "flavours": [
+    "gassy",
+    "citrus"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Amnesia Haze",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "hard",
+   "height": "tall",
+   "flower_min": 10,
+   "flower_max": 12,
+   "flavours": [
+    "citrus",
+    "earthy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Super Lemon Haze",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 9,
+   "flower_max": 10,
+   "flavours": [
+    "citrus",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Lemon Haze",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 9,
+   "flower_max": 10,
+   "flavours": [
+    "citrus"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Jack Herer",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 8,
+   "flower_max": 10,
+   "flavours": [
+    "spicy",
+    "earthy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "AK-47",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Critical",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 7,
+   "flower_max": 8,
+   "flavours": [
+    "sweet",
+    "earthy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Critical Kush",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 7,
+   "flower_max": 8,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Skunk #1",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Big Bud",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 7,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "earthy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Blueberry",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Strawberry Kush",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Bubble Gum",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "fruity"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Purple Kush",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Granddaddy Purple",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "medium",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Bubba Kush",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "gassy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Hindu Kush",
+   "auto": false,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 7,
+   "flower_max": 8,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Afghan Kush",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 7,
+   "flower_max": 8,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Durban Poison",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "spicy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Green Crack",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "citrus",
+    "fruity"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Pineapple Express",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "citrus"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Tangie",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 9,
+   "flower_max": 10,
+   "flavours": [
+    "citrus",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Zkittlez",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "medium",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Runtz",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "fruity"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Do-Si-Dos",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "medium",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Sherbet",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Mimosa",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "citrus",
+    "fruity"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Banana Kush",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Mango Kush",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Cheese",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Chemdawg",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "hard",
+   "height": "medium",
+   "flower_min": 9,
+   "flower_max": 10,
+   "flavours": [
+    "gassy",
+    "earthy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "GG4 Sherbet",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "gassy",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Gelato 41",
+   "auto": false,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "fruity"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Ice Cream Cake",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "medium",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "earthy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Cookies and Cream",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "earthy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Lemon Kush",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "citrus",
+    "earthy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Cinderella 99",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 7,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "citrus"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Power Plant",
+   "auto": false,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "easy",
+   "height": "tall",
+   "flower_min": 7,
+   "flower_max": 9,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Haze",
+   "auto": false,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "hard",
+   "height": "tall",
+   "flower_min": 12,
+   "flower_max": 14,
+   "flavours": [
+    "spicy",
+    "citrus"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Super Silver Haze",
+   "auto": true,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "hard",
+   "height": "tall",
+   "flower_min": 10,
+   "flower_max": 11,
+   "flavours": [
+    "citrus",
+    "spicy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Trainwreck",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "tall",
+   "flower_min": 8,
+   "flower_max": 10,
+   "flavours": [
+    "spicy",
+    "citrus"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Black Domina",
+   "auto": false,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 7,
+   "flower_max": 8,
+   "flavours": [
+    "earthy",
+    "spicy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Kosher Kush",
+   "auto": false,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "medium",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "gassy",
+    "earthy"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Fat Banana",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Sweet Tooth",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "sweet",
+    "fruity"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Somango",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Frisian Dew",
+   "auto": false,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "easy",
+   "height": "medium",
+   "flower_min": 7,
+   "flower_max": 8,
+   "flavours": [
+    "earthy",
+    "fruity"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Durban Thai",
+   "auto": false,
+   "photo": true,
+   "type": "sativa",
+   "difficulty": "hard",
+   "height": "tall",
+   "flower_min": 10,
+   "flower_max": 12,
+   "flavours": [
+    "citrus",
+    "spicy"
+   ],
+   "small_space": false,
+   "active": true
+  },
+  {
+   "name": "Watermelon Zkittlez",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "medium",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Purple Punch",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "easy",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "sweet"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Forbidden Fruit",
+   "auto": true,
+   "photo": true,
+   "type": "indica",
+   "difficulty": "medium",
+   "height": "short",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "fruity",
+    "citrus"
+   ],
+   "small_space": true,
+   "active": true
+  },
+  {
+   "name": "Tropicana Cookies",
+   "auto": true,
+   "photo": true,
+   "type": "hybrid",
+   "difficulty": "medium",
+   "height": "medium",
+   "flower_min": 8,
+   "flower_max": 9,
+   "flavours": [
+    "citrus",
+    "fruity"
+   ],
+   "small_space": false,
+   "active": true
+  }
+ ]
+}

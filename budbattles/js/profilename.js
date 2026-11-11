@@ -3,6 +3,7 @@
 import { t } from './i18n.js';
 import { getCurrentUser, checkProfileName, setProfileName, updateProfileDetails } from './store.js';
 import { esc } from './ui.js';
+import { waitForWelcome } from './welcome.js';
 
 let askedThisVisit = false;
 
@@ -10,6 +11,7 @@ export function resetProfileNameCheck() { askedThisVisit = false; }
 
 /** Shows the popup if needed. Resolves when it is closed (or not needed). */
 export async function checkProfileName_popup(onDone) {
+  await waitForWelcome(); // the name popup comes AFTER the welcome animation
   const user = await getCurrentUser();
   if (!user || !user.hasProfileNames || user.username || askedThisVisit || document.querySelector('.modal-backdrop')) return;
   askedThisVisit = true;

@@ -120,9 +120,13 @@ export async function getCurrentUser() {
   if (!session) return null;
   if (profileCache?.id === session.user.id) return profileCache;
   let [{ data, error }, own] = await Promise.all([
-    sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at').eq('id', session.user.id).maybeSingle(),
+    sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent').eq('id', session.user.id).maybeSingle(),
     sb.from('user_badges').select('badge_id').eq('user_id', session.user.id),
   ]);
+  if (error) {
+    // Safety net: database update 011 not run yet → load without the newest profile options.
+    ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at').eq('id', session.user.id).maybeSingle());
+  }
   if (error) {
     // Safety net: database update 010 / 003 not run yet → load without the newer profile fields.
     ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester').eq('id', session.user.id).maybeSingle());
@@ -150,6 +154,7 @@ export async function getCurrentUser() {
     favStrain: data?.fav_strain ?? null,
     bio: data?.bio ?? null,
     memberSince: data?.created_at ?? null,
+    ...profileOptions(data),
   };
   sb.rpc('register_device', { p_device: getDeviceId() }).then(() => {}, () => {}); // for the anti-cheat limits
   return profileCache;
@@ -454,7 +459,28 @@ export async function setProfileName(name) {
   profileCache = null;
 }
 
-export async function updateProfileDetails(d) {
+/** The extra profile options (update 011) in app form. */
+function profileOptions(r) {
+  return {
+    experience: r?.experience ?? null, growStyle: r?.grow_style ?? null, seedType: r?.seed_type ?? null,
+    training: r?.training || [], spaceSize: r?.space_size ?? null, growStage: r?.grow_stage ?? null,
+    flavours: r?.flavours || [], breeder: r?.breeder ?? null, accent: r?.accent ?? null,
+  };
+}
+
+/** Saves profile fields. Fields not given keep their current value. */
+export async function updateProfileDetails(changes) {
+  const cur = await getCurrentUser();
+  const d = { ...cur, ...changes };
+  const { error: e2 } = await sb.rpc('save_profile', { p: {
+    instagram: d.instagram || '', grow_setup: d.growSetup || '', lights: d.lights || '', medium: d.medium || '',
+    fav_strain: d.favStrain || '', bio: d.bio || '', experience: d.experience || '', grow_style: d.growStyle || '',
+    seed_type: d.seedType || '', training: d.training || [], space_size: d.spaceSize || '', grow_stage: d.growStage || '',
+    flavours: d.flavours || [], breeder: d.breeder || '', accent: d.accent || '',
+  } });
+  if (!e2) { profileCache = null; return; }
+  if (e2.code === '23514') throw new StoreError((e2.message || '').includes('instagram') ? 'error.instagramInvalid' : 'error.profileInvalid');
+  // before database update 011: only the older fields can be saved
   const { error } = await sb.rpc('update_profile_details', {
     p_instagram: d.instagram ?? '', p_grow_setup: d.growSetup ?? '', p_lights: d.lights ?? '',
     p_medium: d.medium ?? '', p_fav_strain: d.favStrain ?? '', p_bio: d.bio ?? '',
@@ -476,6 +502,7 @@ export async function getPublicProfile(key) {
     instagram: data.instagram, avatar: data.avatar, memberSince: data.member_since,
     growSetup: data.grow_setup, lights: data.lights, medium: data.medium, favStrain: data.fav_strain, bio: data.bio,
     nameChangedAt: data.name_changed_at, badges: data.badges || [], stats: data.stats || {},
+    ...profileOptions(data),
     history: (data.history || []).map((h) => ({
       entryId: h.entry_id, battleId: h.battle_id, number: h.number, theme: { de: h.theme_de, en: h.theme_en },
       photoUrl: publicUrl(h.photo_path), strain: h.strain, votes: h.votes, place: h.place, ended: h.ended,
@@ -506,5 +533,16 @@ export async function getEntryVotes(entryId) {
 export async function cancelVote(battleId, voterId, reason) {
   const { error } = await sb.rpc('admin_cancel_vote', { p_battle: battleId, p_voter: voterId, p_reason: reason || '' });
   if (error) fail(error);
+}
+
+// ---------- Strain Match: strain info list (database update 011) ----------
+let strainCache;
+export async function getStrains() {
+  if (!strainCache) {
+    const { data, error } = await sb.from('strains').select('*').order('name');
+    if (!error && data?.length) strainCache = data;
+    else strainCache = (await (await fetch('data/strains.json')).json()).strains; // before update 011
+  }
+  return strainCache;
 }
 

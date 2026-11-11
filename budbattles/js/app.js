@@ -17,6 +17,8 @@ import { renderBadges } from './views/badges.js';
 import { checkChampion, resetChampionCheck } from './champion.js';
 import { checkProfileName_popup, resetProfileNameCheck } from './profilename.js';
 import { renderVoteCheck } from './views/votecheck.js';
+import { renderStrainMatch } from './views/strainmatch.js';
+import { canInstall, startInstall } from './install.js';
 import { esc } from './ui.js';
 
 const routes = {
@@ -34,6 +36,7 @@ const routes = {
   badges: renderBadges,
   u: renderUserProfile, // #/u/<profile name>
   votes: renderVoteCheck, // admin: suspicious votes
+  strainmatch: renderStrainMatch,
 };
 
 // Bottom bar: the five things people use most.
@@ -126,6 +129,7 @@ async function renderChrome(activePage, battleId) {
           <span>${esc(t(`nav.${m.key}`))}</span>
           ${m.soon ? `<span class="pill pill-upcoming">${esc(t('soon.badge'))}</span>` : ''}
         </a>`).join('')}
+      ${canInstall() ? `<button type="button" class="menu-link menu-install" data-install data-menu-close><span>📲 ${esc(t('install.menu'))}</span></button>` : ''}
     </nav>`;
 
   const banner = document.getElementById('demo-banner');
@@ -181,7 +185,10 @@ function hideBadgeTip() {
 }
 window.addEventListener('scroll', hideBadgeTip, { passive: true });
 
+window.addEventListener('bb-installable', () => render()); // Android: the install prompt became available
+
 document.addEventListener('click', async (e) => {
+  if (e.target.closest('[data-install]')) { startInstall(); }
   const badge = e.target.closest('.badge-btn');
   if (badge) { e.preventDefault(); e.stopPropagation(); return showBadgeTip(badge); }
   hideBadgeTip();
