@@ -458,5 +458,19 @@
   "error.spaceCustom": "Please enter width and depth in cm (20–2000), height 20–600 cm.",
   "match.place.growbox": "your grow box",
   "match.why.lowCeiling": "Stays low – fits under {height} cm",
-  "match.why.hybridStyle": "Suits your organic-mineral mix"
+  "match.why.hybridStyle": "Suits your organic-mineral mix",
+  "links.title": "Links",
+  "links.optional": "(optional)",
+  "links.instagram": "Instagram",
+  "links.growdiaries": "GrowDiaries",
+  "links.youtube": "YouTube",
+  "links.tiktok": "TikTok",
+  "links.threads": "Threads",
+  "links.ph.instagram": "@yourname",
+  "links.ph.growdiaries": "growdiaries.com/…",
+  "links.ph.youtube": "youtube.com/@yourchannel",
+  "links.ph.tiktok": "@yourname",
+  "links.ph.threads": "@yourname",
+  "links.hint": "Only links or @handles for each site. They show as small icons under your name.",
+  "links.invalid": "{site}: please enter a valid link or @handle."
 }

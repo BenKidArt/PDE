@@ -120,9 +120,13 @@ export async function getCurrentUser() {
   if (!session) return null;
   if (profileCache?.id === session.user.id) return profileCache;
   let [{ data, error }, own] = await Promise.all([
-    sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent, space_w, space_d, space_h_min, space_h_max').eq('id', session.user.id).maybeSingle(),
+    sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent, space_w, space_d, space_h_min, space_h_max, growdiaries, youtube, tiktok, threads').eq('id', session.user.id).maybeSingle(),
     sb.from('user_badges').select('badge_id').eq('user_id', session.user.id),
   ]);
+  if (error) {
+    // Safety net: database update 013 not run yet → load without the profile links.
+    ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent, space_w, space_d, space_h_min, space_h_max').eq('id', session.user.id).maybeSingle());
+  }
   if (error) {
     // Safety net: database update 012 not run yet → load without the custom space size.
     ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent').eq('id', session.user.id).maybeSingle());
@@ -470,6 +474,7 @@ function profileOptions(r) {
     experience: r?.experience ?? null, growStyle: Array.isArray(r?.grow_style) ? r.grow_style : r?.grow_style ? [r.grow_style] : [],
     seedType: r?.seed_type ?? null,
     spaceW: r?.space_w ?? null, spaceD: r?.space_d ?? null, spaceHMin: r?.space_h_min ?? null, spaceHMax: r?.space_h_max ?? null,
+    growdiaries: r?.growdiaries ?? null, youtube: r?.youtube ?? null, tiktok: r?.tiktok ?? null, threads: r?.threads ?? null,
     training: r?.training || [], spaceSize: r?.space_size ?? null, growStage: r?.grow_stage ?? null,
     flavours: r?.flavours || [], breeder: r?.breeder ?? null, accent: r?.accent ?? null,
   };
@@ -488,9 +493,10 @@ export async function updateProfileDetails(changes) {
     flavours: d.flavours || [], breeder: d.breeder || '', accent: d.accent || '',
     space_w: custom ? d.spaceW : null, space_d: custom ? d.spaceD : null,
     space_h_min: custom ? d.spaceHMin : null, space_h_max: custom ? d.spaceHMax : null,
+    growdiaries: d.growdiaries || '', youtube: d.youtube || '', tiktok: d.tiktok || '', threads: d.threads || '',
   };
   let { error: e2 } = await sb.rpc('save_profile', { p: payload });
-  if (e2?.code === '23514' && !(e2.message || '').includes('instagram')) {
+  if (e2?.code === '23514' && /grow_setup|grow_style|space_/.test(e2.message || '')) {
     // database update 012 not run yet: save in the older shape (one grow style, no growbox, no custom size)
     ({ error: e2 } = await sb.rpc('save_profile', { p: { ...payload, grow_style: styles[0] || '',
       grow_setup: payload.grow_setup === 'growbox' ? '' : payload.grow_setup, space_size: custom ? 'other' : payload.space_size } }));

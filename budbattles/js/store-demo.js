@@ -155,12 +155,13 @@ function toUser(acc) {
   };
 }
 
-const OPTION_KEYS = ['experience', 'growStyle', 'seedType', 'training', 'spaceSize', 'growStage', 'flavours', 'breeder', 'accent', 'spaceW', 'spaceD', 'spaceHMin', 'spaceHMax'];
+const OPTION_KEYS = ['experience', 'growStyle', 'seedType', 'training', 'spaceSize', 'growStage', 'flavours', 'breeder', 'accent', 'spaceW', 'spaceD', 'spaceHMin', 'spaceHMax', 'growdiaries', 'youtube', 'tiktok', 'threads'];
 function demoOptions(acc) {
   return {
     experience: acc?.experience ?? null, seedType: acc?.seedType ?? null,
     growStyle: Array.isArray(acc?.growStyle) ? acc.growStyle : acc?.growStyle ? [acc.growStyle] : [],
     spaceW: acc?.spaceW ?? null, spaceD: acc?.spaceD ?? null, spaceHMin: acc?.spaceHMin ?? null, spaceHMax: acc?.spaceHMax ?? null,
+    growdiaries: acc?.growdiaries ?? null, youtube: acc?.youtube ?? null, tiktok: acc?.tiktok ?? null, threads: acc?.threads ?? null,
     training: acc?.training || [], spaceSize: acc?.spaceSize ?? null, growStage: acc?.growStage ?? null,
     flavours: acc?.flavours || [], breeder: acc?.breeder ?? null, accent: acc?.accent ?? null,
   };

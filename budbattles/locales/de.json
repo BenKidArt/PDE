@@ -458,5 +458,19 @@
   "error.spaceCustom": "Bitte Breite und Tiefe in cm eingeben (20–2000), Höhe 20–600 cm.",
   "match.place.growbox": "deine Growbox",
   "match.why.lowCeiling": "Bleibt niedrig – passt unter {height} cm",
-  "match.why.hybridStyle": "Passt zu deinem Mix aus organisch und mineralisch"
+  "match.why.hybridStyle": "Passt zu deinem Mix aus organisch und mineralisch",
+  "links.title": "Links",
+  "links.optional": "(optional)",
+  "links.instagram": "Instagram",
+  "links.growdiaries": "GrowDiaries",
+  "links.youtube": "YouTube",
+  "links.tiktok": "TikTok",
+  "links.threads": "Threads",
+  "links.ph.instagram": "@deinname",
+  "links.ph.growdiaries": "growdiaries.com/…",
+  "links.ph.youtube": "youtube.com/@deinkanal",
+  "links.ph.tiktok": "@deinname",
+  "links.ph.threads": "@deinname",
+  "links.hint": "Nur Links oder @Namen der jeweiligen Seite. Sie erscheinen als kleine Icons unter deinem Namen.",
+  "links.invalid": "{site}: bitte einen gültigen Link oder @Namen eingeben."
 }

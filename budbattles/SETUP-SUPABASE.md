@@ -74,6 +74,7 @@ After `schema.sql`, run the files in `supabase/migrations/` in number order, eac
 - `010_anticheat_and_profiles.sql`: anti-cheat voting, profile names + Instagram, big profiles
 - `011_profile_options_and_strain_match.sql`: more profile options (experience, grow style, seeds, training, space, grow stage, flavours, breeder, glow colour) + the editable Strain Match list (table `strains`)
 - `012_growbox_styles_custom_space.sql`: Growbox setup, several grow styles (+ Hybrid), custom space size in cm
+- `013_profile_links.sql`: profile links (GrowDiaries, YouTube, TikTok, Threads)
 
 ## Turnstile bot check (Cloudflare, free)
 1. dash.cloudflare.com → sign up → **Turnstile** → **Add widget** → hostname `budbattles.netlify.app`, mode **Managed**.

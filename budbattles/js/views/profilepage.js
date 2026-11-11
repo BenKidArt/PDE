@@ -9,6 +9,7 @@ import { esc, chipHtml, avatarUrl } from '../ui.js';
 import { neonCardHtml } from '../entrycard.js';
 import { battleLabel } from './battle.js';
 import { showWelcome } from '../welcome.js';
+import { LINK_KINDS, LINK_ICONS, normalizeLink, linkUrl, linkInputValue } from '../links.js';
 
 export const SETUPS = [
   { id: 'zelt', icon: '⛺' },
@@ -73,7 +74,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         </div>
         <h1 class="pf-name">${esc(p.displayName)}</h1>
         ${p.growStage ? `<span class="pf-stage">${chipHtml(optLabel('growStage', p.growStage), '●')}</span>` : ''}
-        ${p.instagram ? `<a class="pf-insta" href="https://instagram.com/${encodeURIComponent(p.instagram)}" target="_blank" rel="noopener noreferrer">@${esc(p.instagram)}</a>` : ''}
+        ${linksHtml(p)}
         <div class="pf-tags">
           ${since ? `<span class="pf-since">${esc(t('profile.memberSince', { date: since }))}</span>` : ''}
           ${p.badges.includes('badge_heart') ? chipHtml(t('profile.founder'), '♥') : ''}
@@ -175,6 +176,16 @@ function takeReturnTo() {
   return false;
 }
 
+/** Small link icons under the name; empty ones are hidden. */
+function linksHtml(p) {
+  const items = LINK_KINDS.filter((k) => p[k]);
+  if (!items.length) return '';
+  return `<div class="pf-links">${items.map((k) => {
+    const label = `${t(`links.${k}`)}: ${k === 'growdiaries' ? 'GrowDiaries' : k === 'youtube' && !p[k].startsWith('@') ? p[k] : `@${p[k].replace(/^@/, '')}`}`;
+    return `<a class="pf-link pf-link-${k}" href="${esc(linkUrl(k, p[k]))}" target="_blank" rel="noopener noreferrer nofollow" aria-label="${esc(label)}" title="${esc(label)}">${LINK_ICONS[k]}</a>`;
+  }).join('')}</div>`;
+}
+
 function fact(label, value) {
   return `<div class="pf-fact"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
 }
@@ -206,10 +217,16 @@ function openEditor(root, me, key, onLogout) {
         <input id="pf-name" type="text" maxlength="20" autocomplete="nickname" value="${esc(me.username || '')}" ${nameLocked ? 'disabled' : ''}>
         <p class="hint">${esc(nameLocked ? t('profile.nameLocked', { date: fmt(nextChange) }) : t('profile.nameRules'))}</p>
       </div>
-      <div class="field">
-        <label class="label" for="pf-insta">${esc(t('profile.instagram'))}</label>
-        <input id="pf-insta" type="text" maxlength="31" autocomplete="off" placeholder="@deinname" value="${esc(me.instagram ? `@${me.instagram}` : '')}">
-      </div>
+      <fieldset class="field pf-link-fields">
+        <legend class="label">${esc(t('links.title'))} <span class="muted small">${esc(t('links.optional'))}</span></legend>
+        ${LINK_KINDS.map((k) => `<label class="pf-link-field">
+          <span class="pf-link-ico" aria-hidden="true">${LINK_ICONS[k]}</span>
+          <span class="sr-only">${esc(t(`links.${k}`))}</span>
+          <input id="pf-link-${k}" type="text" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="200"
+            placeholder="${esc(t(`links.ph.${k}`))}" aria-label="${esc(t(`links.${k}`))}" value="${esc(linkInputValue(k, me[k]))}">
+        </label>`).join('')}
+        <p class="hint">${esc(t('links.hint'))}</p>
+      </fieldset>
       <fieldset class="field pf-setups">
         <legend class="label">${esc(t('profile.setup'))} <span class="muted small">${esc(t('profile.setupUnselect'))}</span></legend>
         ${SETUPS.map((s) => `<button type="button" class="bb-chip pf-setup-opt" data-setup="${s.id}" aria-pressed="${me.growSetup === s.id}">
@@ -262,6 +279,7 @@ function openEditor(root, me, key, onLogout) {
   const err = form.querySelector('[data-error]');
   const bio = form.querySelector('#pf-bio');
   bio.addEventListener('input', () => { form.querySelector('[data-count]').textContent = `${bio.value.length}/${BIO_MAX}`; });
+  form.querySelectorAll('.pf-link-field input').forEach((i) => i.addEventListener('input', () => i.classList.remove('is-invalid')));
   // tap-to-choose chips
   const customBox = form.querySelector('[data-space-custom]');
   form.querySelectorAll('.opt-group').forEach((g) => g.addEventListener('click', (e) => {
@@ -302,6 +320,19 @@ function openEditor(root, me, key, onLogout) {
     const name = form.querySelector('#pf-name').value.trim();
     const btn = form.querySelector('[type=submit]');
     btn.disabled = true;
+    // links: only real links / handles for each site
+    const links = {};
+    for (const k of LINK_KINDS) {
+      const input = form.querySelector(`#pf-link-${k}`);
+      const v = normalizeLink(k, input.value);
+      input.classList.toggle('is-invalid', v === null);
+      if (v === null) {
+        err.textContent = t('links.invalid', { site: t(`links.${k}`) }); err.hidden = false; btn.disabled = false;
+        input.focus(); input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      links[k] = v;
+    }
     // custom space size: width × depth required, height optional (a range for sloping ceilings)
     const num = (id) => { const v = parseInt(form.querySelector(id).value, 10); return Number.isFinite(v) ? v : null; };
     const space = chosen('spaceSize');
@@ -322,7 +353,7 @@ function openEditor(root, me, key, onLogout) {
     try {
       if (!nameLocked && name && name !== me.username) await setProfileName(name);
       await updateProfileDetails({
-        instagram: form.querySelector('#pf-insta').value,
+        ...links,
         growSetup: form.querySelector('[data-setup][aria-pressed="true"]')?.dataset.setup || '',
         spaceW: sw, spaceD: sd, spaceHMin: sh1, spaceHMax: sh2,
         lights: form.querySelector('#pf-lights').value,
