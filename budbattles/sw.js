@@ -1,8 +1,8 @@
 // Service worker: lets the app open fast and work with a weak connection.
 // Bump VERSION whenever you publish changes so phones fetch the new files.
-const VERSION = 'bb-v22';
+const VERSION = 'bb-v23';
 const SHELL = [
-  './', 'index.html', 'manifest.webmanifest', 'css/style.css',
+  './', 'index.html', 'manifest.webmanifest', 'css/style.css', 'assets/fonts/dm-sans-latin-400-normal.woff2', 'assets/fonts/dm-sans-latin-500-normal.woff2', 'assets/fonts/dm-sans-latin-600-normal.woff2', 'assets/fonts/dm-sans-latin-700-normal.woff2',
   'js/app.js', 'js/config.js', 'js/i18n.js', 'js/store.js', 'js/store-demo.js', 'js/store-supabase.js',
   'js/shared.js', 'js/photo.js', 'js/ui.js', 'js/champion.js', 'js/card.js', 'js/entrycard.js', 'js/device.js', 'js/turnstile.js', 'js/profilename.js', 'js/welcome.js', 'js/install.js', 'js/strainmatch.js', 'js/vendor/supabase-2.119.0.js',
   'js/views/home.js', 'js/views/battle.js', 'js/views/enter.js', 'js/views/standings.js',
