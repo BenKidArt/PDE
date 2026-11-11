@@ -130,7 +130,11 @@ export function startCountdowns(root) {
       const parts = splitDuration(target - now());
       for (const u of ['d', 'h', 'm', 's']) {
         const text = u === 'd' ? String(parts.d) : String(parts[u]).padStart(2, '0');
-        if (nums[u].textContent !== text) nums[u].textContent = text;
+        if (nums[u].textContent !== text) {
+          const first = !nums[u].textContent;
+          nums[u].textContent = text;
+          if (!first) { nums[u].classList.remove('cd-tick'); void nums[u].offsetWidth; nums[u].classList.add('cd-tick'); } // small flip when a number changes
+        }
       }
     };
     const timer = setInterval(tick, 1000);
