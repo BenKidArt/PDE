@@ -684,6 +684,7 @@ a.ncard-name:focus-visible { outline: 2px solid var(--green); outline-offset: 6p
 .pf-theme-outdoor { --pf-accent: #ffdc3d; --pf-accent-2: #fff3a6; --pf-glow: rgba(255, 220, 61, .45); --pf-rgb: 255, 220, 61; --pf-dark: #161306; }
 .pf-theme-gewaechshaus { --pf-accent: #4dffc8; --pf-accent-2: #b8fff0; --pf-glow: rgba(77, 255, 200, .42); --pf-rgb: 77, 255, 200; --pf-dark: #06160f; }
 .pf-theme-balkon { --pf-accent: #ff5fa8; --pf-accent-2: #ffb08a; --pf-glow: rgba(255, 95, 168, .45); --pf-rgb: 255, 95, 168; --pf-dark: #180812; }
+.pf-theme-growbox { --pf-accent: #a9c7e6; --pf-accent-2: #e3eef8; --pf-glow: rgba(150, 190, 230, .42); --pf-rgb: 150, 190, 230; --pf-dark: #0b1118; }
 .pf[class*="pf-theme-"]:not(.pf-theme-none) {
   --pf-bg: radial-gradient(90% 60% at 50% -5%, rgba(var(--pf-rgb), .36), transparent 62%), linear-gradient(var(--pf-dark), var(--bg) 70%);
 }
@@ -1095,3 +1096,12 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 .cd-num.cd-tick { animation: cd-flip .35s cubic-bezier(.3, .7, .4, 1); }
 @keyframes cd-flip { 0% { transform: translateY(-35%) scaleY(.6); opacity: .3; } 100% { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .cd-num.cd-tick { animation: none; } }
+
+/* custom space size: width × depth, height from – to */
+.space-custom { display: grid; gap: 10px; margin-top: -4px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, .02); border: 1px solid var(--line); }
+.space-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; gap: 8px; }
+.space-row label { display: grid; gap: 4px; font-size: .78rem; color: var(--muted); min-width: 0; }
+.space-row input { width: 100%; font: 16px var(--font); color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.space-row input:focus { outline: none; border-color: var(--mint); box-shadow: 0 0 0 3px rgba(142, 226, 159, .15); }
+.space-x { padding-bottom: 12px; color: var(--muted); font-weight: 600; }
+.space-custom .hint { margin: 0; }

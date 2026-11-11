@@ -442,5 +442,21 @@
   "match.why.livingSoil": "Robust – great for living soil",
   "match.why.mineral": "More demanding – suits precise mineral feeding",
   "match.seeds.both": "Auto + Photo",
-  "match.smallSpace": "Small-space friendly"
+  "match.smallSpace": "Small-space friendly",
+  "setup.growbox": "Grow box / cabinet",
+  "setupShort.growbox": "Grow box",
+  "profile.setupUnselect": "(tap again to unselect)",
+  "opt.growStyle.hybrid": "Hybrid (organic-mineral)",
+  "opt.spaceSize.custom": "Custom size",
+  "space.width": "Width (cm)",
+  "space.depth": "Depth (cm)",
+  "space.heightFrom": "Height (cm)",
+  "space.heightTo": "to (optional)",
+  "space.heightHint": "Sloping ceiling? Enter lowest to highest point, e.g. 150 to 180. Strain Match uses the lowest point.",
+  "space.show": "{w}×{d} cm",
+  "space.showH": "{w}×{d} cm, {h} cm high",
+  "error.spaceCustom": "Please enter width and depth in cm (20–2000), height 20–600 cm.",
+  "match.place.growbox": "your grow box",
+  "match.why.lowCeiling": "Stays low – fits under {height} cm",
+  "match.why.hybridStyle": "Suits your organic-mineral mix"
 }

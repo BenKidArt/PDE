@@ -23,7 +23,7 @@ export async function renderStrainMatch(root) {
   if (!signals.enough) {
     root.innerHTML = `${head}<section class="card match-empty"><p>${esc(t('match.tooEmpty'))}</p>
       <a class="btn btn-primary" href="#/profile" data-go-edit>✎ ${esc(t('profile.edit'))}</a></section>${note}`;
-    root.querySelector('[data-go-edit]').addEventListener('click', () => sessionStorageSet('bb.openEdit', '1'));
+    root.querySelector('[data-go-edit]').addEventListener('click', goEdit);
     return;
   }
 
@@ -68,8 +68,15 @@ export async function renderStrainMatch(root) {
         </li>`;
       }).join('')}
     </ol>
-    <p class="small"><a class="link" href="#/profile">${esc(t('match.better'))} →</a></p>
+    <p class="small"><a class="link" href="#/profile" data-go-edit>${esc(t('match.better'))} →</a></p>
     ${note}`;
+  root.querySelector('[data-go-edit]').addEventListener('click', goEdit);
 }
 
 function sessionStorageSet(k, v) { try { sessionStorage.setItem(k, v); } catch { /* ignore */ } }
+
+/** Open the profile editor directly; after saving (or cancelling) come back here. */
+function goEdit() {
+  sessionStorageSet('bb.openEdit', '1');
+  sessionStorageSet('bb.returnTo', '#/strainmatch');
+}

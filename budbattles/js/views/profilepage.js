@@ -16,14 +16,15 @@ export const SETUPS = [
   { id: 'outdoor', icon: '☀️' },
   { id: 'gewaechshaus', icon: '🌿' },
   { id: 'balkon', icon: '🌆' },
+  { id: 'growbox', icon: '🗄️' },
 ];
 // The profile options (all optional). multi = several can be chosen.
 export const OPTIONS = {
   experience: { values: ['beginner', 'grows_1_3', 'veteran'] },
-  growStyle: { values: ['organic', 'mineral', 'living_soil'] },
+  growStyle: { values: ['organic', 'mineral', 'living_soil', 'hybrid'], multi: true },
   seedType: { values: ['auto', 'photo', 'both'] },
   training: { values: ['lst', 'scrog', 'topping', 'defoliation', 'none'], multi: true },
-  spaceSize: { values: ['60', '80', '100', '120', 'other'] },
+  spaceSize: { values: ['60', '80', '100', '120', 'custom'] },
   growStage: { values: ['seedling', 'veg', 'flower', 'drying', 'curing', 'pause'] },
   flavours: { values: ['fruity', 'gassy', 'earthy', 'sweet', 'citrus', 'spicy'], multi: true },
 };
@@ -33,6 +34,16 @@ const BIO_MAX = 150;
 const NAME_CHANGE_DAYS = 30;
 
 const optLabel = (group, value) => t(`opt.${group}.${value}`);
+
+/** "240×120 cm, 150–180 cm hoch" for a custom space; preset label otherwise. */
+export function spaceLabel(p) {
+  if (p.spaceSize !== 'custom') return p.spaceSize ? optLabel('spaceSize', p.spaceSize) : '';
+  if (!p.spaceW || !p.spaceD) return optLabel('spaceSize', 'custom');
+  const lo = p.spaceHMin || p.spaceHMax;
+  const hi = p.spaceHMax && p.spaceHMax !== lo ? p.spaceHMax : null;
+  const h = lo ? (hi ? `${lo}–${hi}` : `${lo}`) : '';
+  return h ? t('space.showH', { w: p.spaceW, d: p.spaceD, h }) : t('space.show', { w: p.spaceW, d: p.spaceD });
+}
 
 export async function renderProfilePage(root, key, { onLogout } = {}) {
   const [p, catalog, me] = await Promise.all([getPublicProfile(key), getBadgeCatalog(), getCurrentUser()]);
@@ -88,7 +99,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
           </dl>
           ${chipRows.length ? `<div class="pf-chip-rows">${chipRows.map(([g, v]) => `
             <div class="pf-chip-row"><span class="pf-chip-label">${esc(t(`opt.${g}.title`))}</span>
-              <span class="pf-chips">${(Array.isArray(v) ? v : [v]).map((x) => chipHtml(optLabel(g, x))).join('')}</span></div>`).join('')}
+              <span class="pf-chips">${(Array.isArray(v) ? v : [v]).map((x) => chipHtml(g === 'spaceSize' ? spaceLabel(p) : optLabel(g, x))).join('')}</span></div>`).join('')}
           </div>` : ''}
           ${p.bio ? `<p class="pf-bio">${esc(p.bio)}</p>` : ''}`
         : `<p class="muted small">${esc(t(isMe ? 'profile.setupEmptyMe' : 'profile.setupEmpty'))}</p>`}
@@ -156,6 +167,14 @@ function pfClass(setupId) {
   return `pf pf-theme-${setupId || 'none'}`;
 }
 
+/** Strain Match sends people here to fill in their setup; after saving they go back. */
+function takeReturnTo() {
+  let to = null;
+  try { to = sessionStorage.getItem('bb.returnTo'); sessionStorage.removeItem('bb.returnTo'); } catch { /* ignore */ }
+  if (to && to.startsWith('#/')) { location.hash = to; return true; }
+  return false;
+}
+
 function fact(label, value) {
   return `<div class="pf-fact"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
 }
@@ -192,14 +211,26 @@ function openEditor(root, me, key, onLogout) {
         <input id="pf-insta" type="text" maxlength="31" autocomplete="off" placeholder="@deinname" value="${esc(me.instagram ? `@${me.instagram}` : '')}">
       </div>
       <fieldset class="field pf-setups">
-        <legend class="label">${esc(t('profile.setup'))}</legend>
-        ${SETUPS.map((s) => `<label class="bb-chip pf-setup-opt" data-setup="${s.id}">
-          <input type="radio" name="setup" value="${s.id}" ${me.growSetup === s.id ? 'checked' : ''}>
-          <span class="bb-chip-icon" aria-hidden="true">${s.icon}</span>${esc(t(`setupShort.${s.id}`))}</label>`).join('')}
+        <legend class="label">${esc(t('profile.setup'))} <span class="muted small">${esc(t('profile.setupUnselect'))}</span></legend>
+        ${SETUPS.map((s) => `<button type="button" class="bb-chip pf-setup-opt" data-setup="${s.id}" aria-pressed="${me.growSetup === s.id}">
+          <span class="bb-chip-icon" aria-hidden="true">${s.icon}</span>${esc(t(`setupShort.${s.id}`))}</button>`).join('')}
       </fieldset>
       ${chipGroup('growStage', me.growStage)}
       ${chipGroup('experience', me.experience)}
-      ${chipGroup('spaceSize', me.spaceSize)}
+      ${chipGroup('spaceSize', me.spaceSize === 'other' ? 'custom' : me.spaceSize)}
+      <div class="space-custom" data-space-custom ${me.spaceSize === 'custom' || me.spaceSize === 'other' ? '' : 'hidden'}>
+        <div class="space-row">
+          <label><span>${esc(t('space.width'))}</span><input id="pf-sw" type="number" inputmode="numeric" min="20" max="2000" placeholder="240" value="${esc(me.spaceW || '')}"></label>
+          <span class="space-x" aria-hidden="true">×</span>
+          <label><span>${esc(t('space.depth'))}</span><input id="pf-sd" type="number" inputmode="numeric" min="20" max="2000" placeholder="120" value="${esc(me.spaceD || '')}"></label>
+        </div>
+        <div class="space-row">
+          <label><span>${esc(t('space.heightFrom'))}</span><input id="pf-sh1" type="number" inputmode="numeric" min="20" max="600" placeholder="150" value="${esc(me.spaceHMin || '')}"></label>
+          <span class="space-x" aria-hidden="true">–</span>
+          <label><span>${esc(t('space.heightTo'))}</span><input id="pf-sh2" type="number" inputmode="numeric" min="20" max="600" placeholder="180" value="${esc(me.spaceHMax && me.spaceHMax !== me.spaceHMin ? me.spaceHMax : '')}"></label>
+        </div>
+        <p class="hint">${esc(t('space.heightHint'))}</p>
+      </div>
       ${chipGroup('seedType', me.seedType)}
       ${chipGroup('growStyle', me.growStyle)}
       ${chipGroup('training', me.training)}
@@ -232,12 +263,17 @@ function openEditor(root, me, key, onLogout) {
   const bio = form.querySelector('#pf-bio');
   bio.addEventListener('input', () => { form.querySelector('[data-count]').textContent = `${bio.value.length}/${BIO_MAX}`; });
   // tap-to-choose chips
+  const customBox = form.querySelector('[data-space-custom]');
   form.querySelectorAll('.opt-group').forEach((g) => g.addEventListener('click', (e) => {
     const chip = e.target.closest('.opt-chip');
     if (!chip) return;
     const on = chip.getAttribute('aria-pressed') !== 'true';
     if (g.dataset.multi !== '1') g.querySelectorAll('.opt-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
     chip.setAttribute('aria-pressed', String(on));
+    if (g.dataset.group === 'spaceSize') {
+      customBox.hidden = !(on && chip.dataset.value === 'custom');
+      if (!customBox.hidden) form.querySelector('#pf-sw').focus();
+    }
   }));
   form.querySelectorAll('[data-accent]').forEach((b) => b.addEventListener('click', () => {
     const on = b.getAttribute('aria-pressed') !== 'true';
@@ -245,11 +281,17 @@ function openEditor(root, me, key, onLogout) {
     b.setAttribute('aria-pressed', String(on));
     root.querySelector('.pf-avatar').className = `pf-avatar pf-accent-${on ? b.dataset.accent : 'theme'}`;
   }));
-  // preview the theme while choosing a setup
-  form.querySelectorAll('input[name=setup]').forEach((r) => r.addEventListener('change', () => {
-    root.querySelector('.pf').className = pfClass(r.value);
+  // setup: tap to choose, tap again to clear (empty = default theme); preview the theme
+  form.querySelectorAll('[data-setup]').forEach((b) => b.addEventListener('click', () => {
+    const on = b.getAttribute('aria-pressed') !== 'true';
+    form.querySelectorAll('[data-setup]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+    b.setAttribute('aria-pressed', String(on));
+    root.querySelector('.pf').className = pfClass(on ? b.dataset.setup : '');
   }));
-  form.querySelector('[data-cancel]').addEventListener('click', () => renderProfilePage(root, key, { onLogout }));
+  form.querySelector('[data-cancel]').addEventListener('click', () => {
+    if (takeReturnTo()) return; // came from Strain Match: go back there
+    renderProfilePage(root, key, { onLogout });
+  });
   const chosen = (group) => {
     const vals = [...form.querySelectorAll(`[data-group="${group}"] .opt-chip[aria-pressed="true"]`)].map((c) => c.dataset.value);
     return OPTIONS[group].multi ? vals : vals[0] || '';
@@ -260,11 +302,29 @@ function openEditor(root, me, key, onLogout) {
     const name = form.querySelector('#pf-name').value.trim();
     const btn = form.querySelector('[type=submit]');
     btn.disabled = true;
+    // custom space size: width × depth required, height optional (a range for sloping ceilings)
+    const num = (id) => { const v = parseInt(form.querySelector(id).value, 10); return Number.isFinite(v) ? v : null; };
+    const space = chosen('spaceSize');
+    let sw = null, sd = null, sh1 = null, sh2 = null;
+    if (space === 'custom') {
+      sw = num('#pf-sw'); sd = num('#pf-sd'); sh1 = num('#pf-sh1'); sh2 = num('#pf-sh2');
+      if (!sh1 && sh2) { sh1 = sh2; }
+      if (sh1 && !sh2) sh2 = sh1;
+      if (sh1 && sh2 && sh2 < sh1) [sh1, sh2] = [sh2, sh1];
+      const okWD = (v) => v && v >= 20 && v <= 2000;
+      const okH = (v) => !v || (v >= 20 && v <= 600);
+      if (!okWD(sw) || !okWD(sd) || !okH(sh1) || !okH(sh2)) {
+        err.textContent = t('error.spaceCustom'); err.hidden = false; btn.disabled = false;
+        customBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
     try {
       if (!nameLocked && name && name !== me.username) await setProfileName(name);
       await updateProfileDetails({
         instagram: form.querySelector('#pf-insta').value,
-        growSetup: form.querySelector('input[name=setup]:checked')?.value || '',
+        growSetup: form.querySelector('[data-setup][aria-pressed="true"]')?.dataset.setup || '',
+        spaceW: sw, spaceD: sd, spaceHMin: sh1, spaceHMax: sh2,
         lights: form.querySelector('#pf-lights').value,
         medium: form.querySelector('#pf-medium').value,
         favStrain: form.querySelector('#pf-strain').value,
@@ -273,6 +333,7 @@ function openEditor(root, me, key, onLogout) {
         accent: form.querySelector('[data-accent][aria-pressed="true"]')?.dataset.accent || '',
         ...Object.fromEntries(Object.keys(OPTIONS).map((g) => [g, chosen(g)])),
       });
+      if (takeReturnTo()) return; // came from Strain Match: go back with the new matches
       const fresh = await getCurrentUser();
       await renderProfilePage(root, fresh?.username || fresh?.id || key, { onLogout });
       window.scrollTo({ top: 0, behavior: 'smooth' }); // show the new look from the top

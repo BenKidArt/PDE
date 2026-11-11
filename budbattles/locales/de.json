@@ -442,5 +442,21 @@
   "match.why.livingSoil": "Robust – ideal für Living Soil",
   "match.why.mineral": "Anspruchsvoller – passt zu genauer mineralischer Düngung",
   "match.seeds.both": "Auto + Photo",
-  "match.smallSpace": "Für wenig Platz"
+  "match.smallSpace": "Für wenig Platz",
+  "setup.growbox": "Growbox / Schrank",
+  "setupShort.growbox": "Growbox",
+  "profile.setupUnselect": "(nochmal tippen zum Abwählen)",
+  "opt.growStyle.hybrid": "Hybrid (Organisch-Mineralisch)",
+  "opt.spaceSize.custom": "Eigene Größe",
+  "space.width": "Breite (cm)",
+  "space.depth": "Tiefe (cm)",
+  "space.heightFrom": "Höhe (cm)",
+  "space.heightTo": "bis (optional)",
+  "space.heightHint": "Bei Dachschräge: niedrigste bis höchste Stelle, z. B. 150 bis 180. Strain Match rechnet mit der niedrigsten Stelle.",
+  "space.show": "{w}×{d} cm",
+  "space.showH": "{w}×{d} cm, {h} cm hoch",
+  "error.spaceCustom": "Bitte Breite und Tiefe in cm eingeben (20–2000), Höhe 20–600 cm.",
+  "match.place.growbox": "deine Growbox",
+  "match.why.lowCeiling": "Bleibt niedrig – passt unter {height} cm",
+  "match.why.hybridStyle": "Passt zu deinem Mix aus organisch und mineralisch"
 }

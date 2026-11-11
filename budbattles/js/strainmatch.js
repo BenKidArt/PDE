@@ -7,9 +7,13 @@ export function profileSignals(p) {
   const s = {
     setup: p.growSetup || null,
     space: p.spaceSize || null,
+    // custom size in cm (height: the LOWEST point counts, e.g. under a sloping ceiling)
+    w: p.spaceSize === 'custom' ? p.spaceW || null : null,
+    d: p.spaceSize === 'custom' ? p.spaceD || null : null,
+    h: p.spaceSize === 'custom' ? p.spaceHMin || p.spaceHMax || null : null,
     experience: p.experience || null,
     seeds: p.seedType || null,
-    style: p.growStyle || null,
+    styles: Array.isArray(p.growStyle) ? p.growStyle : p.growStyle ? [p.growStyle] : [],
     flavours: Array.isArray(p.flavours) ? p.flavours : [],
   };
   const filled = ['setup', 'space', 'experience', 'seeds'].filter((k) => s[k]).length + (s.flavours.length ? 1 : 0);
@@ -20,7 +24,13 @@ const SIZE = { 60: '60×60', 80: '80×80', 100: '100×100', 120: '120×120' };
 
 /** How much room the member has: 'small' | 'mid' | 'big' | null. */
 function roomOf(s) {
-  if (s.setup === 'balkon' || s.space === '60' || s.space === '80') return 'small';
+  if (s.w && s.d) { // real floor size
+    const m2 = (s.w * s.d) / 10000;
+    if (m2 <= 0.7) return 'small';
+    if (m2 <= 1.2) return 'mid';
+    return 'big';
+  }
+  if (s.setup === 'balkon' || s.setup === 'growbox' || s.space === '60' || s.space === '80') return 'small';
   if (s.space === '100') return 'mid';
   if (s.space === '120' || ['raum', 'outdoor', 'gewaechshaus'].includes(s.setup)) return 'big';
   if (s.setup === 'zelt') return 'mid';
@@ -32,7 +42,10 @@ function roomOf(s) {
  * "deinen Balkon", "dein 80×80 Zelt", "Outdoor" …). Never says tent for a balcony.
  */
 export function placeOf(s) {
-  if (s.setup === 'zelt') return { key: SIZE[s.space] ? 'match.place.zeltSize' : 'match.place.zelt', size: SIZE[s.space] || '' };
+  const size = s.w && s.d ? `${s.w}×${s.d}` : SIZE[s.space] || '';
+  if (s.setup === 'zelt') return { key: size ? 'match.place.zeltSize' : 'match.place.zelt', size };
+  if (s.setup === 'growbox') return { key: 'match.place.growbox', size: '' };
+  if (s.w && s.d && !s.setup) return { key: 'match.place.space', size };
   if (s.setup) return { key: `match.place.${s.setup}`, size: '' };
   if (SIZE[s.space]) return { key: 'match.place.space', size: SIZE[s.space] };
   return null;
@@ -44,6 +57,14 @@ const HEIGHT_FIT = {
   mid: { short: 0.85, medium: 1, tall: 0.35 },
   big: { short: 0.6, medium: 0.9, tall: 1 },
 };
+// height fit by usable height in cm (the lowest point): low ceilings want short plants
+function ceilingFit(h, height) {
+  if (!h) return null;
+  if (h < 120) return { short: 1, medium: 0.1, tall: 0 }[height];
+  if (h < 160) return { short: 1, medium: 0.45, tall: 0 }[height];
+  if (h < 200) return { short: 1, medium: 0.85, tall: 0.35 }[height];
+  return null; // tall enough for anything
+}
 // difficulty fit per experience (0–1)
 const SKILL_FIT = {
   beginner: { easy: 1, medium: 0.4, hard: 0 },
@@ -62,7 +83,9 @@ export function matchStrains(strains, profile, limit = 5) {
   const place = placeOf(s);
   const outdoorish = ['outdoor', 'balkon', 'gewaechshaus'].includes(s.setup);
 
-  const scored = strains.filter((x) => x.active !== false).map((x) => {
+  const scored = strains.filter((x) => x.active !== false)
+    .filter((x) => !(s.h && s.h < 160 && x.height === 'tall')) // never suggest tall plants for a low ceiling
+    .map((x) => {
     let got = 0;
     let max = 0;
     const reasons = [];
@@ -85,8 +108,15 @@ export function matchStrains(strains, profile, limit = 5) {
     // plant height vs. room
     if (room) {
       const fit = Math.min(1, HEIGHT_FIT[room][x.height] + (room === 'small' && x.small_space ? 0.1 : 0) - (room === 'small' && !x.small_space && x.height === 'short' ? 0.1 : 0));
-      const key = room === 'small' ? 'match.why.compact' : x.height === 'tall' ? 'match.why.roomy' : 'match.why.fitsSpace';
-      part(25, Math.max(0, fit), place ? { key, vars: { place } } : null);
+      const key = room === 'small' ? 'match.why.compact' : x.height === 'tall' && !(s.h && s.h < 200) ? 'match.why.roomy' : 'match.why.fitsSpace';
+      const ceil = ceilingFit(s.h, x.height); // a low ceiling limits the room, however big the floor is
+      const roomFit = ceil === null ? fit : Math.min(fit, ceil);
+      part(25, Math.max(0, roomFit), place && roomFit >= 0.7 ? { key, vars: { place } } : null);
+    }
+    // usable height (custom size): low ceiling = prefer short strains
+    const cf = ceilingFit(s.h, x.height);
+    if (cf !== null) {
+      part(25, cf, x.height !== 'tall' ? { key: 'match.why.lowCeiling', vars: { height: s.h } } : null);
       if (room === 'small' && x.small_space) reasons.push({ points: 6, key: 'match.why.smallSpace' });
     }
 
@@ -110,9 +140,15 @@ export function matchStrains(strains, profile, limit = 5) {
     }
 
     // grow style
-    if (s.style === 'organic' || s.style === 'living_soil') {
-      part(8, { easy: 1, medium: 0.7, hard: 0.3 }[x.difficulty], x.difficulty === 'easy' ? { key: s.style === 'organic' ? 'match.why.organic' : 'match.why.livingSoil' } : null);
-    } else if (s.style === 'mineral') {
+    // (several can be chosen; hybrid = organic + mineral, fits robust and demanding strains alike)
+    const soft = s.styles.some((v) => v === 'organic' || v === 'living_soil');
+    const precise = s.styles.includes('mineral');
+    if (s.styles.includes('hybrid') || (soft && precise)) {
+      part(8, { easy: 0.9, medium: 1, hard: 0.85 }[x.difficulty], x.difficulty === 'medium' ? { key: 'match.why.hybridStyle' } : null);
+    } else if (soft) {
+      const organicKey = s.styles.includes('organic') ? 'match.why.organic' : 'match.why.livingSoil';
+      part(8, { easy: 1, medium: 0.7, hard: 0.3 }[x.difficulty], x.difficulty === 'easy' ? { key: organicKey } : null);
+    } else if (precise) {
       part(8, { easy: 0.7, medium: 0.9, hard: 1 }[x.difficulty], x.difficulty !== 'easy' ? { key: 'match.why.mineral' } : null);
     }
 

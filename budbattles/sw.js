@@ -1,6 +1,6 @@
 // Service worker: lets the app open fast and work with a weak connection.
 // Bump VERSION whenever you publish changes so phones fetch the new files.
-const VERSION = 'bb-v23';
+const VERSION = 'bb-v24';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'css/style.css', 'assets/fonts/dm-sans-latin-400-normal.woff2', 'assets/fonts/dm-sans-latin-500-normal.woff2', 'assets/fonts/dm-sans-latin-600-normal.woff2', 'assets/fonts/dm-sans-latin-700-normal.woff2',
   'js/app.js', 'js/config.js', 'js/i18n.js', 'js/store.js', 'js/store-demo.js', 'js/store-supabase.js',
