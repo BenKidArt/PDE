@@ -1,6 +1,6 @@
 -- =====================================================================
 -- BudBattles update 011: more profile options + Strain Match
--- Paste into Supabase → SQL Editor → New query → Run. Run it once, after 010.
+-- Paste into Supabase → SQL Editor → New query → Run. Run it after 010 (safe to run again).
 -- Does not touch battles, entries or votes.
 -- =====================================================================
 
@@ -22,6 +22,12 @@ alter table public.profiles
   add column if not exists flavours text[],      -- fruity, gassy, earthy, sweet, citrus, spicy
   add column if not exists breeder text,
   add column if not exists accent text;          -- green | pink | gold | cyan | purple | orange
+alter table public.profiles
+  drop constraint if exists experience_values, drop constraint if exists grow_style_values,
+  drop constraint if exists seed_type_values, drop constraint if exists training_values,
+  drop constraint if exists space_size_values, drop constraint if exists grow_stage_values,
+  drop constraint if exists flavours_values, drop constraint if exists breeder_length,
+  drop constraint if exists accent_values;
 alter table public.profiles
   add constraint experience_values check (experience is null or experience in ('beginner', 'grows_1_3', 'veteran')),
   add constraint grow_style_values check (grow_style is null or grow_style in ('organic', 'mineral', 'living_soil')),
