@@ -53,7 +53,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   ].filter(([, v]) => (Array.isArray(v) ? v.length : v));
 
   root.innerHTML = `
-    <div class="pf pf-theme-${esc(setup?.id || 'none')}">
+    <div class="${pfClass(setup?.id, p.accent)}">
       <section class="pf-head">
         <div class="pf-art" aria-hidden="true"></div>
         <div class="pf-avatar pf-accent-${esc(p.accent || 'theme')}">
@@ -80,7 +80,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         <h2>${setup ? `${setup.icon} ` : ''}${esc(t('profile.setupTitle'))}</h2>
         ${setup || p.lights || p.medium || p.favStrain || p.bio || p.breeder || chipRows.length ? `
           <dl class="pf-facts">
-            ${setup ? fact(t('profile.setup'), t(`setup.${setup.id}`)) : ''}
+            ${setup ? fact(t('profile.setup'), `${setup.icon} ${t(`setupShort.${setup.id}`)}`) : ''}
             ${p.lights ? fact(t('profile.lights'), p.lights) : ''}
             ${p.medium ? fact(t('profile.medium'), t(`medium.${p.medium}`)) : ''}
             ${p.favStrain ? fact(t('profile.favStrain'), p.favStrain) : ''}
@@ -151,6 +151,11 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   if (openNow) openEditor(root, me, key, onLogout);
 }
 
+/** Page class: theme colours from the setup, chip colour from the chosen glow colour. */
+function pfClass(setupId, accent) {
+  return `pf pf-theme-${setupId || 'none'}${accent ? ` pf-chips-${accent}` : ''}`;
+}
+
 function fact(label, value) {
   return `<div class="pf-fact"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`;
 }
@@ -188,7 +193,7 @@ function openEditor(root, me, key, onLogout) {
       </div>
       <fieldset class="field pf-setups">
         <legend class="label">${esc(t('profile.setup'))}</legend>
-        ${SETUPS.map((s) => `<label class="pf-setup-opt pf-theme-${s.id}">
+        ${SETUPS.map((s) => `<label class="pf-setup-opt" data-setup="${s.id}">
           <input type="radio" name="setup" value="${s.id}" ${me.growSetup === s.id ? 'checked' : ''}>
           <span aria-hidden="true">${s.icon}</span><b>${esc(t(`setupShort.${s.id}`))}</b></label>`).join('')}
       </fieldset>
@@ -239,10 +244,11 @@ function openEditor(root, me, key, onLogout) {
     form.querySelectorAll('[data-accent]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
     b.setAttribute('aria-pressed', String(on));
     root.querySelector('.pf-avatar').className = `pf-avatar pf-accent-${on ? b.dataset.accent : 'theme'}`;
+    root.querySelector('.pf').className = pfClass(form.querySelector('input[name=setup]:checked')?.value || me.growSetup, on ? b.dataset.accent : '');
   }));
   // preview the theme while choosing a setup
   form.querySelectorAll('input[name=setup]').forEach((r) => r.addEventListener('change', () => {
-    root.querySelector('.pf').className = `pf pf-theme-${r.value}`;
+    root.querySelector('.pf').className = pfClass(r.value, form.querySelector('[data-accent][aria-pressed="true"]')?.dataset.accent || '');
   }));
   form.querySelector('[data-cancel]').addEventListener('click', () => renderProfilePage(root, key, { onLogout }));
   const chosen = (group) => {

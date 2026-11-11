@@ -1,6 +1,6 @@
 // STRAIN MATCH – pure information. Compares the member's profile with the strain
-// list and returns the best matches with a match % and short reasons.
-// No shops, prices or links. Only for legal home growing where permitted.
+// list and returns the best matches with an honest match % and reasons that are
+// specific to each strain. No shops, prices or links. Only for legal home growing.
 
 /** Which profile fields count, and whether enough are filled in for useful matches. */
 export function profileSignals(p) {
@@ -16,62 +16,132 @@ export function profileSignals(p) {
   return { ...s, filled, enough: filled >= 2 };
 }
 
-const SMALL_SPACES = ['60', '80'];
+const SIZE = { 60: '60×60', 80: '80×80', 100: '100×100', 120: '120×120' };
+
+/** How much room the member has: 'small' | 'mid' | 'big' | null. */
+function roomOf(s) {
+  if (s.setup === 'balkon' || s.space === '60' || s.space === '80') return 'small';
+  if (s.space === '100') return 'mid';
+  if (s.space === '120' || ['raum', 'outdoor', 'gewaechshaus'].includes(s.setup)) return 'big';
+  if (s.setup === 'zelt') return 'mid';
+  return null;
+}
+
+/**
+ * Where the member grows, as reason text variables (the view turns it into
+ * "deinen Balkon", "dein 80×80 Zelt", "Outdoor" …). Never says tent for a balcony.
+ */
+export function placeOf(s) {
+  if (s.setup === 'zelt') return { key: SIZE[s.space] ? 'match.place.zeltSize' : 'match.place.zelt', size: SIZE[s.space] || '' };
+  if (s.setup) return { key: `match.place.${s.setup}`, size: '' };
+  if (SIZE[s.space]) return { key: 'match.place.space', size: SIZE[s.space] };
+  return null;
+}
+
+// height fit per room size (0–1)
+const HEIGHT_FIT = {
+  small: { short: 1, medium: 0.45, tall: 0 },
+  mid: { short: 0.85, medium: 1, tall: 0.35 },
+  big: { short: 0.6, medium: 0.9, tall: 1 },
+};
+// difficulty fit per experience (0–1)
+const SKILL_FIT = {
+  beginner: { easy: 1, medium: 0.4, hard: 0 },
+  grows_1_3: { easy: 0.75, medium: 1, hard: 0.35 },
+  veteran: { easy: 0.45, medium: 0.8, hard: 1 },
+};
 
 /**
  * Scores every strain. Each part only counts when the member filled in that
  * part of the profile, so the % is "how well it fits what we know about you".
- * Returns [{ strain, percent, reasons: [{ key, vars }] }] best first.
+ * Returns [{ strain, percent, reasons: [{ key, vars, points }] }] best first.
  */
 export function matchStrains(strains, profile, limit = 5) {
   const s = profileSignals(profile);
-  const small = SMALL_SPACES.includes(s.space) || s.setup === 'balkon';
-  const outdoorish = s.setup === 'outdoor' || s.setup === 'balkon' || s.setup === 'gewaechshaus';
+  const room = roomOf(s);
+  const place = placeOf(s);
+  const outdoorish = ['outdoor', 'balkon', 'gewaechshaus'].includes(s.setup);
 
-  const results = strains.filter((x) => x.active !== false).map((x) => {
+  const scored = strains.filter((x) => x.active !== false).map((x) => {
     let got = 0;
     let max = 0;
     const reasons = [];
-    const add = (points, of, reason) => { got += points; max += of; if (reason && points > 0) reasons.push({ points, ...reason }); };
+    const part = (weight, fit, reason) => {
+      got += weight * fit;
+      max += weight;
+      if (reason && (fit >= 0.7 || reason.always)) reasons.push({ points: weight * fit, ...reason });
+    };
+    const weeks = `${x.flower_min}–${x.flower_max}`;
+
+    // favourite flavours (strongest signal): share of the member's flavours this strain has
+    if (s.flavours.length) {
+      // the strain's main flavour (listed first) counts more than its side note
+      const hit = (x.flavours || []).filter((f) => s.flavours.includes(f));
+      const main = s.flavours.includes((x.flavours || [])[0]);
+      const fit = (main ? 0.65 : 0) + (hit.length - (main ? 1 : 0)) * 0.35 * (s.flavours.length > 1 ? 1 : 0.6);
+      part(30, Math.min(1, fit), hit.length ? { key: hit.length >= Math.min(s.flavours.length, 2) ? 'match.why.flavourAll' : 'match.why.flavour', vars: { flavours: hit }, always: true } : null);
+    }
+
+    // plant height vs. room
+    if (room) {
+      const fit = Math.min(1, HEIGHT_FIT[room][x.height] + (room === 'small' && x.small_space ? 0.1 : 0) - (room === 'small' && !x.small_space && x.height === 'short' ? 0.1 : 0));
+      const key = room === 'small' ? 'match.why.compact' : x.height === 'tall' ? 'match.why.roomy' : 'match.why.fitsSpace';
+      part(25, Math.max(0, fit), place ? { key, vars: { place } } : null);
+      if (room === 'small' && x.small_space) reasons.push({ points: 6, key: 'match.why.smallSpace' });
+    }
+
+    // difficulty vs. experience
+    if (s.experience) {
+      const fit = SKILL_FIT[s.experience][x.difficulty];
+      const key = { beginner: 'match.why.beginner', grows_1_3: x.difficulty === 'easy' ? 'match.why.easyGoing' : 'match.why.someExperience', veteran: x.difficulty === 'hard' ? 'match.why.veteran' : 'match.why.veteranOk' }[s.experience];
+      part(20, fit, { key });
+    }
 
     // seeds: autoflower / photoperiod
-    if (s.seeds === 'auto') add(x.auto ? 25 : 0, 25, { key: 'match.why.auto' });
-    else if (s.seeds === 'photo') add(x.photo ? 25 : 0, 25, { key: 'match.why.photo' });
-    else if (s.seeds === 'both') add(x.auto && x.photo ? 10 : 6, 10, { key: 'match.why.both' });
+    if (s.seeds === 'auto') part(20, x.auto ? 1 : 0, { key: 'match.why.auto' });
+    else if (s.seeds === 'photo') part(20, x.photo ? 1 : 0, { key: 'match.why.photo' });
+    else if (s.seeds === 'both') part(8, x.auto && x.photo ? 1 : 0.6, null);
 
-    // space: short plants for small tents and balconies
-    if (s.space || s.setup) {
-      if (small) {
-        const pts = x.small_space ? 25 : x.height === 'short' ? 18 : x.height === 'medium' ? 8 : 0;
-        add(pts, 25, { key: s.setup === 'balkon' && !SMALL_SPACES.includes(s.space) ? 'match.why.smallBalcony' : 'match.why.smallTent', vars: { size: s.space ? `${s.space}×${s.space}` : '' } });
-      } else if (s.space === '120' || s.space === '100' || s.setup === 'raum') {
-        add(x.height === 'tall' ? 12 : x.height === 'medium' ? 15 : 10, 15, { key: 'match.why.roomy' });
-      }
+    // flowering time: outdoors it must finish before autumn, indoors shorter is a small plus
+    if (outdoorish) {
+      part(15, Math.max(0, Math.min(1, 1 - (x.flower_max - 8) * 0.3 - (x.flower_min - 7) * 0.1)), { key: 'match.why.beforeAutumn', vars: { weeks } });
+    } else {
+      part(8, Math.max(0, Math.min(1, 1 - (x.flower_max - 8) * 0.25)), x.flower_max <= 8 ? { key: 'match.why.fastFlower', vars: { weeks } } : null);
     }
 
-    // experience
-    if (s.experience === 'beginner') add({ easy: 25, medium: 10, hard: 0 }[x.difficulty], 25, { key: 'match.why.beginner' });
-    else if (s.experience === 'grows_1_3') add({ easy: 15, medium: 20, hard: 8 }[x.difficulty], 20, { key: 'match.why.someExperience' });
-    else if (s.experience === 'veteran') add({ easy: 8, medium: 12, hard: 15 }[x.difficulty], 15, { key: 'match.why.veteran' });
-
-    // outdoors / balcony in Central Europe: shorter flowering finishes before autumn
-    if (outdoorish) add(x.flower_max <= 9 ? 15 : x.flower_max <= 10 ? 8 : 0, 15, { key: 'match.why.shortFlower', vars: { weeks: `${x.flower_min}–${x.flower_max}` } });
-
-    // grow style: organic / living soil like robust, forgiving plants
-    if (s.style === 'organic' || s.style === 'living_soil') add(x.difficulty !== 'hard' ? 8 : 3, 8, { key: 'match.why.organic' });
-    else if (s.style === 'mineral') add(x.difficulty !== 'easy' ? 8 : 6, 8, null);
-
-    // favourite flavours
-    if (s.flavours.length) {
-      const hit = (x.flavours || []).filter((f) => s.flavours.includes(f));
-      add(Math.min(30, hit.length * 18), 30, hit.length ? { key: 'match.why.flavour', vars: { flavours: hit } } : null);
+    // grow style
+    if (s.style === 'organic' || s.style === 'living_soil') {
+      part(8, { easy: 1, medium: 0.7, hard: 0.3 }[x.difficulty], x.difficulty === 'easy' ? { key: s.style === 'organic' ? 'match.why.organic' : 'match.why.livingSoil' } : null);
+    } else if (s.style === 'mineral') {
+      part(8, { easy: 0.7, medium: 0.9, hard: 1 }[x.difficulty], x.difficulty !== 'easy' ? { key: 'match.why.mineral' } : null);
     }
 
-    const percent = max ? Math.round(45 + (got / max) * 54) : 50; // 45–99 %
+    const percent = max ? Math.max(1, Math.min(99, Math.round((got / max) * 100))) : 50;
     reasons.sort((a, b) => b.points - a.points);
-    return { strain: x, percent, reasons: reasons.slice(0, 3) };
+    return { strain: x, percent, score: got / (max || 1), reasons };
   });
 
-  results.sort((a, b) => b.percent - a.percent || a.strain.name.localeCompare(b.strain.name));
-  return results.slice(0, limit);
+  scored.sort((a, b) => b.score - a.score || a.strain.name.localeCompare(b.strain.name));
+
+  // Variety: never show two strains that look the same on paper (same height,
+  // difficulty and main flavour) – the next best different one moves up.
+  const seen = new Set();
+  const picked = [];
+  for (const r of scored) {
+    const x = r.strain;
+    const sigs = [`${x.height}|${x.difficulty}|${(x.flavours || [])[0]}`, `${x.height}|${x.difficulty}|${[...(x.flavours || [])].sort()}`];
+    if (sigs.some((g) => seen.has(g))) continue;
+    sigs.forEach((g) => seen.add(g));
+    picked.push(r);
+    if (picked.length === limit) break;
+  }
+  // Reasons: up to 3 true reasons per strain – the strongest first, then ones not already shown above.
+  const shown = new Set();
+  for (const r of picked) {
+    const sig = (q) => q.key + JSON.stringify(q.vars?.flavours || '');
+    const [best, ...rest] = r.reasons; // the strongest reason always stays first
+    r.reasons = best ? [best, ...rest.sort((a, b) => (shown.has(sig(a)) - shown.has(sig(b))) || b.points - a.points).slice(0, 2)] : [];
+    r.reasons.forEach((q) => shown.add(sig(q)));
+  }
+  return picked;
 }

@@ -31,11 +31,26 @@ export async function renderStrainMatch(root) {
   const results = matchStrains(strains, user, 5);
   const flavourList = (arr) => new Intl.ListFormat(getLang() === 'de' ? 'de' : 'en', { type: 'conjunction' })
     .format(arr.map((f) => t(`opt.flavours.${f}`)));
-  const reason = (r) => t(r.key, { ...r.vars, flavours: r.vars?.flavours ? flavourList(r.vars.flavours) : '' })
-    .replace(/\s+–\s+$/, '');
+  const reason = (r) => t(r.key, {
+    ...r.vars,
+    flavours: r.vars?.flavours ? flavourList(r.vars.flavours) : '',
+    place: r.vars?.place ? t(r.vars.place.key, { size: r.vars.place.size }) : '',
+  });
+  // seed chip: only what applies to this strain and what the member grows
+  const seedChip = (s) => {
+    if (user.seedType === 'auto') return s.auto ? t('opt.seedType.auto') : '';
+    if (user.seedType === 'photo') return s.photo ? t('opt.seedType.photo') : '';
+    if (s.auto && s.photo) return t('match.seeds.both');
+    return s.auto ? t('opt.seedType.auto') : t('opt.seedType.photo');
+  };
+  const chips = (s) => [
+    t(`match.type.${s.type}`), seedChip(s), t(`match.diff.${s.difficulty}`), t(`match.height.${s.height}`),
+    `⏱ ${t('match.weeks', { weeks: `${s.flower_min}–${s.flower_max}` })}`,
+    s.small_space ? t('match.smallSpace') : '',
+  ].filter(Boolean);
 
   root.innerHTML = `${head}
-    <ol class="match-list">
+    <ol class="match-list${user.accent ? ` pf-chips-${esc(user.accent)}` : ''}">
       ${results.map((m, i) => {
         const s = m.strain;
         return `
@@ -46,14 +61,9 @@ export async function renderStrainMatch(root) {
             <span class="match-pct"><b>${m.percent}%</b><small>${esc(t('match.fit'))}</small></span>
           </div>
           <div class="match-tags">
-            <span class="pf-chip">${esc(t(`match.type.${s.type}`))}</span>
-            ${s.auto ? `<span class="pf-chip">${esc(t('opt.seedType.auto'))}</span>` : ''}
-            ${s.photo ? `<span class="pf-chip">${esc(t('opt.seedType.photo'))}</span>` : ''}
-            <span class="pf-chip">${esc(t(`match.diff.${s.difficulty}`))}</span>
-            <span class="pf-chip">${esc(t(`match.height.${s.height}`))}</span>
-            <span class="pf-chip">⏱ ${esc(t('match.weeks', { weeks: `${s.flower_min}–${s.flower_max}` }))}</span>
+            ${chips(s).map((c) => `<span class="pf-chip">${esc(c)}</span>`).join('')}
           </div>
-          <p class="match-flavours">${(s.flavours || []).map((f) => esc(t(`opt.flavours.${f}`))).join(' · ')}</p>
+          <p class="match-flavours">${(s.flavours || []).map((f) => `<span class="${(user.flavours || []).includes(f) ? 'is-fav' : ''}">${esc(t(`opt.flavours.${f}`))}</span>`).join(' · ')}</p>
           ${m.reasons.length ? `<ul class="match-why">${m.reasons.map((r) => `<li>✓ ${esc(reason(r))}</li>`).join('')}</ul>` : ''}
         </li>`;
       }).join('')}
