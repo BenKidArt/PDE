@@ -211,6 +211,9 @@ export async function signIn({ email, password }) {
   emit('SIGNED_IN');
 }
 
+/** Demo mode: accounts never need confirming, so there is nothing to resend. */
+export async function resendConfirmation() {}
+
 export async function signOut() {
   try { localStorage.removeItem(SESSION_KEY); } catch { /* ignore */ }
   emit('SIGNED_OUT');

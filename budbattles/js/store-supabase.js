@@ -27,6 +27,8 @@ export async function initStore() {
   // Links in confirmation / password emails come back with "type=recovery" etc. in the address.
   const cameFromRecovery = location.hash.includes('type=recovery');
   const cameFromEmail = /access_token=|error_description=/.test(location.hash);
+  // an old or already used confirmation link comes back with an error in the address
+  const linkExpired = /error_code=otp_expired|error_description=[^&]*(expired|invalid)/i.test(location.hash + location.search);
 
   await loadLibrary();
   sb = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey, {
@@ -51,7 +53,8 @@ export async function initStore() {
   });
   await sb.auth.getSession(); // waits until a login from an email link has been processed
 
-  if (cameFromRecovery) history.replaceState(null, '', '#/new-password');
+  if (linkExpired) history.replaceState(null, '', location.pathname + '#/link-expired');
+  else if (cameFromRecovery) history.replaceState(null, '', '#/new-password');
   else if (cameFromEmail) history.replaceState(null, '', '#/profile');
 }
 
@@ -200,6 +203,15 @@ export async function signUp({ email, password, displayName, ageConfirmed, terms
 
 export async function signIn({ email, password, captchaToken }) {
   const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password, options: { captchaToken: captchaToken || undefined } });
+  if (error) fail(error);
+}
+
+/** Sends the sign-up confirmation email again. */
+export async function resendConfirmation(email, captchaToken) {
+  const { error } = await sb.auth.resend({
+    type: 'signup', email: email.trim(),
+    options: { emailRedirectTo: backHere(), captchaToken: captchaToken || undefined },
+  });
   if (error) fail(error);
 }
 

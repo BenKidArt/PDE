@@ -8,7 +8,7 @@ import { renderHome } from './views/home.js';
 import { renderBattle } from './views/battle.js';
 import { renderEnter } from './views/enter.js';
 import { renderStandings } from './views/standings.js';
-import { renderProfile, renderNewPassword, renderUserProfile } from './views/profile.js';
+import { renderProfile, renderNewPassword, renderUserProfile, renderLinkExpired } from './views/profile.js';
 import { renderTerms } from './views/terms.js';
 import { renderAdmin } from './views/admin.js';
 import { renderSoon } from './views/soon.js';
@@ -30,6 +30,7 @@ const routes = {
   business: renderSoon('business'),
   profile: renderProfile,
   'new-password': renderNewPassword,
+  'link-expired': renderLinkExpired, // old / used confirmation link
   terms: renderTerms,
   admin: renderAdmin,
   tests: renderTests,

@@ -1254,3 +1254,10 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 @media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:active { transform: none; } }
 /* a wrong link stays red, even while the field is focused */
 .pf-link-field input.is-invalid, .pf-link-field input.is-invalid:focus { border-color: #ff5a6e; box-shadow: 0 0 0 3px rgba(255, 90, 110, .25), 0 0 12px rgba(255, 90, 110, .45); }
+
+/* confirmation email: resend box */
+.confirm-box { display: grid; gap: 10px; margin-top: 4px; }
+.confirm-box p { margin: 0; }
+.confirm-title { font-weight: 700; color: #fff; }
+.confirm-ok { color: var(--neon-green, #a8ff3e); font-weight: 600; }
+[data-form] .confirm-box { padding: 14px; border-radius: 14px; border: 1.5px solid rgba(255, 201, 74, .55); background: rgba(255, 201, 74, .06); }

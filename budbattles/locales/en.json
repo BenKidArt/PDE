@@ -482,5 +482,15 @@
   "setups.name": "Name",
   "setups.namePh": "e.g. Tent 1",
   "setups.more": "+{n} setup(s)",
-  "setups.matchFor": "Match for which setup?"
+  "setups.matchFor": "Match for which setup?",
+  "confirm.notYetTitle": "Please confirm your email first",
+  "confirm.notYetText": "We sent you a confirmation link when you signed up. Didn't get it? We're happy to send it again.",
+  "confirm.noMail": "No email? Check your spam folder too – or have it sent again.",
+  "confirm.resend": "Resend confirmation email",
+  "confirm.resendAgain": "Send again",
+  "confirm.sent": "Sent! Check your inbox and spam folder.",
+  "confirm.eyebrow": "Confirm email",
+  "confirm.expiredTitle": "This link has expired",
+  "confirm.expiredText": "Confirmation links only work for a while and only once. Enter your email address and we'll send you a new link.",
+  "confirm.toLogin": "Already confirmed? Go to login →"
 }

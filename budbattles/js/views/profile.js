@@ -1,7 +1,7 @@
 // PROFILE: login / sign-up when logged out, your big profile page when logged in.
 import { t } from '../i18n.js';
 import {
-  getCurrentUser, signIn, signUp, requestPasswordReset, updatePassword, isDemo, checkProfileName,
+  getCurrentUser, signIn, signUp, requestPasswordReset, updatePassword, isDemo, checkProfileName, resendConfirmation,
 } from '../store.js';
 import { esc } from '../ui.js';
 import { mountTurnstile, turnstileEnabled } from '../turnstile.js';
@@ -141,7 +141,9 @@ function renderAuth(root, mode) {
         showWelcome('signup'); // "Willkommen bei BudBattles!"
         if (needsConfirmation) {
           root.innerHTML = `<section class="hero hero-small"><h1 class="neon-title">${esc(t('auth.checkEmailTitle'))}</h1></section>
-            <section class="card card-success"><p>${esc(t('auth.checkEmailText', { email }))}</p></section>`;
+            <section class="card card-success"><p>${esc(t('auth.checkEmailText', { email }))}</p>
+              <div data-confirm-box>${resendHtml('', t('confirm.noMail'), email)}</div></section>`;
+          bindResend(root.querySelector('[data-confirm-box]'));
           return;
         }
       } else {
@@ -153,11 +155,78 @@ function renderAuth(root, mode) {
     } catch (e) {
       cancelWelcome();
       botCheck.reset(); // a Turnstile token works only once
+      if (e.code === 'error.emailNotConfirmed') {
+        errorEl.hidden = true;
+        const box = form.querySelector('[data-confirm-box]') || form.querySelector('[data-error]').insertAdjacentElement('afterend', document.createElement('div'));
+        box.setAttribute('data-confirm-box', '');
+        box.innerHTML = resendHtml(t('confirm.notYetTitle'), t('confirm.notYetText'), email);
+        bindResend(box, () => botCheck);
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
       showError(e.code || 'error.generic');
     } finally {
       submit.disabled = false;
     }
   });
+}
+
+// ---------- Confirmation email: resend ----------
+
+/** Box with the resend button (+ email field when we don't know the address yet). */
+function resendHtml(title, text, email = '') {
+  return `<div class="confirm-box">
+    ${title ? `<p class="confirm-title">✉️ ${esc(title)}</p>` : ''}
+    ${text ? `<p class="muted small">${esc(text)}</p>` : ''}
+    ${email ? `<input type="hidden" name="resendEmail" value="${esc(email)}">`
+      : `<div class="field"><label class="label" for="rs-email">${esc(t('auth.email'))}</label>
+         <input id="rs-email" name="resendEmail" type="email" autocomplete="email" inputmode="email" required></div>`}
+    ${turnstileEnabled() ? '<div class="turnstile-slot" data-rs-ts></div>' : ''}
+    <button type="button" class="btn btn-ghost btn-block" data-resend>${esc(t('confirm.resend'))}</button>
+    <p class="confirm-ok" role="status" data-resend-ok hidden>✓ ${esc(t('confirm.sent'))}</p>
+    <p class="error" role="alert" data-resend-error hidden></p>
+  </div>`;
+}
+
+/** Wires the resend button; uses the page's bot check if there is one, else its own. */
+function bindResend(box, getBotCheck) {
+  let own = { getToken: () => null, reset() {} };
+  const slot = box.querySelector('[data-rs-ts]');
+  if (!getBotCheck && slot) mountTurnstile(slot, 'resend').then((w) => { own = w; });
+  const btn = box.querySelector('[data-resend]');
+  const ok = box.querySelector('[data-resend-ok]');
+  const err = box.querySelector('[data-resend-error]');
+  btn.addEventListener('click', async () => {
+    const email = box.querySelector('[name=resendEmail]').value.trim();
+    ok.hidden = true; err.hidden = true;
+    if (!validEmail(email)) { err.textContent = t('error.emailInvalid'); err.hidden = false; return; }
+    const bc = getBotCheck ? getBotCheck() : own;
+    const token = bc.getToken();
+    if (turnstileEnabled() && !token) { err.textContent = t('error.botCheckWait'); err.hidden = false; return; }
+    btn.disabled = true;
+    try {
+      await resendConfirmation(email, token);
+      ok.hidden = false;
+      btn.textContent = t('confirm.resendAgain');
+      setTimeout(() => { btn.disabled = false; }, 30000); // avoid hammering the mail limit
+    } catch (e) {
+      err.textContent = t(e.code || 'error.generic'); err.hidden = false; btn.disabled = false;
+    } finally {
+      bc.reset(); // a bot-check token works only once
+    }
+  });
+}
+
+/** An old or already used confirmation link was opened. */
+export async function renderLinkExpired(root) {
+  root.innerHTML = `
+    <section class="hero hero-small">
+      <p class="eyebrow">${esc(t('confirm.eyebrow'))}</p>
+      <h1 class="neon-title">${esc(t('confirm.expiredTitle'))}</h1>
+    </section>
+    <section class="card" data-confirm-box>${resendHtml('', t('confirm.expiredText'))}
+      <p class="small"><a class="link" href="#/profile">${esc(t('confirm.toLogin'))}</a></p></section>`;
+  bindResend(root.querySelector('[data-confirm-box]'));
 }
 
 /** Screen shown after clicking the "reset password" link in the email. */

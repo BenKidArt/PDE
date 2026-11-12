@@ -38,6 +38,7 @@ export const {
   signIn, // ({ email, password })
   signOut,
   requestPasswordReset, // (email)
+  resendConfirmation, // (email, captchaToken) – sign-up confirmation email again
   updatePassword, // (newPassword)
   countEntries, // (battleId)
   getEntryByUser, // (battleId, userId) → entry or null

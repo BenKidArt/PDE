@@ -482,5 +482,15 @@
   "setups.name": "Name",
   "setups.namePh": "z. B. Zelt 1",
   "setups.more": "+{n} Setup(s)",
-  "setups.matchFor": "Passend für welches Setup?"
+  "setups.matchFor": "Passend für welches Setup?",
+  "confirm.notYetTitle": "Bitte bestätige zuerst deine E-Mail",
+  "confirm.notYetText": "Wir haben dir bei der Anmeldung einen Bestätigungslink geschickt. Nichts bekommen? Wir schicken ihn gern nochmal.",
+  "confirm.noMail": "Keine E-Mail bekommen? Schau auch im Spam-Ordner nach – oder lass sie dir nochmal schicken.",
+  "confirm.resend": "Bestätigungs-E-Mail erneut senden",
+  "confirm.resendAgain": "Nochmal senden",
+  "confirm.sent": "Gesendet! Schau in dein Postfach und in den Spam-Ordner.",
+  "confirm.eyebrow": "E-Mail bestätigen",
+  "confirm.expiredTitle": "Dieser Link ist abgelaufen",
+  "confirm.expiredText": "Bestätigungslinks gelten nur eine Zeit lang und nur einmal. Gib deine E-Mail-Adresse ein, dann schicken wir dir einen neuen Link.",
+  "confirm.toLogin": "Schon bestätigt? Zum Login →"
 }
