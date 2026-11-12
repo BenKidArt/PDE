@@ -133,10 +133,10 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         <section class="pf-card pf-match-tile">
           <h2>🧬 ${esc(t('profile.strainMatch'))}</h2>
           <p class="muted small">${esc(t('profile.strainMatchText'))}</p>
-          <a class="btn btn-primary" href="#/strainmatch">${esc(t('match.open'))} →</a>
+          <a class="btn btn-primary" href="#/strainmatch">${esc(t('match.open'))}</a>
         </section>
         <section class="pf-card" data-edit-slot>
-          <button type="button" class="btn btn-primary btn-block" data-edit>✎ ${esc(t('profile.edit'))}</button>
+          <button type="button" class="btn btn-primary btn-block" data-edit>${esc(t('profile.edit'))}</button>
         </section>
         <section class="pf-card">
           <h2>${esc(t('profile.account'))}</h2>

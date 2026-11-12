@@ -41,7 +41,7 @@ export async function renderStrainMatch(root) {
   const signals = profileSignals(user);
   if (!signals.enough) {
     root.innerHTML = `${head}${picker}<section class="card match-empty"><p>${esc(t('match.tooEmpty'))}</p>
-      <a class="btn btn-primary" href="#/profile" data-go-edit>✎ ${esc(t('profile.edit'))}</a></section>${note}`;
+      <a class="btn btn-primary" href="#/profile" data-go-edit>${esc(t('profile.edit'))}</a></section>${note}`;
     root.querySelector('[data-go-edit]').addEventListener('click', goEdit);
     bindPicker();
     return;

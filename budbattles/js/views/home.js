@@ -43,8 +43,8 @@ export async function renderHome(root) {
       <p>${esc(tc(battle.summary))}</p>
       ${countdownHtml(battle, status)}
       <div class="actions">
-        ${status === 'open' ? `<a class="btn btn-primary" href="#/enter/${enc(battle.id)}">${esc(t('battle.ctaEnter'))}</a>` : ''}
-        ${status === 'voting' ? `<a class="btn btn-primary" href="#/standings/${enc(battle.id)}">${esc(t('battle.ctaVote'))}</a>` : ''}
+        ${status === 'open' ? `<a class="btn btn-primary btn-go" href="#/enter/${enc(battle.id)}">${esc(t('battle.ctaEnter'))}</a>` : ''}
+        ${status === 'voting' ? `<a class="btn btn-primary btn-go" href="#/standings/${enc(battle.id)}">${esc(t('battle.ctaVote'))}</a>` : ''}
         <a class="btn btn-ghost" href="#/battle/${enc(battle.id)}">${esc(t('home.details'))}</a>
       </div>
     </section>` : `<section class="card"><p>${esc(t('battle.none'))}</p></section>`}

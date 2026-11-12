@@ -78,7 +78,7 @@ export async function renderEnter(root, { id } = {}) {
       </label>
 
       <p class="error" role="alert" data-error hidden></p>
-      <button class="btn btn-primary btn-block" type="submit" data-submit>${esc(t('enter.submit'))}</button>
+      <button class="btn btn-primary btn-go btn-block" type="submit" data-submit>${esc(t('enter.submit'))}</button>
     </form>`;
 
   const form = root.querySelector('[data-form]');

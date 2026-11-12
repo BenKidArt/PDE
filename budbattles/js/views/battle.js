@@ -31,8 +31,8 @@ export async function renderBattle(root, { id } = {}) {
       </div>
       ${countdownHtml(battle, status)}
       <div class="actions">
-        ${status === 'open' ? `<a class="btn btn-primary" href="#/enter/${encodeURIComponent(battle.id)}">${esc(t('battle.ctaEnter'))}</a>` : ''}
-        <a class="btn ${status === 'voting' ? 'btn-primary' : 'btn-ghost'}" href="#/standings/${encodeURIComponent(battle.id)}">
+        ${status === 'open' ? `<a class="btn btn-primary btn-go" href="#/enter/${encodeURIComponent(battle.id)}">${esc(t('battle.ctaEnter'))}</a>` : ''}
+        <a class="btn ${status === 'voting' ? 'btn-primary btn-go' : 'btn-ghost'}" href="#/standings/${encodeURIComponent(battle.id)}">
           ${esc(t(status === 'voting' ? 'battle.ctaVote' : 'battle.ctaStandings'))}</a>
       </div>
     </section>

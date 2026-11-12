@@ -1146,3 +1146,109 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 .pf-main-tag { margin-left: auto; padding: 2px 9px; border-radius: 999px; font-size: .7rem; font-weight: 700; background: var(--mint); color: var(--mint-ink, #0b1a10); }
 .pf-setup-meta { margin: 0; font-size: .85rem; color: var(--muted); }
 .match-picker { display: grid; gap: 6px; margin: 0 0 14px; }
+
+/* =====================================================================
+   NEON SHADOW STYLE (reference "button_reference_neon") – the look of
+   every button, card, small label and chip. One place, used everywhere.
+   Entry cards, popups, profile header bars and the pink countdown keep
+   their own look.
+   ===================================================================== */
+:root {
+  --neon-pink: #ff3d9a; --neon-pink-2: #e0218a; --neon-pink-line: #ff8cc6; --neon-pink-rgb: 255, 61, 154;
+  --neon-green: #a8ff3e; --neon-green-2: #6fe22f; --neon-green-line: #d4ff9a; --neon-green-rgb: 150, 255, 60;
+  --mint: #a8ff3e; --mint-ink: #0b1a07; --mint-line: rgba(150, 255, 60, .45);
+}
+body { background: radial-gradient(90% 50% at 50% 0%, rgba(60, 140, 70, .16), transparent 70%), var(--bg); background-attachment: fixed; }
+
+/* MAIN BUTTONS: rounded rectangle, uppercase, arrow on the right */
+.btn {
+  min-height: 52px; padding: 0 22px; border-radius: 12px; gap: 10px;
+  font: 700 14px/1.2 var(--font); text-transform: uppercase; letter-spacing: .08em; text-shadow: none;
+  transition: filter .15s, box-shadow .15s, transform .15s, background-color .15s;
+}
+.btn:active { transform: scale(.98); }
+.btn-small { min-height: 44px; padding: 0 16px; font-size: 12.5px; }
+/* pink = default main action */
+.btn-primary {
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-pink-2)); color: #fff; border: 1px solid var(--neon-pink-line);
+  box-shadow: 0 0 18px rgba(var(--neon-pink-rgb), .65), 0 0 40px rgba(var(--neon-pink-rgb), .25);
+}
+/* green = the most important action on a screen (enter, vote) */
+.btn-go, .btn-vote {
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-green-2)); color: #0b1a07; border: 1px solid var(--neon-green-line);
+  box-shadow: 0 0 18px rgba(var(--neon-green-rgb), .65), 0 0 40px rgba(var(--neon-green-rgb), .25);
+}
+.btn-primary::after, .btn-go::after, .btn-vote::after {
+  content: "→"; display: inline; position: static; inset: auto; width: auto; height: auto; background: none; filter: none;
+  opacity: 1; box-shadow: none; animation: none; border-radius: 0; font-weight: 700; letter-spacing: 0; transform: none;
+}
+.btn-primary:active, .btn-go:active, .btn-vote:active { filter: brightness(1.1); }
+.btn-primary:active { box-shadow: 0 0 24px rgba(var(--neon-pink-rgb), .85), 0 0 52px rgba(var(--neon-pink-rgb), .4); }
+.btn-go:active, .btn-vote:active { box-shadow: 0 0 24px rgba(var(--neon-green-rgb), .85), 0 0 52px rgba(var(--neon-green-rgb), .4); }
+@media (hover: hover) {
+  .btn-primary:hover, .btn-go:hover, .btn-vote:hover { filter: brightness(1.1); }
+  .btn-primary:hover { background: linear-gradient(90deg, var(--neon-pink), var(--neon-pink-2)); border-color: var(--neon-pink-line); }
+  .btn-go:hover, .btn-vote:hover:not(.is-armed) { background: linear-gradient(90deg, var(--neon-green), var(--neon-green-2)); border-color: var(--neon-green-line); }
+}
+/* vote button "tap again to confirm": white-hot */
+.btn-vote.is-armed { background: linear-gradient(90deg, #ffffff, #d8ffb0); color: #0b1a07; border-color: #fff; box-shadow: 0 0 24px rgba(var(--neon-green-rgb), .9), 0 0 52px rgba(var(--neon-green-rgb), .45); }
+/* SECONDARY: transparent with a neon border (pink default) */
+.btn-ghost {
+  background: transparent; color: #ffd1e8; border: 1.5px solid var(--neon-pink);
+  box-shadow: 0 0 12px rgba(var(--neon-pink-rgb), .55), inset 0 0 10px rgba(var(--neon-pink-rgb), .12);
+}
+.btn-ghost:active { box-shadow: 0 0 18px rgba(var(--neon-pink-rgb), .8); filter: brightness(1.1); }
+@media (hover: hover) { .btn-ghost:hover { border-color: var(--neon-pink-line); background: rgba(var(--neon-pink-rgb), .06); } }
+.btn-reject, .btn-danger { background: transparent; color: #ff9aa8; border: 1.5px solid #ff5a6e; box-shadow: 0 0 12px rgba(255, 90, 110, .5); }
+.btn-gold { background: linear-gradient(90deg, #ffd66b, #e7b83a); color: #1d1606; border: 1px solid #ffe7a6; box-shadow: 0 0 18px rgba(255, 205, 80, .6), 0 0 40px rgba(255, 205, 80, .22); }
+.btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* CARDS: dark glass, neon border; the featured card of a page is green, the others pink */
+.card, .step, .pf-card, .match-card, .install-banner, .modal, .pf-stat, .notice, .name-modal {
+  background: rgba(10, 20, 14, .7); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(var(--neon-pink-rgb), .6); border-radius: 18px;
+  box-shadow: 0 0 22px rgba(var(--neon-pink-rgb), .35), inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+.battle-card, .card-pink, .pf-setup, .match-card:first-child, .card-featured {
+  border-color: rgba(var(--neon-green-rgb), .6);
+  box-shadow: 0 0 22px rgba(var(--neon-green-rgb), .35), inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+.card h2, .pf-card h2, .card-pink h2 { color: #fff; }
+.pf-setup-item, .setup-card, .space-custom { background: rgba(255, 255, 255, .025); border: 1px solid rgba(var(--neon-green-rgb), .22); }
+.pf-setup-item.is-main, .setup-card:has([name=setup-main]:checked) { border-color: rgba(var(--neon-green-rgb), .55); }
+
+/* SMALL LABELS above titles: tiny neon-outlined pill */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 6px; width: fit-content; padding: 3px 10px; border-radius: 999px;
+  font-size: .66rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: #ffd1e8; border: 1px solid rgba(var(--neon-pink-rgb), .8); background: rgba(var(--neon-pink-rgb), .1);
+  box-shadow: 0 0 10px rgba(var(--neon-pink-rgb), .35);
+}
+.battle-card .eyebrow, .card-featured .eyebrow { color: #e4ffc4; border-color: rgba(var(--neon-green-rgb), .85); background: rgba(var(--neon-green-rgb), .1); box-shadow: 0 0 10px rgba(var(--neon-green-rgb), .35); }
+
+/* CHIPS: dark glass + thin green neon border; selected = green gradient, dark text, glow */
+.bb-chip {
+  background: rgba(10, 20, 14, .7); color: #e4ffc4; border: 1px solid rgba(var(--neon-green-rgb), .55);
+  box-shadow: 0 0 8px rgba(var(--neon-green-rgb), .18);
+}
+.bb-chip[aria-pressed="true"], .bb-chip:has(input:checked) {
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-green-2)); color: #0b1a07; border-color: var(--neon-green-line);
+  box-shadow: 0 0 14px rgba(var(--neon-green-rgb), .65), 0 0 28px rgba(var(--neon-green-rgb), .22); text-shadow: none;
+}
+@media (hover: hover) {
+  button.bb-chip:hover:not([aria-pressed="true"]), label.bb-chip:hover:not(:has(input:checked)), a.bb-chip:hover { border-color: rgba(var(--neon-green-rgb), .9); box-shadow: 0 0 12px rgba(var(--neon-green-rgb), .35); }
+}
+/* segmented tabs + DE/EN switch: selected side like a selected chip */
+.tabs button[aria-selected="true"], .lang button[aria-pressed="true"] {
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-green-2)); color: #0b1a07;
+  box-shadow: 0 0 12px rgba(var(--neon-green-rgb), .55);
+}
+.tabs, .lang { border-color: rgba(var(--neon-green-rgb), .35); }
+.match-pct { border-color: rgba(var(--neon-green-rgb), .55); }
+.match-pct b, .match-rank, .bottomnav a.active, .link, .link-button, .check a { color: var(--neon-green); }
+.step-num { background: rgba(var(--neon-green-rgb), .12); color: var(--neon-green); border: 1px solid rgba(var(--neon-green-rgb), .5); }
+.pf-main-tag { background: linear-gradient(90deg, var(--neon-green), var(--neon-green-2)); color: #0b1a07; }
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus, .space-row input:focus {
+  border-color: var(--neon-green); box-shadow: 0 0 0 3px rgba(var(--neon-green-rgb), .18);
+}
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:active { transform: none; } }
