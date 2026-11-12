@@ -127,15 +127,19 @@ export async function getCurrentUser() {
     sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent, space_w, space_d, space_h_min, space_h_max, growdiaries, youtube, tiktok, threads, setups').eq('id', session.user.id).maybeSingle(),
     sb.from('user_badges').select('badge_id').eq('user_id', session.user.id),
   ]);
+  let dbLevel = 14; // which database update has run (decides what can be saved)
   if (error) {
+    dbLevel = 13;
     // Safety net: database update 014 not run yet → load without the setups list.
     ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent, space_w, space_d, space_h_min, space_h_max, growdiaries, youtube, tiktok, threads').eq('id', session.user.id).maybeSingle());
   }
   if (error) {
+    dbLevel = 12;
     // Safety net: database update 013 not run yet → load without the profile links.
     ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent, space_w, space_d, space_h_min, space_h_max').eq('id', session.user.id).maybeSingle());
   }
   if (error) {
+    dbLevel = 11;
     // Safety net: database update 012 not run yet → load without the custom space size.
     ({ data, error } = await sb.from('profiles').select('display_name, is_admin, is_tester, username, username_changed_at, instagram, avatar, grow_setup, lights, medium, fav_strain, bio, created_at, experience, grow_style, seed_type, training, space_size, grow_stage, flavours, breeder, accent').eq('id', session.user.id).maybeSingle());
   }
@@ -171,6 +175,7 @@ export async function getCurrentUser() {
     bio: data?.bio ?? null,
     memberSince: data?.created_at ?? null,
     ...profileOptions(data),
+    dbLevel,
   };
   sb.rpc('register_device', { p_device: getDeviceId() }).then(() => {}, () => {}); // for the anti-cheat limits
   return profileCache;
@@ -502,6 +507,12 @@ function profileOptions(r) {
 export async function updateProfileDetails(changes) {
   const cur = await getCurrentUser();
   const d = { ...cur, ...changes };
+  // never pretend to save what the database can't store yet: tell the admin which update is missing
+  const lvl = cur?.dbLevel ?? 14;
+  if (lvl < 14 && (d.setups || []).length > 1) throw new StoreError('error.dbUpdateSetups');
+  if (lvl < 13 && ['growdiaries', 'youtube', 'tiktok', 'threads'].some((k) => changes[k])) throw new StoreError('error.dbUpdateLinks');
+  if (lvl < 12 && (d.growSetup === 'growbox' || d.spaceSize === 'custom' || (Array.isArray(d.growStyle) && d.growStyle.length > 1)
+    || (d.setups || []).some((s) => s.type === 'growbox' || s.spaceSize === 'custom'))) throw new StoreError('error.dbUpdateBasics');
   const styles = Array.isArray(d.growStyle) ? d.growStyle : d.growStyle ? [d.growStyle] : [];
   const custom = d.spaceSize === 'custom';
   const payload = {

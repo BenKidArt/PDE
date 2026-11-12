@@ -492,5 +492,8 @@
   "confirm.eyebrow": "E-Mail bestätigen",
   "confirm.expiredTitle": "Dieser Link ist abgelaufen",
   "confirm.expiredText": "Bestätigungslinks gelten nur eine Zeit lang und nur einmal. Gib deine E-Mail-Adresse ein, dann schicken wir dir einen neuen Link.",
-  "confirm.toLogin": "Schon bestätigt? Zum Login →"
+  "confirm.toLogin": "Schon bestätigt? Zum Login →",
+  "error.dbUpdateSetups": "Mehrere Setups können noch nicht gespeichert werden: Das Datenbank-Update 014 fehlt in Supabase. Bitte das SQL-Update ausführen und dann nochmal speichern.",
+  "error.dbUpdateLinks": "Links können noch nicht gespeichert werden: Das Datenbank-Update 013 fehlt in Supabase. Bitte das SQL-Update ausführen und dann nochmal speichern.",
+  "error.dbUpdateBasics": "Growbox, eigene Größe und mehrere Grow-Stile können noch nicht gespeichert werden: Das Datenbank-Update 012 fehlt in Supabase. Bitte das SQL-Update ausführen und dann nochmal speichern."
 }
