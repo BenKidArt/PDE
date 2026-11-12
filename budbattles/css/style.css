@@ -1261,3 +1261,23 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 .confirm-title { font-weight: 700; color: #fff; }
 .confirm-ok { color: var(--neon-green, #a8ff3e); font-weight: 600; }
 [data-form] .confirm-box { padding: 14px; border-radius: 14px; border: 1.5px solid rgba(255, 201, 74, .55); background: rgba(255, 201, 74, .06); }
+
+/* ONE outline style for every pink button: the main pink buttons ("Strain Match öffnen",
+   "Profil bearbeiten", "Fotos prüfen" …) now look exactly like the secondary ones
+   ("Details & Regeln", "Abmelden"). Only the single most important action on a
+   screen (.btn-go / .btn-vote) stays green and filled. */
+.btn-primary:not(.btn-go), .btn-ghost {
+  background: rgba(10, 20, 14, .35); color: #ff8cc6; border: 2px solid var(--neon-pink);
+  box-shadow: 0 0 12px rgba(var(--neon-pink-rgb), .5), inset 0 0 10px rgba(var(--neon-pink-rgb), .12);
+  text-shadow: 0 0 8px rgba(var(--neon-pink-rgb), .45); filter: none;
+}
+.btn-primary:not(.btn-go)::after { content: none; }
+.btn-primary:not(.btn-go):active, .btn-ghost:active {
+  filter: brightness(1.15); box-shadow: 0 0 18px rgba(var(--neon-pink-rgb), .75), inset 0 0 12px rgba(var(--neon-pink-rgb), .2);
+}
+@media (hover: hover) {
+  .btn-primary:not(.btn-go):hover, .btn-ghost:hover {
+    background: rgba(var(--neon-pink-rgb), .08); border-color: var(--neon-pink-line);
+    box-shadow: 0 0 16px rgba(var(--neon-pink-rgb), .65), inset 0 0 12px rgba(var(--neon-pink-rgb), .16); filter: none;
+  }
+}
