@@ -495,5 +495,6 @@
   "confirm.toLogin": "Already confirmed? Go to login →",
   "error.dbUpdateSetups": "Several setups can't be saved yet: database update 014 is missing in Supabase. Please run the SQL update, then save again.",
   "error.dbUpdateLinks": "Links can't be saved yet: database update 013 is missing in Supabase. Please run the SQL update, then save again.",
-  "error.dbUpdateBasics": "Grow box, custom size and several grow styles can't be saved yet: database update 012 is missing in Supabase. Please run the SQL update, then save again."
+  "error.dbUpdateBasics": "Grow box, custom size and several grow styles can't be saved yet: database update 012 is missing in Supabase. Please run the SQL update, then save again.",
+  "profile.sinceShort": "Since {date}"
 }

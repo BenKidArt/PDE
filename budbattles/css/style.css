@@ -1298,3 +1298,10 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
     0 0 10px var(--pf-glow), 0 0 26px var(--pf-glow), 0 6px 22px -4px var(--pf-glow),
     inset 0 3px 5px rgba(0, 0, 0, .9), inset 0 -2px 6px var(--pf-glow);
 }
+
+/* "Mitglied seit …" and the setup chip always share ONE line */
+.pf-since-row { display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 8px; max-width: 100%; min-width: 0; }
+.pf-since-row .pf-since { white-space: nowrap; }
+.pf-since-row .bb-chip { flex: none; }
+.pf-since.is-small { font-size: .74rem; }
+.pf-head .pf-tags { width: 100%; min-width: 0; max-width: 100%; }

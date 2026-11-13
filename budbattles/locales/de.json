@@ -495,5 +495,6 @@
   "confirm.toLogin": "Schon bestätigt? Zum Login →",
   "error.dbUpdateSetups": "Mehrere Setups können noch nicht gespeichert werden: Das Datenbank-Update 014 fehlt in Supabase. Bitte das SQL-Update ausführen und dann nochmal speichern.",
   "error.dbUpdateLinks": "Links können noch nicht gespeichert werden: Das Datenbank-Update 013 fehlt in Supabase. Bitte das SQL-Update ausführen und dann nochmal speichern.",
-  "error.dbUpdateBasics": "Growbox, eigene Größe und mehrere Grow-Stile können noch nicht gespeichert werden: Das Datenbank-Update 012 fehlt in Supabase. Bitte das SQL-Update ausführen und dann nochmal speichern."
+  "error.dbUpdateBasics": "Growbox, eigene Größe und mehrere Grow-Stile können noch nicht gespeichert werden: Das Datenbank-Update 012 fehlt in Supabase. Bitte das SQL-Update ausführen und dann nochmal speichern.",
+  "profile.sinceShort": "Seit {date}"
 }

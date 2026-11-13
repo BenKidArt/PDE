@@ -58,7 +58,10 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   const main = mainSetup(setupList);
   const setup = SETUPS.find((s) => s.id === main?.type);
   const badges = p.badges.map((id) => catalog.find((b) => b.id === id)).filter(Boolean).sort((a, b) => a.sort - b.sort);
-  const since = p.memberSince ? new Intl.DateTimeFormat(getLang() === 'de' ? 'de-DE' : 'en-GB', { month: 'long', year: 'numeric' }).format(new Date(p.memberSince)) : null;
+  const loc = getLang() === 'de' ? 'de-DE' : 'en-GB';
+  const since = p.memberSince ? new Intl.DateTimeFormat(loc, { month: 'long', year: 'numeric' }).format(new Date(p.memberSince)) : null;
+  // short form for narrow screens: "Seit Nov 2026" / "Since Nov 2026"
+  const sinceShort = p.memberSince ? new Intl.DateTimeFormat(loc, { month: 'short', year: 'numeric' }).format(new Date(p.memberSince)).replace('.', '') : null;
   const best = p.stats.best_place ? `#${p.stats.best_place}` : '–';
 
   // filled options as chips (empty ones are hidden)
@@ -78,9 +81,11 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         ${p.growStage ? `<span class="pf-stage">${chipHtml(optLabel('growStage', p.growStage), '●')}</span>` : ''}
         ${linksHtml(p)}
         <div class="pf-tags">
-          ${since ? `<span class="pf-since">${esc(t('profile.memberSince', { date: since }))}</span>` : ''}
+          ${since || setup ? `<span class="pf-since-row" data-since-row>
+            ${since ? `<span class="pf-since" data-long="${esc(t('profile.memberSince', { date: since }))}" data-short="${esc(t('profile.sinceShort', { date: sinceShort }))}">${esc(t('profile.memberSince', { date: since }))}</span>` : ''}
+            ${setup ? chipHtml(t(`setupShort.${setup.id}`), setup.icon) : ''}
+          </span>` : ''}
           ${p.badges.includes('badge_heart') ? chipHtml(t('profile.founder'), '♥') : ''}
-          ${setup ? chipHtml(t(`setupShort.${setup.id}`), setup.icon) : ''}
           ${setupList.length > 1 ? chipHtml(t('setups.more', { n: setupList.length - 1 })) : ''}
         </div>
       </section>
@@ -152,6 +157,8 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         </section>` : ''}
     </div>`;
 
+  fitSinceRow(root);
+  document.fonts?.ready.then(() => fitSinceRow(root));
   if (!isMe) return;
   root.querySelector('[data-logout]').addEventListener('click', async () => {
     await signOut();
@@ -167,6 +174,20 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
 /** Page class: theme colours from the setup (the glow colour only changes the picture ring). */
 function pfClass(setupId) {
   return `pf pf-theme-${setupId || 'none'}`;
+}
+
+/** "Mitglied seit …" + setup chip always on one line: smaller text first, then the short form. */
+function fitSinceRow(root) {
+  const row = root.querySelector('[data-since-row]');
+  const since = row?.querySelector('.pf-since');
+  if (!row || !since) return;
+  const fits = () => row.scrollWidth <= row.clientWidth + 1;
+  since.textContent = since.dataset.long;
+  since.classList.remove('is-small');
+  if (fits()) return;
+  since.classList.add('is-small');
+  if (fits()) return;
+  since.textContent = since.dataset.short;
 }
 
 /** Strain Match sends people here to fill in their setup; after saving they go back. */
