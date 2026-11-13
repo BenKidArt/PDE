@@ -40,7 +40,7 @@ export async function renderAdmin(root) {
     <div class="admin-bar">
       <label class="label" for="admin-battle">${esc(t('nav.battle'))}</label>
       <select id="admin-battle" data-battle>
-        ${battles.map((b) => `<option value="${esc(b.id)}" ${b.id === state.battleId ? 'selected' : ''}>${b.isTest ? `${esc(t('battle.testLabel'))} · ` : ''}${esc(tc(b.theme))}</option>`).join('')}
+        ${battles.map((b) => `<option value="${esc(b.id)}" ${b.id === state.battleId ? 'selected' : ''}>${b.isDraft ? `${esc(t('battle.draftLabel'))} · ` : b.isTest ? `${esc(t('battle.testLabel'))} · ` : ''}${esc(tc(b.theme))}</option>`).join('')}
       </select>
       <div class="admin-links" data-links></div>
       <div class="tabs tabs-3" role="tablist" data-tabs></div>
@@ -53,7 +53,8 @@ export async function renderAdmin(root) {
     const id = encodeURIComponent(state.battleId);
     linksEl.innerHTML = [['battle', 'admin.openBattle'], ['enter', 'admin.openEnter'], ['standings', 'admin.openStandings']]
       .map(([page, key]) => `<a class="bb-chip" href="#/${page}/${id}">${esc(t(key))} →</a>`).join('')
-      + `<a class="bb-chip" href="#/votes">⚠ ${esc(t('votecheck.title'))} →</a>`;
+      + `<a class="bb-chip" href="#/votes">⚠ ${esc(t('votecheck.title'))} →</a>`
+      + `<a class="bb-chip" href="#/reports">⚑ ${esc(t('reports.title'))} →</a>`;
   };
   drawLinks();
 

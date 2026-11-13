@@ -185,8 +185,9 @@ export function onAuthEvent(cb) {
   return () => listeners.delete(cb);
 }
 
-export async function signUp({ email, password, displayName, ageConfirmed, termsAccepted }) {
+export async function signUp({ email, password, displayName, birthDate, ageConfirmed, termsAccepted }) {
   if (!ageConfirmed) throw new StoreError('error.ageRequired');
+  if (!birthDate) throw new StoreError('error.birthDateRequired'); // checked in the form; not stored in the demo
   if (!termsAccepted) throw new StoreError('error.termsRequired');
   const accounts = readJson(ACCOUNTS_KEY, {});
   const key = email.trim().toLowerCase();
@@ -525,3 +526,28 @@ export async function getStrains() {
   return demoStrains;
 }
 
+
+// ---------- Reports (this device only) ----------
+const REPORTS_KEY = 'bb.demo.reports';
+
+export async function reportContent({ userId = null, entryId = null, reason, note = '' }) {
+  const me = await getCurrentUser();
+  if (!me) throw new StoreError('report.loginFirst');
+  if (!['underage', 'fake', 'spam'].includes(reason)) throw new StoreError('report.pickReason');
+  if (userId && userId === me.id) throw new StoreError('report.self');
+  const list = readJson(REPORTS_KEY, []);
+  if (list.some((r) => r.reporterId === me.id && r.targetId === userId && r.entryId === entryId && r.reason === reason)) return;
+  list.push({ id: crypto.randomUUID(), reason, note: note || null, status: 'open', createdAt: new Date().toISOString(),
+    reporterId: me.id, reporter: me.displayName, targetId: userId, target: userId || 'Grower', entryId, battleId: null, photoUrl: null });
+  writeJson(REPORTS_KEY, list);
+}
+
+export async function getReports() {
+  const list = readJson(REPORTS_KEY, []);
+  return list.map((r) => ({ ...r, targetOpen: list.filter((x) => x.targetId === r.targetId && x.status === 'open').length }))
+    .sort((a, b) => (b.status === 'open') - (a.status === 'open') || b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function setReportStatus(id, status) {
+  writeJson(REPORTS_KEY, readJson(REPORTS_KEY, []).map((r) => (r.id === id ? { ...r, status } : r)));
+}

@@ -20,10 +20,14 @@ export async function renderBattle(root, { id } = {}) {
   const showPartner = settings.showPartner && battle.partner;
   const rules = tc(battle.rules) || [];
 
-  root.innerHTML = `${testNotice(battle)}
+  const fixedRules = [t('rules.adults'), ...(user ? [t('rules.winnersAge')] : [])]; // prize wording only for members
+  const host = battle.partner?.kind === 'host' ? battle.partner : null;
+
+  root.innerHTML = `<div class="${battle.style === 'pink' ? 'battle-pink' : ''}">${testNotice(battle)}
     <section class="hero">
       <p class="eyebrow">${esc(battleLabel(battle))}</p>
       <h1 class="neon-title">${esc(tc(battle.theme))}</h1>
+      ${tc(battle.subtitle) ? `<p class="hero-subtitle">${esc(tc(battle.subtitle))}</p>` : ''}
       <p class="hero-summary">${esc(tc(battle.summary))}</p>
       <div class="hero-meta">
         <span class="pill pill-${status}">${esc(t(`battle.status.${status}`))}</span>
@@ -58,7 +62,16 @@ export async function renderBattle(root, { id } = {}) {
       ${user ? '' : `<p class="small"><a class="link" href="#/profile">${esc(t('battle.membersMore'))}</a></p>`}
     </section>`}
 
-    ${showPartner ? `
+    ${host ? `
+    <section class="card partner partner-host">
+      <h2>${esc(t('battle.hostedWith'))}</h2>
+      ${host.logo ? `<img class="partner-logo" src="${esc(host.logo)}" alt="${esc(host.name)}" loading="lazy">`
+        : `<div class="logo-placeholder" aria-hidden="true">${esc(t('battle.logoPlaceholder'))}</div>`}
+      <p class="partner-name">${esc(host.name)}</p>
+      ${/^https:\/\//.test(host.url || '') ? `<a class="link" href="${esc(host.url)}" target="_blank" rel="noopener noreferrer">${esc(t('battle.partnerVisit'))} ↗</a>` : ''}
+    </section>` : ''}
+
+    ${showPartner && !host ? `
     <section class="card partner">
       <h2>${esc(t('battle.partner'))}</h2>
       ${battle.partner.logo ? `<img class="partner-logo" src="${esc(battle.partner.logo)}" alt="${esc(battle.partner.name)}" loading="lazy">` : ''}
@@ -66,12 +79,15 @@ export async function renderBattle(root, { id } = {}) {
       ${/^https:\/\//.test(battle.partner.url || '') ? `<a class="link" href="${esc(battle.partner.url)}" target="_blank" rel="noopener noreferrer">${esc(t('battle.partnerVisit'))} ↗</a>` : ''}
     </section>` : ''}
 
-    ${rules.length ? `<section class="card">
+    <section class="card">
       <h2>${esc(t('battle.rules'))}</h2>
-      <ol class="rules">
+      ${rules.length ? `<ol class="rules">
         ${rules.map((r) => `<li>${esc(r)}</li>`).join('')}
-      </ol>
-    </section>` : ''}
+      </ol>` : ''}
+      <ul class="rules-fixed">
+        ${fixedRules.map((r) => `<li>🔞 ${esc(r)}</li>`).join('')}
+      </ul>
+    </section>
 
     <section class="home-section" data-entries hidden>
       <div class="section-head">
@@ -80,7 +96,7 @@ export async function renderBattle(root, { id } = {}) {
       </div>
       <ul class="ncard-grid" data-entry-list></ul>
     </section>
-  `;
+  </div>`;
 
   startCountdowns(root);
 
@@ -99,12 +115,14 @@ export async function renderBattle(root, { id } = {}) {
 }
 
 export function battleLabel(battle) {
+  if (battle.isDraft) return t('battle.draftLabel');
   if (battle.isTest) return t('battle.testLabel');
   return battle.number ? t('battle.numbered', { n: battle.number }) : t('battle.title');
 }
 
 /** Shown on every page of a hidden test battle. */
 export function testNotice(battle) {
+  if (battle?.isDraft) return `<p class="test-notice draft-notice" role="note">📝 ${esc(t('battle.draftNotice'))}</p>`;
   return battle?.isTest ? `<p class="test-notice" role="note">🧪 ${esc(t('battle.testNotice'))}</p>` : '';
 }
 

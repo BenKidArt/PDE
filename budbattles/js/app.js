@@ -19,6 +19,7 @@ import { checkChampion, resetChampionCheck } from './champion.js';
 import { checkProfileName_popup, resetProfileNameCheck } from './profilename.js';
 import { renderVoteCheck } from './views/votecheck.js';
 import { renderStrainMatch } from './views/strainmatch.js';
+import { renderReports } from './views/reports.js';
 import { canInstall, startInstall } from './install.js';
 import { esc } from './ui.js';
 
@@ -38,6 +39,7 @@ const routes = {
   badges: renderBadges,
   u: renderUserProfile, // #/u/<profile name>
   votes: renderVoteCheck, // admin: suspicious votes
+  reports: renderReports, // admin: reported profiles and entries
   strainmatch: renderStrainMatch,
 };
 

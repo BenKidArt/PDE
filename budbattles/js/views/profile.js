@@ -1,7 +1,7 @@
 // PROFILE: login / sign-up when logged out, your big profile page when logged in.
 import { t } from '../i18n.js';
 import {
-  getCurrentUser, signIn, signUp, requestPasswordReset, updatePassword, isDemo, checkProfileName, resendConfirmation,
+  getCurrentUser, signIn, signUp, requestPasswordReset, updatePassword, isDemo, checkProfileName,
 } from '../store.js';
 import { esc } from '../ui.js';
 import { mountTurnstile, turnstileEnabled } from '../turnstile.js';
@@ -48,6 +48,12 @@ function renderAuth(root, mode) {
         ${field('email', 'email', t('auth.email'), 'email')}
         ${field('password', 'password', t('auth.password'), 'new-password', `minlength="${PASSWORD_MIN}"`)}
         <p class="hint">${esc(t('auth.passwordHint', { min: PASSWORD_MIN }))}</p>
+        <div class="field">
+          <label class="label" for="f-birthDate">${esc(t('auth.birthDate'))}</label>
+          <input id="f-birthDate" name="birthDate" type="date" required min="1900-01-01" max="${isoDate(new Date())}" autocomplete="bday">
+        </div>
+        <p class="hint">${esc(t('auth.birthDateHint'))}</p>
+        <p class="adult-rule" role="note">🔞 ${esc(t('auth.adultRule'))}</p>
         <label class="check"><input type="checkbox" name="age"><span>${esc(t('auth.ageConfirm'))}</span></label>
         <label class="check"><input type="checkbox" name="terms"><span>${esc(t('auth.termsAcceptBefore'))}
           <a href="#/terms" target="_blank">${esc(t('auth.termsLink'))}</a>${esc(t('auth.termsAcceptAfter'))}</span></label>
@@ -123,6 +129,9 @@ function renderAuth(root, mode) {
       const nameErrors = { invalid: 'error.nameInvalid', blocked: 'error.nameBlocked', taken: 'error.nameTaken' };
       if (nameErrors[st]) return showError(nameErrors[st]);
       if (password.length < PASSWORD_MIN) return showError('error.passwordShort', { min: PASSWORD_MIN });
+      const age = ageOn(form.birthDate.value);
+      if (age === null) return showError(form.birthDate.value ? 'error.birthDateInvalid' : 'error.birthDateRequired');
+      if (age < 18) return showError('error.underage');
       if (!form.age.checked) return showError('error.ageRequired');
       if (!form.terms.checked) return showError('error.termsRequired');
     } else if (!password) {
@@ -136,16 +145,17 @@ function renderAuth(root, mode) {
     try {
       if (mode === 'signup') {
         const { needsConfirmation } = await signUp({
-          email, password, displayName: form.displayName.value.trim(), ageConfirmed: true, termsAccepted: true, captchaToken,
+          email, password, displayName: form.displayName.value.trim(), birthDate: form.birthDate.value,
+          ageConfirmed: true, termsAccepted: true, captchaToken,
         });
-        showWelcome('signup'); // "Willkommen bei BudBattles!"
-        if (needsConfirmation) {
-          root.innerHTML = `<section class="hero hero-small"><h1 class="neon-title">${esc(t('auth.checkEmailTitle'))}</h1></section>
-            <section class="card card-success"><p>${esc(t('auth.checkEmailText', { email }))}</p>
-              <div data-confirm-box>${resendHtml('', t('confirm.noMail'), email)}</div></section>`;
-          bindResend(root.querySelector('[data-confirm-box]'));
+        if (needsConfirmation) { // only if email confirmation is ever switched on again
+          cancelWelcome();
+          renderAuth(root, 'login');
+          const ok = root.querySelector('[data-ok]');
+          ok.textContent = t('auth.createdLogin'); ok.hidden = false;
           return;
         }
+        showWelcome('signup'); // "Willkommen bei BudBattles!"
       } else {
         await signIn({ email, password, captchaToken });
         const me = await getCurrentUser();
@@ -155,15 +165,6 @@ function renderAuth(root, mode) {
     } catch (e) {
       cancelWelcome();
       botCheck.reset(); // a Turnstile token works only once
-      if (e.code === 'error.emailNotConfirmed') {
-        errorEl.hidden = true;
-        const box = form.querySelector('[data-confirm-box]') || form.querySelector('[data-error]').insertAdjacentElement('afterend', document.createElement('div'));
-        box.setAttribute('data-confirm-box', '');
-        box.innerHTML = resendHtml(t('confirm.notYetTitle'), t('confirm.notYetText'), email);
-        bindResend(box, () => botCheck);
-        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
       showError(e.code || 'error.generic');
     } finally {
       submit.disabled = false;
@@ -171,62 +172,14 @@ function renderAuth(root, mode) {
   });
 }
 
-// ---------- Confirmation email: resend ----------
-
-/** Box with the resend button (+ email field when we don't know the address yet). */
-function resendHtml(title, text, email = '') {
-  return `<div class="confirm-box">
-    ${title ? `<p class="confirm-title">✉️ ${esc(title)}</p>` : ''}
-    ${text ? `<p class="muted small">${esc(text)}</p>` : ''}
-    ${email ? `<input type="hidden" name="resendEmail" value="${esc(email)}">`
-      : `<div class="field"><label class="label" for="rs-email">${esc(t('auth.email'))}</label>
-         <input id="rs-email" name="resendEmail" type="email" autocomplete="email" inputmode="email" required></div>`}
-    ${turnstileEnabled() ? '<div class="turnstile-slot" data-rs-ts></div>' : ''}
-    <button type="button" class="btn btn-ghost btn-block" data-resend>${esc(t('confirm.resend'))}</button>
-    <p class="confirm-ok" role="status" data-resend-ok hidden>✓ ${esc(t('confirm.sent'))}</p>
-    <p class="error" role="alert" data-resend-error hidden></p>
-  </div>`;
-}
-
-/** Wires the resend button; uses the page's bot check if there is one, else its own. */
-function bindResend(box, getBotCheck) {
-  let own = { getToken: () => null, reset() {} };
-  const slot = box.querySelector('[data-rs-ts]');
-  if (!getBotCheck && slot) mountTurnstile(slot, 'resend').then((w) => { own = w; });
-  const btn = box.querySelector('[data-resend]');
-  const ok = box.querySelector('[data-resend-ok]');
-  const err = box.querySelector('[data-resend-error]');
-  btn.addEventListener('click', async () => {
-    const email = box.querySelector('[name=resendEmail]').value.trim();
-    ok.hidden = true; err.hidden = true;
-    if (!validEmail(email)) { err.textContent = t('error.emailInvalid'); err.hidden = false; return; }
-    const bc = getBotCheck ? getBotCheck() : own;
-    const token = bc.getToken();
-    if (turnstileEnabled() && !token) { err.textContent = t('error.botCheckWait'); err.hidden = false; return; }
-    btn.disabled = true;
-    try {
-      await resendConfirmation(email, token);
-      ok.hidden = false;
-      btn.textContent = t('confirm.resendAgain');
-      setTimeout(() => { btn.disabled = false; }, 30000); // avoid hammering the mail limit
-    } catch (e) {
-      err.textContent = t(e.code || 'error.generic'); err.hidden = false; btn.disabled = false;
-    } finally {
-      bc.reset(); // a bot-check token works only once
-    }
-  });
-}
-
-/** An old or already used confirmation link was opened. */
+/** An old sign-up confirmation link was opened. Confirming is no longer needed. */
 export async function renderLinkExpired(root) {
   root.innerHTML = `
     <section class="hero hero-small">
-      <p class="eyebrow">${esc(t('confirm.eyebrow'))}</p>
       <h1 class="neon-title">${esc(t('confirm.expiredTitle'))}</h1>
     </section>
-    <section class="card" data-confirm-box>${resendHtml('', t('confirm.expiredText'))}
-      <p class="small"><a class="link" href="#/profile">${esc(t('confirm.toLogin'))}</a></p></section>`;
-  bindResend(root.querySelector('[data-confirm-box]'));
+    <section class="card"><p>${esc(t('confirm.expiredText'))}</p>
+      <a class="btn btn-ghost btn-block" href="#/profile">${esc(t('confirm.toLogin'))}</a></section>`;
 }
 
 /** Screen shown after clicking the "reset password" link in the email. */
@@ -264,6 +217,22 @@ function field(name, type, label, autocomplete, extra = '') {
     <label class="label" for="f-${name}">${esc(label)}</label>
     <input id="f-${name}" name="${name}" type="${type}" autocomplete="${autocomplete}" required ${extra}>
   </div>`;
+}
+
+/** Full years of age today for a YYYY-MM-DD date, or null if it is not a real date. */
+export function ageOn(iso, today = new Date()) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  if (!m) return null;
+  const [y, mo, d] = [+m[1], +m[2], +m[3]];
+  const dt = new Date(Date.UTC(y, mo - 1, d));
+  if (dt.getUTCFullYear() !== y || dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d || y < 1900) return null;
+  let age = today.getFullYear() - y;
+  if (today.getMonth() + 1 < mo || (today.getMonth() + 1 === mo && today.getDate() < d)) age -= 1;
+  return age < 0 ? null : age;
+}
+
+function isoDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 function validEmail(email) {

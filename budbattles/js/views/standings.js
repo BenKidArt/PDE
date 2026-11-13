@@ -6,6 +6,7 @@ import {
 import { esc, badgeIcons } from '../ui.js';
 import { battleLabel, testNotice } from './battle.js';
 import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
+import { reportButtonHtml, bindReportButtons } from '../report.js';
 import { mountTurnstile, turnstileEnabled } from '../turnstile.js';
 
 const REFRESH_MS = 15000; // "live": refresh every 15 seconds while the page is open
@@ -89,9 +90,11 @@ export async function renderStandings(root, { id } = {}) {
           ${e.id === myVote ? `<span class="your-vote">✓ ${esc(t('vote.yourVote'))}</span>` : ''}
         </div>
         <div data-ts></div>
-        <p class="error small" data-error hidden></p>`;
+        <p class="error small" data-error hidden></p>
+        ${user && !e.isMine ? `<div class="ncard-report">${reportButtonHtml({ entryId: e.id })}</div>` : ''}`;
       return neonCardHtml(e, { eyebrow, pill: pillFor(e, entries, status), top, below });
     }).join('');
+    bindReportButtons(listEl);
 
     listEl.querySelectorAll('[data-vote]').forEach((btn) => btn.addEventListener('click', async () => {
       const cardEl = btn.closest('[data-entry]');

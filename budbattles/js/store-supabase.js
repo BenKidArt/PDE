@@ -70,6 +70,9 @@ function fail(error) {
   if (code === 'weak_password' || msg.includes('password should')) throw new StoreError('error.passwordWeak');
   if (code.startsWith('over_') || error?.status === 429) throw new StoreError('error.rateLimit');
   if (msg.includes('age_confirmation_required')) throw new StoreError('error.ageRequired');
+  if (msg.includes('underage')) throw new StoreError('error.underage');
+  if (msg.includes('birth_date_invalid')) throw new StoreError('error.birthDateInvalid');
+  if (msg.includes('database error saving new user')) throw new StoreError('error.signupBlocked');
   if (msg.includes('terms_acceptance_required')) throw new StoreError('error.termsRequired');
   throw new StoreError('error.generic');
 }
@@ -83,9 +86,12 @@ function toBattle(r) {
     id: r.id,
     number: r.number,
     isTest: !!r.is_test, // hidden test battle: the database only shows it to admins
+    isDraft: !!r.is_draft, // hidden draft battle: the database only shows it to admins
+    style: r.style || '', // '' = green, 'pink'
+    subtitle: { de: r.subtitle_de || '', en: r.subtitle_en || '' },
     theme: { de: r.theme_de, en: r.theme_en },
     summary: { de: r.summary_de, en: r.summary_en },
-    partner: r.partner_name ? { name: r.partner_name, logo: r.partner_logo_url, url: r.partner_url } : null,
+    partner: r.partner_name ? { name: r.partner_name, logo: r.partner_logo_url, url: r.partner_url, kind: r.partner_kind || 'partner' } : null,
     rules: { de: lines(r.rules_de), en: lines(r.rules_en) },
     start: r.start_at,
     entriesClose: r.entries_close_at,
@@ -188,8 +194,9 @@ export function onAuthEvent(cb) {
 
 const backHere = () => location.origin + location.pathname;
 
-export async function signUp({ email, password, displayName, ageConfirmed, termsAccepted, captchaToken }) {
+export async function signUp({ email, password, displayName, birthDate, ageConfirmed, termsAccepted, captchaToken }) {
   if (!ageConfirmed) throw new StoreError('error.ageRequired');
+  if (!birthDate) throw new StoreError('error.birthDateRequired');
   if (!termsAccepted) throw new StoreError('error.termsRequired');
   const devCount = await sb.rpc('device_account_count', { p_device: getDeviceId() });
   if (!devCount.error && devCount.data >= CONFIG.accountsPerDevice) throw new StoreError('error.tooManyAccounts');
@@ -199,7 +206,8 @@ export async function signUp({ email, password, displayName, ageConfirmed, terms
     options: {
       captchaToken: captchaToken || undefined,
       emailRedirectTo: backHere(),
-      data: { display_name: displayName.trim(), age_confirmed: true, terms_version: CONFIG.termsVersion },
+      // birth_date stays in the private account data; the database refuses under-18s
+      data: { display_name: displayName.trim(), birth_date: birthDate, age_confirmed: true, terms_version: CONFIG.termsVersion },
     },
   });
   if (error) fail(error);
@@ -600,3 +608,35 @@ export async function getStrains() {
   return strainCache;
 }
 
+
+// ---------- Reports (underage / fake / spam) ----------
+
+const REPORT_ERRORS = {
+  login_required: 'report.loginFirst', cannot_report_self: 'report.self', rate_limited: 'error.rateLimit', invalid_reason: 'report.pickReason',
+};
+
+/** Report a profile (userId) or an entry (entryId). Each person reports the same thing only once. */
+export async function reportContent({ userId = null, entryId = null, reason, note = '' }) {
+  const { error } = await sb.rpc('report_content', { p_user: userId, p_entry: entryId, p_reason: reason, p_note: note || null });
+  if (error) {
+    const hit = Object.keys(REPORT_ERRORS).find((c) => (error.message || '').includes(c));
+    if (hit) throw new StoreError(REPORT_ERRORS[hit]);
+    fail(error);
+  }
+}
+
+/** Admin: all reports, open ones first. */
+export async function getReports() {
+  const { data, error } = await sb.rpc('admin_reports');
+  if (error) fail(error);
+  return (data || []).map((r) => ({
+    id: r.id, reason: r.reason, note: r.note, status: r.status, createdAt: r.created_at, reporter: r.reporter,
+    targetId: r.target_id, target: r.target, entryId: r.entry_id, battleId: r.battle_id,
+    photoUrl: r.photo_path ? publicUrl(r.photo_path) : null, targetOpen: r.target_open,
+  }));
+}
+
+export async function setReportStatus(id, status) {
+  const { error } = await sb.rpc('admin_set_report', { p_id: id, p_status: status });
+  if (error) fail(error);
+}

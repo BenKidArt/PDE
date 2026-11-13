@@ -1,22 +1,35 @@
 // PHYSICAL PRESS: buttons and chips sink in while pressed (CSS ".is-pressed") and
-// spring back when released. On Android a tiny 10 ms vibration confirms the tap
-// (iPhones don't allow web vibration, so they just get the visual press).
-const TARGETS = '.btn, .bb-chip, .btn-vote, .tabs button, .lang button';
+// spring back when released. The pressed look stays for at least 100 ms, so even a
+// very quick tap is clearly visible. On Android a short 18 ms vibration confirms the
+// tap (iPhones don't allow web vibration, so they just get the visual press).
+const TARGETS = '.btn, .bb-chip, .btn-vote, .tabs button, .lang button, .report-btn';
+const MIN_PRESS_MS = 100;
+const VIBRATE_MS = 18;
 let pressed = null;
+let pressedAt = 0;
 
 function release() {
-  if (pressed) pressed.classList.remove('is-pressed');
+  const el = pressed;
   pressed = null;
+  if (!el) return;
+  const left = MIN_PRESS_MS - (performance.now() - pressedAt);
+  if (left > 0) setTimeout(() => { if (pressed !== el) el.classList.remove('is-pressed'); }, left);
+  else el.classList.remove('is-pressed');
+}
+
+function press(el) {
+  release();
+  pressed = el;
+  pressedAt = performance.now();
+  el.classList.add('is-pressed');
 }
 
 document.addEventListener('pointerdown', (e) => {
   const el = e.target.closest?.(TARGETS);
   if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
-  release();
-  pressed = el;
-  el.classList.add('is-pressed');
+  press(el);
   if (e.pointerType === 'touch' && navigator.vibrate) {
-    try { navigator.vibrate(10); } catch { /* not allowed: ignore */ }
+    try { navigator.vibrate(VIBRATE_MS); } catch { /* not allowed: ignore */ }
   }
 }, { passive: true });
 
@@ -27,7 +40,7 @@ document.addEventListener('scroll', release, { passive: true, capture: true }); 
 // keyboard: Enter / Space press the focused button the same way
 document.addEventListener('keydown', (e) => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.(TARGETS) && !e.repeat) {
-    release(); pressed = e.target; pressed.classList.add('is-pressed');
+    press(e.target);
   }
 });
 document.addEventListener('keyup', release);

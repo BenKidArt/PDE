@@ -13,7 +13,7 @@ const impl = isDemo ? await import('./store-demo.js') : await import('./store-su
 
 /** The battle to show by default: the running one, else the next, else the latest. */
 export async function getCurrentBattle(at = now()) {
-  const list = (await impl.getBattles()).filter((b) => !b.isTest); // test battles never become the default
+  const list = (await impl.getBattles()).filter((b) => !b.isTest && !b.isDraft); // test and draft battles never become the default
   const running = list.find((b) => new Date(b.start) <= at && at < new Date(b.votingEnds));
   if (running) return running;
   const upcoming = list.filter((b) => new Date(b.start) > at).sort((a, b) => new Date(a.start) - new Date(b.start));
@@ -63,6 +63,9 @@ export const {
   getEntryVotes, // admin: (entryId) → single votes
   cancelVote, // admin: (battleId, voterId, reason)
   getStrains, // Strain Match: strain info list (info only)
+  reportContent, // ({ userId | entryId, reason: 'underage'|'fake'|'spam', note })
+  getReports, // admin: all reports, open first
+  setReportStatus, // admin: (id, 'open' | 'done')
 } = impl;
 
 // Demo only (undefined with Supabase):

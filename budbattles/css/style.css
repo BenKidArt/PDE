@@ -1274,44 +1274,107 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 .pf-head .pf-tags { width: 100%; min-width: 0; max-width: 100%; }
 
 /* =====================================================================
-   PHYSICAL PRESS: every button, chip and vote button sinks in while pressed
-   (scale .96, 2px down, inner shadow, smaller outer glow) and springs back
-   in .12s. ".is-pressed" is set by js/press.js so it works on every phone.
+   PHYSICAL PRESS (stronger): every button, chip and vote button clearly sinks
+   in while pressed: scale .92, 3px down, the outer glow almost gone, a dark
+   inner shadow. It springs back in ~0.1s. ".is-pressed" is set by js/press.js,
+   which also keeps it on for at least 100 ms so even a quick tap is visible.
    ===================================================================== */
-.btn, .bb-chip, .btn-vote, .tabs button, .lang button {
-  transition: transform .12s cubic-bezier(.3, 1.6, .5, 1), box-shadow .12s ease-out, filter .12s ease-out, background-color .12s, color .12s, border-color .12s;
+.btn, .bb-chip, .btn-vote, .tabs button, .lang button, .report-btn {
+  transition: transform .1s cubic-bezier(.3, 1.5, .5, 1), box-shadow .1s ease-out, filter .1s ease-out, background-color .1s, color .1s, border-color .1s;
   will-change: transform;
 }
 .btn.is-pressed, .bb-chip.is-pressed, button.bb-chip.is-pressed, label.bb-chip.is-pressed, a.bb-chip.is-pressed,
-.tabs button.is-pressed, .lang button.is-pressed {
-  transform: translateY(2px) scale(.96);
-  transition-duration: .06s;
+.tabs button.is-pressed, .lang button.is-pressed, .report-btn.is-pressed {
+  transform: translateY(3px) scale(.92);
+  transition-duration: .05s;
 }
 /* pink outline buttons */
 .btn-primary:not(.btn-go).is-pressed, .btn-ghost.is-pressed {
-  filter: none;
-  box-shadow: 0 0 5px rgba(var(--neon-pink-rgb), .35), inset 0 3px 8px rgba(0, 0, 0, .75), inset 0 0 12px rgba(var(--neon-pink-rgb), .25);
+  filter: brightness(.85);
+  box-shadow: 0 0 1px rgba(var(--neon-pink-rgb), .25), inset 0 4px 10px rgba(0, 0, 0, .9), inset 0 0 14px rgba(0, 0, 0, .6);
 }
 /* green filled (most important action, vote) */
 .btn-go.is-pressed, .btn-vote.is-pressed {
-  filter: none;
-  box-shadow: 0 0 7px rgba(var(--neon-green-rgb), .4), inset 0 3px 8px rgba(0, 0, 0, .45), inset 0 -1px 0 rgba(255, 255, 255, .2);
+  filter: brightness(.82);
+  box-shadow: 0 0 1px rgba(var(--neon-green-rgb), .25), inset 0 4px 10px rgba(0, 0, 0, .6), inset 0 0 12px rgba(0, 0, 0, .35);
 }
 .btn-reject.is-pressed, .btn-danger.is-pressed {
-  box-shadow: 0 0 5px rgba(255, 90, 110, .35), inset 0 3px 8px rgba(0, 0, 0, .75);
+  filter: brightness(.85);
+  box-shadow: 0 0 1px rgba(255, 90, 110, .25), inset 0 4px 10px rgba(0, 0, 0, .9);
 }
-.btn-gold.is-pressed { box-shadow: 0 0 7px rgba(255, 205, 80, .4), inset 0 3px 8px rgba(0, 0, 0, .4); }
+.btn-gold.is-pressed { filter: brightness(.85); box-shadow: 0 0 1px rgba(255, 205, 80, .25), inset 0 4px 10px rgba(0, 0, 0, .6); }
 /* chips */
 .bb-chip.is-pressed, button.bb-chip.is-pressed, label.bb-chip.is-pressed {
-  box-shadow: 0 0 3px rgba(var(--neon-green-rgb), .2), inset 0 2px 6px rgba(0, 0, 0, .7);
+  filter: brightness(.85);
+  box-shadow: inset 0 3px 7px rgba(0, 0, 0, .85);
 }
 .bb-chip[aria-pressed="true"].is-pressed, .bb-chip:has(input:checked).is-pressed {
-  box-shadow: 0 0 6px rgba(var(--neon-green-rgb), .45), inset 0 2px 6px rgba(0, 0, 0, .4);
+  box-shadow: 0 0 1px rgba(var(--neon-green-rgb), .3), inset 0 3px 7px rgba(0, 0, 0, .6);
 }
-@media (prefers-reduced-motion: reduce) { .btn.is-pressed, .bb-chip.is-pressed, .tabs button.is-pressed, .lang button.is-pressed { transform: none; }
+.tabs button.is-pressed, .lang button.is-pressed, .report-btn.is-pressed { filter: brightness(.8); box-shadow: inset 0 3px 7px rgba(0, 0, 0, .7); }
+@media (prefers-reduced-motion: reduce) {
+  .btn.is-pressed, .bb-chip.is-pressed, .tabs button.is-pressed, .lang button.is-pressed, .report-btn.is-pressed { transform: none; }
 }
 
 /* Strain Match: breeder line under the name */
 .match-title { min-width: 0; }
 .match-title .match-name { margin: 0; }
 .match-breeder { margin: 2px 0 0; font-size: .8rem; color: var(--muted); }
+
+/* ---------- Sign-up: 18+ rule ---------- */
+.adult-rule { margin: 2px 0 4px; padding: 8px 10px; border-radius: 10px; font-size: .86rem; font-weight: 600;
+  color: var(--text); background: rgba(var(--neon-pink-rgb), .08); border: 1px solid rgba(var(--neon-pink-rgb), .35); }
+input[type="date"] {
+  -webkit-appearance: none; appearance: none; color-scheme: dark; display: block;
+  width: 100%; min-height: 48px; font: 16px var(--font); color: var(--text); text-align: left;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+}
+input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+input[type="date"]:focus { outline: none; border-color: var(--neon-green); box-shadow: 0 0 0 3px rgba(var(--neon-green-rgb), .18); }
+
+/* ---------- Battle rules: fixed lines for every battle ---------- */
+.rules-fixed { list-style: none; margin: 10px 0 0; padding: 10px 0 0; border-top: 1px solid var(--line-calm); display: grid; gap: 6px; font-size: .9rem; }
+.rules-fixed:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+
+/* ---------- Report button + popup + admin list ---------- */
+.report-btn { appearance: none; border: 1px solid rgba(233, 255, 242, .16); background: transparent; color: var(--muted);
+  font: 600 .78rem/1 var(--font); padding: 7px 11px; border-radius: 999px; cursor: pointer; }
+.report-btn:hover, .report-btn:focus-visible { color: var(--text); border-color: rgba(var(--neon-pink-rgb), .6); }
+.ncard-report { display: flex; justify-content: flex-end; margin-top: 6px; }
+.pf-report { margin-top: 4px; }
+.report-modal { text-align: left; }
+.report-title { margin: 0; font-size: 1.05rem; color: var(--neon-pink, var(--pink)); text-transform: none; letter-spacing: 0; }
+.report-reasons { border: 0; margin: 0; padding: 0; display: grid; gap: 10px; }
+.report-reason { padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line-calm); }
+.report-reason:has(input:checked) { border-color: rgba(var(--neon-pink-rgb), .7); box-shadow: 0 0 10px rgba(var(--neon-pink-rgb), .25); }
+.report-reason input { accent-color: var(--neon-pink, var(--pink)); }
+.report-modal textarea { width: 100%; }
+.report-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.report-row { display: grid; gap: 10px; }
+.report-row.is-done { opacity: .6; }
+.report-head { display: flex; gap: 8px; flex-wrap: wrap; }
+.report-body { display: flex; gap: 12px; align-items: flex-start; min-width: 0; }
+.report-thumb { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; flex: none; }
+.report-text { min-width: 0; }
+.report-text p { margin: 0 0 4px; overflow-wrap: anywhere; }
+.report-note { font-style: italic; }
+.report-count { color: var(--amber); font-weight: 600; }
+.pill-danger { color: #fff; background: rgba(255, 90, 110, .2); border-color: rgba(255, 90, 110, .7); }
+
+/* ---------- Draft battles + pink battle style ---------- */
+.draft-notice { border-color: rgba(var(--neon-pink-rgb), .7); background: rgba(var(--neon-pink-rgb), .08); color: #ff8cc6; }
+.hero-subtitle { margin: -2px 0 10px; font-size: .95rem; font-weight: 600; letter-spacing: .02em; color: var(--neon-pink-line, #ff8cc6); }
+.logo-placeholder { width: 120px; height: 60px; margin: 10px auto 6px; display: grid; place-items: center; border-radius: 12px;
+  border: 1.5px dashed rgba(var(--neon-pink-rgb), .7); color: rgba(var(--neon-pink-rgb), .9); font: 700 .8rem/1 var(--font); letter-spacing: .14em; text-transform: uppercase; }
+.partner-host { text-align: center; }
+/* "More pink than green": inside a pink battle the green accents turn pink */
+.battle-pink {
+  --green: #ff5fb4; --green-dim: #8f2560;
+  --neon-green: #ff5fb4; --neon-green-2: #e0218a; --neon-green-line: #ffb3dc; --neon-green-rgb: 255, 95, 180;
+  --glow-green: 0 0 8px rgba(255, 95, 180, .55), 0 0 24px rgba(255, 95, 180, .25);
+}
+.battle-pink .neon-title { color: #ffd1ea; text-shadow: 0 0 14px rgba(255, 61, 154, .45), 0 0 34px rgba(255, 61, 154, .2); }
+.battle-pink .hero { background: radial-gradient(120% 90% at 50% 0%, rgba(255, 61, 154, .16), transparent 70%); border-radius: var(--radius); }
+.battle-pink h2 { color: #ff8cc6; }
+.battle-pink .rules li::marker { color: #ff5fb4; }
+.battle-pink .date-row.active { border-left-color: #ff5fb4; }

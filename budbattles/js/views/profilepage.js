@@ -7,6 +7,7 @@ import {
 } from '../store.js';
 import { esc, chipHtml, avatarUrl } from '../ui.js';
 import { neonCardHtml } from '../entrycard.js';
+import { reportButtonHtml, bindReportButtons } from '../report.js';
 import { battleLabel } from './battle.js';
 import { showWelcome } from '../welcome.js';
 import { LINK_KINDS, LINK_ICONS, normalizeLink, linkUrl, linkInputValue } from '../links.js';
@@ -88,6 +89,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
           ${p.badges.includes('badge_heart') ? chipHtml(t('profile.founder'), '♥') : ''}
           ${setupList.length > 1 ? chipHtml(t('setups.more', { n: setupList.length - 1 })) : ''}
         </div>
+        ${me && !isMe ? `<div class="pf-report">${reportButtonHtml({ userId: p.id })}</div>` : ''}
       </section>
 
       <section class="pf-stats">
@@ -159,6 +161,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
 
   fitSinceRow(root);
   document.fonts?.ready.then(() => fitSinceRow(root));
+  bindReportButtons(root);
   if (!isMe) return;
   root.querySelector('[data-logout]').addEventListener('click', async () => {
     await signOut();
