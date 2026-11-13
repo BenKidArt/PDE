@@ -1345,3 +1345,8 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 }
 @media (prefers-reduced-motion: reduce) { .btn.is-pressed, .bb-chip.is-pressed, .tabs button.is-pressed, .lang button.is-pressed { transform: none; }
 }
+
+/* Strain Match: breeder line under the name */
+.match-title { min-width: 0; }
+.match-title .match-name { margin: 0; }
+.match-breeder { margin: 2px 0 0; font-size: .8rem; color: var(--muted); }

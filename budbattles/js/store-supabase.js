@@ -593,8 +593,9 @@ let strainCache;
 export async function getStrains() {
   if (!strainCache) {
     const { data, error } = await sb.from('strains').select('*').order('name');
-    if (!error && data?.length) strainCache = data;
-    else strainCache = (await (await fetch('data/strains.json')).json()).strains; // before update 011
+    // database list with breeders (update 015) → use it; older/missing table → built-in list
+    if (!error && data?.length && data.some((r) => r.breeder)) strainCache = data;
+    else strainCache = (await (await fetch('data/strains.json')).json()).strains.filter((x) => x.active !== false);
   }
   return strainCache;
 }

@@ -77,6 +77,7 @@ After `schema.sql`, run the files in `supabase/migrations/` in number order, eac
 - `013_profile_links.sql`: profile links (GrowDiaries, YouTube, TikTok, Threads)
 - `014_multiple_setups.sql`: up to 3 setups per grower, one main setup
 - `012_013_014_combined.sql`: the same three updates (012, 013, 014) in one file – run this OR the three single ones
+- `015_strains_csv.sql`: 341 more strains for Strain Match (with breeder, genetics, days, tags)
 
 ## Turnstile bot check (Cloudflare, free)
 1. dash.cloudflare.com → sign up → **Turnstile** → **Add widget** → hostname `budbattles.netlify.app`, mode **Managed**.

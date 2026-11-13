@@ -63,11 +63,18 @@ export async function renderStrainMatch(root) {
     if (s.auto && s.photo) return t('match.seeds.both');
     return s.auto ? t('opt.seedType.auto') : t('opt.seedType.photo');
   };
-  const chips = (s) => [
+  // facts only: the chips show what the data says – nothing about effects, no "best"
+  const chips = (s) => (s.breeder ? [
+    s.genetics ? t(`match.gen.${s.genetics}`) : '', seedChip(s),
+    s.days ? `⏱ ${t(s.auto ? 'match.daysAuto' : 'match.daysFlower', { days: s.days })}` : '',
+    s.fast ? t('match.fastTag') : '',
+    s.small_space ? t('match.smallSpace') : '', s.balcony_ok ? t('match.balconyTag') : '',
+    s.seeds === 'regular' ? t('match.seedsRegular') : s.seeds === 'regular+feminized' ? t('match.seedsBoth') : '',
+  ] : [
     t(`match.type.${s.type}`), seedChip(s), t(`match.diff.${s.difficulty}`), t(`match.height.${s.height}`),
     `⏱ ${t('match.weeks', { weeks: `${s.flower_min}–${s.flower_max}` })}`,
     s.small_space ? t('match.smallSpace') : '',
-  ].filter(Boolean);
+  ]).filter(Boolean);
 
   root.innerHTML = `${head}${picker}
     <ol class="match-list">
@@ -77,13 +84,14 @@ export async function renderStrainMatch(root) {
         <li class="match-card">
           <div class="match-top">
             <span class="match-rank">#${i + 1}</span>
-            <h2 class="match-name">${esc(s.name)}</h2>
+            <div class="match-title"><h2 class="match-name">${esc(s.name)}</h2>
+              ${s.breeder ? `<p class="match-breeder">${esc(t('match.bredBy', { breeder: s.breeder }))}</p>` : ''}</div>
             <span class="match-pct"><b>${m.percent}%</b><small>${esc(t('match.fit'))}</small></span>
           </div>
           <div class="match-tags">
             ${chips(s).map((c) => chipHtml(c)).join('')}
           </div>
-          <p class="match-flavours">${(s.flavours || []).map((f) => `<span class="${(user.flavours || []).includes(f) ? 'is-fav' : ''}">${esc(t(`opt.flavours.${f}`))}</span>`).join(' · ')}</p>
+          ${(s.flavours || []).length ? `<p class="match-flavours">${s.flavours.map((f) => `<span class="${(user.flavours || []).includes(f) ? 'is-fav' : ''}">${esc(t(`opt.flavours.${f}`))}</span>`).join(' · ')}</p>` : ''}
           ${m.reasons.length ? `<ul class="match-why">${m.reasons.map((r) => `<li>✓ ${esc(reason(r))}</li>`).join('')}</ul>` : ''}
         </li>`;
       }).join('')}
