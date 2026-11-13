@@ -147,7 +147,7 @@ p { margin: 0 0 .75rem; }
   font: 700 1rem var(--font); text-decoration: none; cursor: pointer;
   border: 2px solid transparent; transition: transform .1s ease, box-shadow .2s ease;
 }
-.btn:active { transform: scale(.98); }
+.btn.is-pressed { transform: scale(.98); }
 .btn:disabled { opacity: .55; cursor: progress; }
 .btn-primary { background: var(--green); color: #04130a; box-shadow: var(--glow-green); }
 .btn-ghost { background: transparent; color: var(--pink); border-color: var(--pink); }
@@ -766,12 +766,13 @@ button.bb-chip, label.bb-chip, a.bb-chip { cursor: pointer; -webkit-tap-highligh
 @media (hover: hover) {
   button.bb-chip:hover:not([aria-pressed="true"]), label.bb-chip:hover:not(:has(input:checked)), a.bb-chip:hover { border-color: rgba(142, 226, 159, .5); }
 }
-button.bb-chip:active, label.bb-chip:active, a.bb-chip:active { transform: scale(.97); }
+button.bb-chip.is-pressed, label.bb-chip.is-pressed, a.bb-chip.is-pressed { transform: scale(.97); }
 /* selected = mint fill, dark text */
 .bb-chip[aria-pressed="true"], .bb-chip:has(input:checked) { background: #8ee29f; color: #0b1a10; border-color: #8ee29f; }
 .bb-chip:disabled, .bb-chip[aria-disabled="true"], .bb-chip:has(input:disabled) { opacity: .4; cursor: default; }
 .bb-chip:focus-visible, .bb-chip:has(input:focus-visible) { outline: 2px solid #8ee29f; outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { .bb-chip { transition: none; } .bb-chip:active { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .bb-chip { transition: none; }
+.bb-chip.is-pressed { transform: none; } }
 .pf-setup-opt input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
 .pf-setup-opt { position: relative; }
 /* neon cards + headings (profile, editor) */
@@ -1016,7 +1017,7 @@ h2 { font-size: 1.15rem; text-transform: none; letter-spacing: 0; color: var(--t
   border: 1px solid transparent; box-shadow: none; text-shadow: none;
   transition: transform .15s, background-color .15s, border-color .15s, color .15s;
 }
-.btn:active { transform: scale(.98); }
+.btn.is-pressed { transform: scale(.98); }
 .btn-primary, .btn-vote.is-armed { background: var(--mint); color: var(--mint-ink); border-color: var(--mint); box-shadow: none; text-shadow: none; }
 .btn-ghost, .btn-vote, .btn-reject, .btn-danger { background: rgba(255, 255, 255, .015); color: var(--text); border: 1px solid var(--mint-line); box-shadow: none; text-shadow: none; }
 .btn-reject, .btn-danger { color: #ff8a98; border-color: rgba(255, 90, 110, .35); }
@@ -1166,7 +1167,7 @@ body { background: radial-gradient(90% 50% at 50% 0%, rgba(60, 140, 70, .16), tr
   font: 700 14px/1.2 var(--font); text-transform: uppercase; letter-spacing: .08em; text-shadow: none;
   transition: filter .15s, box-shadow .15s, transform .15s, background-color .15s;
 }
-.btn:active { transform: scale(.98); }
+.btn.is-pressed { transform: scale(.98); }
 .btn-small { min-height: 44px; padding: 0 16px; font-size: 12.5px; }
 /* pink = default main action */
 .btn-primary {
@@ -1182,9 +1183,9 @@ body { background: radial-gradient(90% 50% at 50% 0%, rgba(60, 140, 70, .16), tr
   content: "→"; display: inline; position: static; inset: auto; width: auto; height: auto; background: none; filter: none;
   opacity: 1; box-shadow: none; animation: none; border-radius: 0; font-weight: 700; letter-spacing: 0; transform: none;
 }
-.btn-primary:active, .btn-go:active, .btn-vote:active { filter: brightness(1.1); }
-.btn-primary:active { box-shadow: 0 0 24px rgba(var(--neon-pink-rgb), .85), 0 0 52px rgba(var(--neon-pink-rgb), .4); }
-.btn-go:active, .btn-vote:active { box-shadow: 0 0 24px rgba(var(--neon-green-rgb), .85), 0 0 52px rgba(var(--neon-green-rgb), .4); }
+.btn-primary.is-pressed, .btn-go.is-pressed, .btn-vote.is-pressed { filter: brightness(1.1); }
+.btn-primary.is-pressed { box-shadow: 0 0 24px rgba(var(--neon-pink-rgb), .85), 0 0 52px rgba(var(--neon-pink-rgb), .4); }
+.btn-go.is-pressed, .btn-vote.is-pressed { box-shadow: 0 0 24px rgba(var(--neon-green-rgb), .85), 0 0 52px rgba(var(--neon-green-rgb), .4); }
 @media (hover: hover) {
   .btn-primary:hover, .btn-go:hover, .btn-vote:hover { filter: brightness(1.1); }
   .btn-primary:hover { background: linear-gradient(90deg, var(--neon-pink), var(--neon-pink-2)); border-color: var(--neon-pink-line); }
@@ -1197,7 +1198,7 @@ body { background: radial-gradient(90% 50% at 50% 0%, rgba(60, 140, 70, .16), tr
   background: transparent; color: #ffd1e8; border: 1.5px solid var(--neon-pink);
   box-shadow: 0 0 12px rgba(var(--neon-pink-rgb), .55), inset 0 0 10px rgba(var(--neon-pink-rgb), .12);
 }
-.btn-ghost:active { box-shadow: 0 0 18px rgba(var(--neon-pink-rgb), .8); filter: brightness(1.1); }
+.btn-ghost.is-pressed { box-shadow: 0 0 18px rgba(var(--neon-pink-rgb), .8); filter: brightness(1.1); }
 @media (hover: hover) { .btn-ghost:hover { border-color: var(--neon-pink-line); background: rgba(var(--neon-pink-rgb), .06); } }
 .btn-reject, .btn-danger { background: transparent; color: #ff9aa8; border: 1.5px solid #ff5a6e; box-shadow: 0 0 12px rgba(255, 90, 110, .5); }
 .btn-gold { background: linear-gradient(90deg, #ffd66b, #e7b83a); color: #1d1606; border: 1px solid #ffe7a6; box-shadow: 0 0 18px rgba(255, 205, 80, .6), 0 0 40px rgba(255, 205, 80, .22); }
@@ -1251,7 +1252,8 @@ body { background: radial-gradient(90% 50% at 50% 0%, rgba(60, 140, 70, .16), tr
 input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus, .space-row input:focus {
   border-color: var(--neon-green); box-shadow: 0 0 0 3px rgba(var(--neon-green-rgb), .18);
 }
-@media (prefers-reduced-motion: reduce) { .btn { transition: none; } .btn:active { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; }
+.btn.is-pressed { transform: none; } }
 /* a wrong link stays red, even while the field is focused */
 .pf-link-field input.is-invalid, .pf-link-field input.is-invalid:focus { border-color: #ff5a6e; box-shadow: 0 0 0 3px rgba(255, 90, 110, .25), 0 0 12px rgba(255, 90, 110, .45); }
 
@@ -1272,7 +1274,7 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
   text-shadow: 0 0 8px rgba(var(--neon-pink-rgb), .45); filter: none;
 }
 .btn-primary:not(.btn-go)::after { content: none; }
-.btn-primary:not(.btn-go):active, .btn-ghost:active {
+.btn-primary:not(.btn-go).is-pressed, .btn-ghost.is-pressed {
   filter: brightness(1.15); box-shadow: 0 0 18px rgba(var(--neon-pink-rgb), .75), inset 0 0 12px rgba(var(--neon-pink-rgb), .2);
 }
 @media (hover: hover) {
@@ -1305,3 +1307,41 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
 .pf-since-row .bb-chip { flex: none; }
 .pf-since.is-small { font-size: .74rem; }
 .pf-head .pf-tags { width: 100%; min-width: 0; max-width: 100%; }
+
+/* =====================================================================
+   PHYSICAL PRESS: every button, chip and vote button sinks in while pressed
+   (scale .96, 2px down, inner shadow, smaller outer glow) and springs back
+   in .12s. ".is-pressed" is set by js/press.js so it works on every phone.
+   ===================================================================== */
+.btn, .bb-chip, .btn-vote, .tabs button, .lang button {
+  transition: transform .12s cubic-bezier(.3, 1.6, .5, 1), box-shadow .12s ease-out, filter .12s ease-out, background-color .12s, color .12s, border-color .12s;
+  will-change: transform;
+}
+.btn.is-pressed, .bb-chip.is-pressed, button.bb-chip.is-pressed, label.bb-chip.is-pressed, a.bb-chip.is-pressed,
+.tabs button.is-pressed, .lang button.is-pressed {
+  transform: translateY(2px) scale(.96);
+  transition-duration: .06s;
+}
+/* pink outline buttons */
+.btn-primary:not(.btn-go).is-pressed, .btn-ghost.is-pressed {
+  filter: none;
+  box-shadow: 0 0 5px rgba(var(--neon-pink-rgb), .35), inset 0 3px 8px rgba(0, 0, 0, .75), inset 0 0 12px rgba(var(--neon-pink-rgb), .25);
+}
+/* green filled (most important action, vote) */
+.btn-go.is-pressed, .btn-vote.is-pressed {
+  filter: none;
+  box-shadow: 0 0 7px rgba(var(--neon-green-rgb), .4), inset 0 3px 8px rgba(0, 0, 0, .45), inset 0 -1px 0 rgba(255, 255, 255, .2);
+}
+.btn-reject.is-pressed, .btn-danger.is-pressed {
+  box-shadow: 0 0 5px rgba(255, 90, 110, .35), inset 0 3px 8px rgba(0, 0, 0, .75);
+}
+.btn-gold.is-pressed { box-shadow: 0 0 7px rgba(255, 205, 80, .4), inset 0 3px 8px rgba(0, 0, 0, .4); }
+/* chips */
+.bb-chip.is-pressed, button.bb-chip.is-pressed, label.bb-chip.is-pressed {
+  box-shadow: 0 0 3px rgba(var(--neon-green-rgb), .2), inset 0 2px 6px rgba(0, 0, 0, .7);
+}
+.bb-chip[aria-pressed="true"].is-pressed, .bb-chip:has(input:checked).is-pressed {
+  box-shadow: 0 0 6px rgba(var(--neon-green-rgb), .45), inset 0 2px 6px rgba(0, 0, 0, .4);
+}
+@media (prefers-reduced-motion: reduce) { .btn.is-pressed, .bb-chip.is-pressed, .tabs button.is-pressed, .lang button.is-pressed { transform: none; }
+}

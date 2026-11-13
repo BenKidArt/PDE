@@ -1,5 +1,6 @@
 // APP SHELL: header with logo and menu, bottom navigation, demo phase switch,
 // and choosing which screen to show. Addresses look like  #/battle/<id>.
+import './press.js'; // buttons sink in when tapped (+ tiny vibration on Android)
 import { initI18n, setLang, getLang, t, LANGS } from './i18n.js';
 import {
   initStore, onAuthEvent, isDemo, getCurrentUser, getDemoPhase, setDemoPhase,
