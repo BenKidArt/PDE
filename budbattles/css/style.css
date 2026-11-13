@@ -1281,3 +1281,20 @@ input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focu
     box-shadow: 0 0 16px rgba(var(--neon-pink-rgb), .65), inset 0 0 12px rgba(var(--neon-pink-rgb), .16); filter: none;
   }
 }
+
+/* PROFILE HEADER LAMP: the bar at the top is a carved, recessed neon tube like the
+   outline buttons (dark inside, 2px neon outline in the theme colour, soft glow
+   outside, inner shadow at the top). Same for every theme, only the colour changes. */
+.pf-head { padding-top: 66px; } /* 32px more space under the bar: it hangs above the picture like a lamp */
+.pf-art {
+  overflow: visible; filter: none;
+  background: radial-gradient(38% 120% at 50% 0%, var(--pf-glow), transparent 70%) 0 14px / 100% 100% no-repeat;
+}
+.pf-art::before {
+  content: ""; position: absolute; top: 10px; left: 20%; right: 20%; height: 14px; border-radius: 999px;
+  background: linear-gradient(180deg, #020403, #0a0f0c 70%, #111814);
+  border: 2px solid var(--pf-accent);
+  box-shadow:
+    0 0 10px var(--pf-glow), 0 0 26px var(--pf-glow), 0 6px 22px -4px var(--pf-glow),
+    inset 0 3px 5px rgba(0, 0, 0, .9), inset 0 -2px 6px var(--pf-glow);
+}
