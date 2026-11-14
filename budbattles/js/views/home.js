@@ -77,7 +77,8 @@ export async function renderHome(root) {
       </ol>
     </section>
 
-    ${partnersHtml(PARTNERS.filter((p) => p.role === 'main'), user ? PARTNERS.filter((p) => p.role === 'upcoming') : [])}`;
+    ${partnersHtml(PARTNERS.filter((p) => p.role === 'main'), user ? PARTNERS.filter((p) => p.role === 'upcoming') : [],
+      user ? PARTNERS.filter((p) => p.role === 'shop') : [])}`;
 
   startCountdowns(root);
   root.querySelector('[data-install-go]')?.addEventListener('click', () => startInstall());
@@ -95,7 +96,7 @@ function homeOrder(entries, status) {
 
 
 /** Battle #1 partner (big) + "Upcoming battles with" (members only: names contain "seed"). */
-function partnersHtml(main, upcoming) {
+function partnersHtml(main, upcoming, shops = []) {
   const logo = (p, size) => (p.logo
     ? `<img class="partner-logo-img${p.round ? ' is-round' : ''}" src="${esc(p.logo)}" alt="${esc(p.name)}" width="${size}" height="${size}" loading="lazy" decoding="async">`
     : `<span class="partner-placeholder" aria-hidden="true">${esc(monogram(p.name))}</span>`);
@@ -110,6 +111,19 @@ function partnersHtml(main, upcoming) {
       <h2>${esc(t('home.partnerUpcoming'))}</h2>
       <ul class="partner-row" data-hscroll>
         ${upcoming.map((p) => `<li class="partner-card">${logo(p, 96)}<p class="partner-card-name">${esc(p.name)}</p>${insta(p)}</li>`).join('')}
+      </ul>
+    </section>` : ''}
+    ${shops.length ? `<section class="home-section">
+      <h2>${esc(t('home.partnerShops'))}</h2>
+      <ul class="partner-shops">
+        ${shops.map((p) => `<li class="partner-shop">
+          <span class="partner-shop-logo">${logo(p, 88)}</span>
+          <div class="partner-shop-info">
+            <p class="partner-card-name">${esc(p.name)}</p>
+            ${p.website ? `<a class="btn btn-ghost btn-xs partner-web" href="${esc(p.website)}" target="_blank" rel="noopener noreferrer sponsored">
+              ${esc(t('home.partnerWebsite'))} ↗</a>` : ''}
+          </div>
+        </li>`).join('')}
       </ul>
     </section>` : ''}`;
 }

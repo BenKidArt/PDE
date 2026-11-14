@@ -1572,3 +1572,11 @@ span.look-opt { display: block; }
 .partner-placeholder { font-size: 1.5rem; letter-spacing: .06em; text-shadow: 0 0 12px rgba(255, 61, 154, .6); overflow-wrap: normal; }
 /* partner logos keep their own shape inside the card (never cropped or stretched) */
 .partner-card .partner-logo-img:not(.is-round) { width: 112px; height: 96px; object-fit: contain; }
+/* shop partners: logo + name + website button (logo kept as it is, on its own white) */
+.partner-shops { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; }
+.partner-shop { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 14px; align-items: center; padding: 12px; border-radius: 16px;
+  background: rgba(10, 20, 14, .7); border: 1.5px solid rgba(var(--neon-green-rgb), .45); box-shadow: 0 0 12px rgba(var(--neon-green-rgb), .18); }
+.partner-shop-logo .partner-logo-img { width: 88px; height: 88px; object-fit: contain; border-radius: 14px; display: block; }
+.partner-shop-info { display: grid; gap: 6px; justify-items: start; min-width: 0; }
+.partner-shop-info .partner-card-name { font-size: .95rem; }
+.partner-web { padding: 0 12px; }
