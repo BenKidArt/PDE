@@ -4,8 +4,9 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getPublicProfile, getBadgeCatalog, getCurrentUser, signOut, setProfileName, updateProfileDetails,
-  getProfileLook, saveProfileLook, uploadProfileImage, profileImageUrl,
+  getProfileLook, saveProfileLook, uploadProfileImage, profileImageUrl, submitProfileImage, getMyImageReviews, ackImageReview,
 } from '../store.js';
+import { FLAVOURS, FLAVOUR_GROUPS } from '../flavours.js';
 import { BG_PRESETS, BANNER_PRESETS, BG_FOCUS, lookUrl, effectiveBg, paletteFrom, applyPalette, prepareUpload } from '../looks.js';
 import { esc, chipHtml, avatarUrl } from '../ui.js';
 import { neonCardHtml } from '../entrycard.js';
@@ -31,7 +32,7 @@ export const OPTIONS = {
   training: { values: ['lst', 'scrog', 'topping', 'defoliation', 'none'], multi: true },
   spaceSize: { values: ['60', '80', '100', '120', 'custom'] },
   growStage: { values: ['seedling', 'veg', 'flower', 'drying', 'curing', 'pause'] },
-  flavours: { values: ['fruity', 'gassy', 'earthy', 'sweet', 'citrus', 'spicy'], multi: true },
+  flavours: { values: FLAVOURS, multi: true, groups: FLAVOUR_GROUPS },
 };
 export const ACCENTS = ['green', 'pink', 'gold', 'cyan', 'purple', 'orange'];
 const MEDIA = ['erde', 'coco', 'hydro', 'andere'];
@@ -59,6 +60,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
     return;
   }
   const isMe = p.isMe || (me && me.id === p.id);
+  const reviews = isMe ? await getMyImageReviews().catch(() => []) : []; // own uploaded pictures waiting / rejected
   const setupList = setupsOf(p);
   const main = mainSetup(setupList);
   const setup = SETUPS.find((s) => s.id === main?.type);
@@ -97,6 +99,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         ${me && !isMe ? `<div class="pf-report">${reportButtonHtml({ userId: p.id })}</div>` : ''}
       </section>
       <div class="pf-banner" data-banner aria-hidden="true" hidden></div>
+      ${reviewNotesHtml(reviews)}
 
       <section class="pf-stats">
         <div class="pf-stat"><b>${p.stats.battles ?? 0}</b><span>${esc(t('profile.statBattles'))}</span></div>
@@ -170,15 +173,16 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   document.fonts?.ready.then(() => fitSinceRow(root));
   bindReportButtons(root);
   if (!isMe) return;
+  reviews.filter((r) => r.status === 'rejected' && !r.seen).forEach((r) => ackImageReview(r.id).catch(() => {})); // note shown once
   root.querySelector('[data-logout]').addEventListener('click', async () => {
     await signOut();
     showWelcome('logout'); // "Bis bald, Grower!"
     onLogout?.();
   });
-  root.querySelector('[data-edit]').addEventListener('click', () => openEditor(root, me, key, onLogout, look));
+  root.querySelector('[data-edit]').addEventListener('click', () => openEditor(root, me, key, onLogout, look, reviews));
   let openNow = false;
   try { openNow = sessionStorage.getItem('bb.openEdit') === '1'; sessionStorage.removeItem('bb.openEdit'); } catch { /* ignore */ }
-  if (openNow) openEditor(root, me, key, onLogout, look);
+  if (openNow) openEditor(root, me, key, onLogout, look, reviews);
 }
 
 /** Page class: theme colours from the setup (the glow colour only changes the picture ring). */
@@ -288,9 +292,11 @@ function chipGroup(group, current) {
   return `
     <fieldset class="field opt-group" data-group="${group}" data-multi="${multi ? 1 : 0}">
       <legend class="label">${esc(t(`opt.${group}.title`))}${multi ? ` <span class="muted small">${esc(t('opt.multi'))}</span>` : ''}</legend>
+      ${(OPTIONS[group].groups || [{ values }]).map((g) => `
+      ${g.id ? `<p class="opt-subtitle">${esc(t(`opt.${group}.group.${g.id}`))}</p>` : ''}
       <div class="opt-chips">
-        ${values.map((v) => `<button type="button" class="bb-chip opt-chip" data-value="${v}" aria-pressed="${chosen.has(v)}">${esc(optLabel(group, v))}</button>`).join('')}
-      </div>
+        ${g.values.map((v) => `<button type="button" class="bb-chip opt-chip" data-value="${v}" aria-pressed="${chosen.has(v)}">${esc(optLabel(group, v))}</button>`).join('')}
+      </div>`).join('')}
     </fieldset>`;
 }
 
@@ -327,8 +333,23 @@ function showLook(root, look) {
   paletteFrom(source).then((pal) => { if (pf.isConnected && pf.dataset.lookSrc === source) applyPalette(pf, pal); });
 }
 
+/** "Your background is waiting for approval" / "… was not approved" (own profile only). */
+function reviewNotesHtml(reviews) {
+  const notes = reviews.filter((r) => r.status === 'pending' || (r.status === 'rejected' && !r.seen));
+  if (!notes.length) return '';
+  return `<div class="pf-review-notes">${notes.map((r) => `<p class="pf-review-note is-${r.status}" role="status">
+    ${r.status === 'pending' ? '⏳' : '✕'} ${esc(t(`look.${r.status}.${r.kind}`))}</p>`).join('')}</div>`;
+}
+
+/** The own picture waiting for approval: shown in the row, but not choosable yet. */
+function pendingOptHtml(kind, review) {
+  if (!review || review.status !== 'pending') return '';
+  return `<span class="look-opt is-pending" title="${esc(t(`look.pending.${kind}`))}">
+    <img src="${esc(profileImageUrl(review.path))}" alt="" loading="lazy"><span class="look-wait">⏳</span></span>`;
+}
+
 /** One scrollable row of small previews: none, own picture (upload), presets. */
-function lookRowHtml(kind, current) {
+function lookRowHtml(kind, current, review) {
   const presets = kind === 'bg' ? BG_PRESETS : BANNER_PRESETS;
   const own = current?.startsWith('u:') ? current : '';
   const opt = (value, inner, label, cls = '') => `<button type="button" class="look-opt ${cls}" data-look-value="${esc(value)}"
@@ -340,14 +361,16 @@ function lookRowHtml(kind, current) {
         <input type="file" accept="image/*" data-look-file="${kind}" hidden>
         <span class="look-none">＋ ${esc(t('look.upload'))}</span>
       </label>
+      <span data-pending-slot>${pendingOptHtml(kind, review)}</span>
       <span data-own-slot>${own ? opt(own, `<img src="${esc(lookUrl(kind, own, profileImageUrl))}" alt="" loading="lazy">`, t('look.own')) : ''}</span>
       ${presets.map((n) => opt(`p:${n}`, `<img src="${esc(lookUrl(kind, `p:${n}`, null, { thumb: true }))}" alt="" loading="lazy" width="${kind === 'bg' ? 96 : 120}" height="${kind === 'bg' ? 54 : 40}">`,
         t(`look.preset.${n}`))).join('')}
     </div>
-    <p class="hint" data-look-status="${kind}" role="status"></p>`;
+    <p class="hint" data-look-status="${kind}" role="status">${review?.status === 'pending' ? `⏳ ${esc(t(`look.pending.${kind}`))}` : ''}</p>`;
 }
 
-function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', xmas: true }) {
+function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', xmas: true }, reviews = []) {
+  const reviewOf = (kind) => reviews.find((r) => r.kind === kind);
   const slot = root.querySelector('[data-edit-slot]');
   const changedAt = me.usernameChangedAt ? new Date(me.usernameChangedAt) : null;
   const nextChange = changedAt ? new Date(changedAt.getTime() + NAME_CHANGE_DAYS * 864e5) : null;
@@ -393,11 +416,11 @@ function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', x
       </fieldset>
       <fieldset class="field look-field">
         <legend class="label">${esc(t('look.bgTitle'))}</legend>
-        ${lookRowHtml('bg', startLook.bg)}
+        ${lookRowHtml('bg', startLook.bg, reviewOf('bg'))}
       </fieldset>
       <fieldset class="field look-field">
         <legend class="label">${esc(t('look.bannerTitle'))}</legend>
-        ${lookRowHtml('banner', startLook.banner)}
+        ${lookRowHtml('banner', startLook.banner, reviewOf('banner'))}
       </fieldset>
       <label class="check"><input type="checkbox" id="pf-xmas" ${startLook.xmas !== false ? 'checked' : ''}><span>🎅 ${esc(t('look.xmas'))}</span></label>
       <div class="field"><label class="label" for="pf-bio">${esc(t('profile.bio'))}</label>
@@ -494,13 +517,9 @@ function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', x
     try {
       const { blob, ext } = await prepareUpload(file, kind);
       const value = await uploadProfileImage(kind, blob, ext);
-      look[kind] = value;
-      const slot = form.querySelector(`[data-look-row="${kind}"] [data-own-slot]`);
-      slot.innerHTML = `<button type="button" class="look-opt" data-look-value="${esc(value)}" aria-pressed="true" aria-label="${esc(t('look.own'))}" title="${esc(t('look.own'))}">
-        <img src="${esc(lookUrl(kind, value, profileImageUrl))}" alt=""></button>`;
-      markLook(kind);
-      showLook(root, look);
-      status.textContent = t('look.uploaded');
+      await submitProfileImage(kind, value); // goes to the admin first; the current picture stays until then
+      form.querySelector(`[data-look-row="${kind}"] [data-pending-slot]`).innerHTML = pendingOptHtml(kind, { status: 'pending', path: value.slice(2) });
+      status.textContent = `⏳ ${t(`look.pending.${kind}`)}`;
     } catch (ex) {
       status.className = 'hint error'; status.textContent = t(ex.code || 'error.generic');
     }

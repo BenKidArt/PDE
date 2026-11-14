@@ -582,3 +582,45 @@ export async function saveProfileLook({ bg = '', banner = '', xmas = true }) {
   if (!me) throw new StoreError('vote.loginNeeded');
   updateAccount(me.id, { look: { bg, banner, xmas } });
 }
+
+// ---------- Own profile pictures: approval (this device only) ----------
+const REVIEWS_KEY = 'bb.demo.imgreviews';
+
+export async function submitProfileImage(kind, value) {
+  const me = await getCurrentUser();
+  if (!me) throw new StoreError('vote.loginNeeded');
+  const list = readJson(REVIEWS_KEY, []).map((r) => (r.userId === me.id && r.kind === kind && r.status === 'pending' ? { ...r, status: 'replaced' } : r));
+  list.push({ id: crypto.randomUUID(), userId: me.id, username: me.username || me.displayName, kind, path: value.slice(2), status: 'pending', seen: false, createdAt: new Date().toISOString() });
+  writeJson(REVIEWS_KEY, list);
+}
+
+export async function getMyImageReviews() {
+  const me = await getCurrentUser();
+  if (!me) return [];
+  const mine = readJson(REVIEWS_KEY, []).filter((r) => r.userId === me.id && r.status !== 'replaced');
+  return ['bg', 'banner'].map((k) => mine.filter((r) => r.kind === k).at(-1)).filter(Boolean);
+}
+
+export async function ackImageReview(id) {
+  writeJson(REVIEWS_KEY, readJson(REVIEWS_KEY, []).map((r) => (r.id === id ? { ...r, seen: true } : r)));
+}
+
+export async function getImageReviews() {
+  return readJson(REVIEWS_KEY, []).filter((r) => r.status !== 'replaced').reverse().map((r) => ({ ...r, url: profileImageUrl(r.path) }));
+}
+
+export async function reviewImage(id, status) {
+  const list = readJson(REVIEWS_KEY, []);
+  const r = list.find((x) => x.id === id);
+  if (!r) return;
+  r.status = status; r.seen = false;
+  writeJson(REVIEWS_KEY, list);
+  const accounts = readJson(ACCOUNTS_KEY, {});
+  const acc = Object.values(accounts).find((a) => a.id === r.userId);
+  if (!acc) return;
+  const key = r.kind === 'bg' ? 'bg' : 'banner';
+  const look = { bg: '', banner: '', xmas: true, ...(acc.look || {}) };
+  if (status === 'approved') look[key] = `u:${r.path}`;
+  else if (look[key] === `u:${r.path}`) look[key] = '';
+  updateAccount(r.userId, { look });
+}

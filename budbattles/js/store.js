@@ -70,6 +70,11 @@ export const {
   saveProfileLook, // ({ bg, banner, xmas }, previous) – own look
   uploadProfileImage, // (kind 'bg'|'banner', blob, ext) → 'u:<path>'
   profileImageUrl, // (path) → picture address of an own upload
+  submitProfileImage, // (kind, 'u:<path>') – own picture goes to the admin for approval
+  getMyImageReviews, // own latest review per kind (pending / approved / rejected)
+  ackImageReview, // (id) – the member has seen the result note
+  getImageReviews, // admin: uploaded profile pictures
+  reviewImage, // admin: (id, 'approved' | 'rejected')
 } = impl;
 
 // Demo only (undefined with Supabase):

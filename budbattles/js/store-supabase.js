@@ -677,8 +677,47 @@ export async function saveProfileLook({ bg = '', banner = '', xmas = true }, pre
   if (error) {
     if (error.code === 'PGRST202' || /save_profile_look/.test(error.message || '')) throw new StoreError('error.dbUpdateLook');
     if (/look_invalid/.test(error.message || '')) throw new StoreError('error.profileInvalid');
+    if (/needs_approval/.test(error.message || '')) throw new StoreError('look.needsApproval');
     fail(error);
   }
   const unused = [previous.bg, previous.banner].filter((v) => v?.startsWith('u:') && v !== bg && v !== banner).map((v) => v.slice(2));
   if (unused.length) sb.storage.from(LOOK_BUCKET).remove(unused).then(() => {}, () => {});
+}
+
+// ---------- Own profile pictures: approval by an admin ----------
+
+/** Sends an uploaded picture ('u:<path>') for approval; a picture it replaces is deleted. */
+export async function submitProfileImage(kind, value) {
+  const { data, error } = await sb.rpc('submit_profile_image', { p_kind: kind, p_value: value });
+  if (error) {
+    if (error.code === 'PGRST202' || /submit_profile_image/.test(error.message || '')) throw new StoreError('error.dbUpdateApproval');
+    fail(error);
+  }
+  if (data) sb.storage.from(LOOK_BUCKET).remove([data]).then(() => {}, () => {});
+}
+
+/** Own latest review per kind: [{ id, kind, path, status: 'pending'|'approved'|'rejected', seen }]. */
+export async function getMyImageReviews() {
+  const { data, error } = await sb.rpc('my_image_reviews');
+  return error ? [] : data || [];
+}
+
+export async function ackImageReview(id) {
+  await sb.rpc('ack_image_review', { p_id: id });
+}
+
+/** Admin: uploaded profile pictures (last 60 days), newest first. */
+export async function getImageReviews() {
+  const { data, error } = await sb.rpc('admin_image_reviews');
+  if (error) fail(error);
+  return (data || []).map((r) => ({ id: r.id, kind: r.kind, path: r.path, status: r.status, createdAt: r.created_at,
+    userId: r.user_id, username: r.username, url: profileImageUrl(r.path) }));
+}
+
+/** Admin: approve (goes live) or reject (file deleted, the member gets a note). */
+export async function reviewImage(id, status) {
+  const { data, error } = await sb.rpc('admin_review_image', { p_id: id, p_status: status });
+  if (error) fail(error);
+  const remove = [status === 'rejected' ? data?.path : null, data?.replaced].filter(Boolean);
+  if (remove.length) await sb.storage.from(LOOK_BUCKET).remove(remove).catch(() => {});
 }

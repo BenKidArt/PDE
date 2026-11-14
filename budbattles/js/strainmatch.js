@@ -1,6 +1,7 @@
 // STRAIN MATCH – pure information. Compares the member's profile with the strain
 // list and returns the best matches with an honest match % and reasons that are
 // specific to each strain. No shops, prices or links. Only for legal home growing.
+import { flavourFit, hasMatchableFavourite, wishCount } from './flavours.js';
 
 /** Which profile fields count, and whether enough are filled in for useful matches. */
 export function profileSignals(p) {
@@ -153,16 +154,20 @@ export function matchStrains(strains, profile, limit = 5) {
     const weeks = `${x.flower_min}–${x.flower_max}`;
 
     // favourite flavours (strongest signal) – only the first 60 strains have flavour data
+    // a detailed favourite (e.g. pine) matches its family in the data (earthy) a bit less than the same flavour
     if (s.flavours.length) {
-      if (fresh || !(x.flavours || []).length) part(30, UNKNOWN_FIT, null);
+      if (fresh || !(x.flavours || []).length || !hasMatchableFavourite(s.flavours)) part(30, UNKNOWN_FIT, null);
       else {
         // the strain's main flavour (listed first) counts more than its side note
-        const hit = x.flavours.filter((f) => s.flavours.includes(f));
-        const main = s.flavours.includes(x.flavours[0]);
+        const fits = x.flavours.map((f) => flavourFit(f, s.flavours));
+        const hit = x.flavours.filter((f, i) => fits[i] > 0);
+        const mainFit = fits[0];
+        const sideFit = fits.slice(1).reduce((a, b) => a + b, 0);
         // one favourite: main flavour = full match, side note = partial; several: main + side notes add up
-        const fit = s.flavours.length === 1
-          ? (main ? 1 : hit.length ? 0.6 : 0)
-          : (main ? 0.65 : 0) + (hit.length - (main ? 1 : 0)) * 0.35;
+        // several favourites of the same family (pine + woody) count as one wish
+        const fit = wishCount(s.flavours) === 1
+          ? (mainFit ? mainFit : Math.max(0, ...fits.slice(1)) * 0.6)
+          : mainFit * 0.65 + sideFit * 0.35;
         part(30, Math.min(1, fit), hit.length ? { key: hit.length >= Math.min(s.flavours.length, 2) ? 'match.why.flavourAll' : 'match.why.flavour', vars: { flavours: hit }, always: true } : null);
       }
     }

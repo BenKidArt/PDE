@@ -1,5 +1,6 @@
 // STRAIN MATCH PAGE: the top 5 strains for the member's profile, as neon cards.
 // Pure information – no shops, prices, links or promotion.
+import { flavourFit } from '../flavours.js';
 import { t, getLang } from '../i18n.js';
 import { getCurrentUser, getStrains } from '../store.js';
 import { esc, chipHtml } from '../ui.js';
@@ -91,7 +92,7 @@ export async function renderStrainMatch(root) {
           <div class="match-tags">
             ${chips(s).map((c) => chipHtml(c)).join('')}
           </div>
-          ${(s.flavours || []).length ? `<p class="match-flavours">${s.flavours.map((f) => `<span class="${(user.flavours || []).includes(f) ? 'is-fav' : ''}">${esc(t(`opt.flavours.${f}`))}</span>`).join(' · ')}</p>` : ''}
+          ${(s.flavours || []).length ? `<p class="match-flavours">${s.flavours.map((f) => `<span class="${flavourFit(f, user.flavours || []) ? 'is-fav' : ''}">${esc(t(`opt.flavours.${f}`))}</span>`).join(' · ')}</p>` : ''}
           ${m.reasons.length ? `<ul class="match-why">${m.reasons.map((r) => `<li>✓ ${esc(reason(r))}</li>`).join('')}</ul>` : ''}
         </li>`;
       }).join('')}
