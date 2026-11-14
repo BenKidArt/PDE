@@ -5309,7 +5309,15 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "sweet",
+    "citrus",
+    "fruity",
+    "spicy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
   },
   {
    "name": "Chunky Balls",
@@ -5318,9 +5326,9 @@
    "photo": true,
    "genetics": "indica",
    "seeds": "regular",
-   "days": 65,
+   "days": 52,
    "days_meaning": "flowering",
-   "fast": false,
+   "fast": true,
    "long": false,
    "balcony_ok": false,
    "small_space": true,
@@ -5328,7 +5336,14 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "spicy",
+    "pine",
+    "earthy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
   },
   {
    "name": "Crystal Paradise",
@@ -5337,9 +5352,9 @@
    "photo": true,
    "genetics": "hybrid",
    "seeds": "regular+feminized",
-   "days": 70,
+   "days": 56,
    "days_meaning": "flowering",
-   "fast": false,
+   "fast": true,
    "long": false,
    "balcony_ok": false,
    "small_space": false,
@@ -5347,7 +5362,14 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "earthy",
+    "pine",
+    "spicy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-9"
   },
   {
    "name": "Early Durban",
@@ -5356,9 +5378,9 @@
    "photo": true,
    "genetics": "sativa",
    "seeds": "regular",
-   "days": 60,
+   "days": 52,
    "days_meaning": "flowering",
-   "fast": false,
+   "fast": true,
    "long": false,
    "balcony_ok": true,
    "small_space": false,
@@ -5366,7 +5388,14 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "citrus",
+    "fruity",
+    "spicy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
   },
   {
    "name": "Early Purple",
@@ -5375,9 +5404,9 @@
    "photo": true,
    "genetics": "indica-dominant",
    "seeds": "regular",
-   "days": 60,
+   "days": 52,
    "days_meaning": "flowering",
-   "fast": false,
+   "fast": true,
    "long": false,
    "balcony_ok": true,
    "small_space": true,
@@ -5385,7 +5414,15 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "berry",
+    "fruity",
+    "spicy",
+    "sweet"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
   },
   {
    "name": "Great White Kush",
@@ -5394,9 +5431,9 @@
    "photo": true,
    "genetics": "hybrid",
    "seeds": "regular+feminized",
-   "days": 70,
+   "days": 60,
    "days_meaning": "flowering",
-   "fast": false,
+   "fast": true,
    "long": false,
    "balcony_ok": false,
    "small_space": false,
@@ -5404,7 +5441,15 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "pine",
+    "citrus",
+    "creamy",
+    "spicy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
   },
   {
    "name": "Malawi",
@@ -5413,7 +5458,7 @@
    "photo": true,
    "genetics": "sativa",
    "seeds": "regular+feminized",
-   "days": 77,
+   "days": 91,
    "days_meaning": "flowering",
    "fast": false,
    "long": true,
@@ -5423,7 +5468,15 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "tropical",
+    "citrus",
+    "spicy",
+    "floral"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "12-14"
   },
   {
    "name": "Northern Chunk",
@@ -5431,10 +5484,10 @@
    "auto": false,
    "photo": true,
    "genetics": "indica-dominant",
-   "seeds": "regular",
-   "days": 65,
+   "seeds": "regular+feminized",
+   "days": 60,
    "days_meaning": "flowering",
-   "fast": false,
+   "fast": true,
    "long": false,
    "balcony_ok": false,
    "small_space": true,
@@ -5442,7 +5495,14 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "pine",
+    "spicy",
+    "woody"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
   },
   {
    "name": "Northern Light Auto",
@@ -5461,7 +5521,15 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "pine",
+    "sweet",
+    "citrus",
+    "woody"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
   },
   {
    "name": "Purple Berry Auto",
@@ -5480,7 +5548,14 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "berry",
+    "fruity",
+    "sweet"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
   },
   {
    "name": "Purple Kush",
@@ -5489,7 +5564,7 @@
    "photo": true,
    "genetics": "indica",
    "seeds": "regular",
-   "days": 54,
+   "days": 52,
    "days_meaning": "flowering",
    "fast": true,
    "long": false,
@@ -5499,7 +5574,14 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "berry",
+    "spicy",
+    "sweet"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
   },
   {
    "name": "Purple OG",
@@ -5508,9 +5590,9 @@
    "photo": true,
    "genetics": "indica-dominant",
    "seeds": "regular+feminized",
-   "days": 70,
+   "days": 60,
    "days_meaning": "flowering",
-   "fast": false,
+   "fast": true,
    "long": false,
    "balcony_ok": false,
    "small_space": true,
@@ -5518,7 +5600,15 @@
    "shops_available": [],
    "needs_check": false,
    "source": "seedfinder.eu breeder page, Nov 2026",
-   "active": true
+   "active": true,
+   "flavours": [
+    "berry",
+    "pine",
+    "earthy",
+    "floral"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
   },
   {
    "name": "Afghan Kush Auto",
@@ -7438,6 +7528,510 @@
    "needs_check": true,
    "source": "seedfinder.eu breeder page, Nov 2026",
    "active": true
+  },
+  {
+   "name": "Amnesia 47 Auto",
+   "breeder": "Huba Seed Bank",
+   "auto": true,
+   "photo": false,
+   "genetics": "sativa-dominant",
+   "seeds": "feminized",
+   "days": null,
+   "days_meaning": null,
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": true,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "creamy",
+    "citrus",
+    "fruity",
+    "spicy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
+  },
+  {
+   "name": "Blackberry Auto",
+   "breeder": "Huba Seed Bank",
+   "auto": true,
+   "photo": false,
+   "genetics": "indica-dominant",
+   "seeds": "feminized",
+   "days": null,
+   "days_meaning": null,
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": true,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "berry",
+    "sweet",
+    "spicy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
+  },
+  {
+   "name": "Critical Candy Auto",
+   "breeder": "Huba Seed Bank",
+   "auto": true,
+   "photo": false,
+   "genetics": "hybrid",
+   "seeds": "feminized",
+   "days": null,
+   "days_meaning": null,
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "sweet",
+    "fruity",
+    "candy",
+    "creamy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
+  },
+  {
+   "name": "Glueberry Auto",
+   "breeder": "Huba Seed Bank",
+   "auto": true,
+   "photo": false,
+   "genetics": "indica-dominant",
+   "seeds": "feminized",
+   "days": null,
+   "days_meaning": null,
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": true,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "berry",
+    "gassy",
+    "pine"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
+  },
+  {
+   "name": "Gorilla Cookies Auto",
+   "breeder": "Huba Seed Bank",
+   "auto": true,
+   "photo": false,
+   "genetics": "indica",
+   "seeds": "feminized",
+   "days": null,
+   "days_meaning": null,
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "gassy",
+    "spicy",
+    "sweet"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-9"
+  },
+  {
+   "name": "Kush Auto",
+   "breeder": "Huba Seed Bank",
+   "auto": true,
+   "photo": false,
+   "genetics": "indica",
+   "seeds": "feminized",
+   "days": null,
+   "days_meaning": null,
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "earthy",
+    "pine",
+    "spicy",
+    "citrus"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
+  },
+  {
+   "name": "Purple Pie Auto",
+   "breeder": "Huba Seed Bank",
+   "auto": true,
+   "photo": false,
+   "genetics": "indica-dominant",
+   "seeds": "feminized",
+   "days": 84,
+   "days_meaning": "seed-to-harvest",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": true,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "sweet",
+    "fruity",
+    "berry"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-9"
+  },
+  {
+   "name": "Holy Grail Kush",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "indica-dominant",
+   "seeds": "feminized",
+   "days": 60,
+   "days_meaning": "flowering",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "earthy",
+    "pine",
+    "fruity"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
+  },
+  {
+   "name": "OG Kush",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "indica",
+   "seeds": "feminized",
+   "days": 60,
+   "days_meaning": "flowering",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "earthy",
+    "pine",
+    "gassy",
+    "citrus"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
+  },
+  {
+   "name": "Ortega Gas",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "indica",
+   "seeds": "feminized",
+   "days": 52,
+   "days_meaning": "flowering",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": true,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "pine",
+    "earthy",
+    "gassy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "7-8"
+  },
+  {
+   "name": "White Swine",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "indica-dominant",
+   "seeds": "feminized",
+   "days": 60,
+   "days_meaning": "flowering",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "sweet",
+    "fruity",
+    "pine",
+    "creamy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
+  },
+  {
+   "name": "Hubatonic CBD",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "hybrid",
+   "seeds": "feminized",
+   "days": 66,
+   "days_meaning": "flowering",
+   "fast": false,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "citrus",
+    "floral",
+    "earthy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "9-10"
+  },
+  {
+   "name": "Northern Chunk CBD",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "indica",
+   "seeds": "feminized",
+   "days": 60,
+   "days_meaning": "flowering",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": true,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "pine",
+    "spicy",
+    "woody"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
+  },
+  {
+   "name": "Skunk CBD",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "hybrid",
+   "seeds": "feminized",
+   "days": 66,
+   "days_meaning": "flowering",
+   "fast": false,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "skunk",
+    "citrus",
+    "spicy"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "9-10"
+  },
+  {
+   "name": "Haze",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "hybrid",
+   "seeds": "regular",
+   "days": 98,
+   "days_meaning": "flowering",
+   "fast": false,
+   "long": true,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "citrus",
+    "spicy",
+    "tropical",
+    "floral"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "12-16"
+  },
+  {
+   "name": "HazeJack",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "hybrid",
+   "seeds": "regular",
+   "days": 74,
+   "days_meaning": "flowering",
+   "fast": false,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "citrus",
+    "pine",
+    "spicy",
+    "woody"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "10-11"
+  },
+  {
+   "name": "Malawi Queen",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "hybrid",
+   "seeds": "regular",
+   "days": 77,
+   "days_meaning": "flowering",
+   "fast": false,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "tropical",
+    "citrus",
+    "spicy",
+    "sweet"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "10-12"
+  },
+  {
+   "name": "Northern Light",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "indica",
+   "seeds": "regular",
+   "days": 60,
+   "days_meaning": "flowering",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "pine",
+    "sweet",
+    "woody",
+    "citrus"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
+  },
+  {
+   "name": "Skunk",
+   "breeder": "Huba Seed Bank",
+   "auto": false,
+   "photo": true,
+   "genetics": "hybrid",
+   "seeds": "regular",
+   "days": 60,
+   "days_meaning": "flowering",
+   "fast": true,
+   "long": false,
+   "balcony_ok": false,
+   "small_space": false,
+   "partner": true,
+   "shops_available": [],
+   "needs_check": false,
+   "source": "Huba catalog 2026",
+   "active": true,
+   "flavours": [
+    "skunk",
+    "spicy",
+    "sour",
+    "sweet"
+   ],
+   "flavor_source": "Huba catalog 2026",
+   "flowering_weeks": "8-9"
   }
  ]
 }

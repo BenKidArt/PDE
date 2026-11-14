@@ -153,10 +153,10 @@ export function matchStrains(strains, profile, limit = 5) {
     const fresh = isNew(x);
     const weeks = `${x.flower_min}–${x.flower_max}`;
 
-    // favourite flavours (strongest signal) – only the first 60 strains have flavour data
+    // favourite flavours (strongest signal) – the first 60 strains and the Huba catalogue strains have flavour data
     // a detailed favourite (e.g. pine) matches its family in the data (earthy) a bit less than the same flavour
     if (s.flavours.length) {
-      if (fresh || !(x.flavours || []).length || !hasMatchableFavourite(s.flavours)) part(30, UNKNOWN_FIT, null);
+      if (!(x.flavours || []).length || !hasMatchableFavourite(s.flavours)) part(30, UNKNOWN_FIT, null);
       else {
         // the strain's main flavour (listed first) counts more than its side note
         const fits = x.flavours.map((f) => flavourFit(f, s.flavours));
@@ -165,9 +165,11 @@ export function matchStrains(strains, profile, limit = 5) {
         const sideFit = fits.slice(1).reduce((a, b) => a + b, 0);
         // one favourite: main flavour = full match, side note = partial; several: main + side notes add up
         // several favourites of the same family (pine + woody) count as one wish
+        // any matching note (main or side) always counts more than "no flavour data" (0.75)
+        const best = Math.max(mainFit, Math.max(0, ...fits.slice(1)) * 0.94);
         const fit = wishCount(s.flavours) === 1
-          ? (mainFit ? mainFit : Math.max(0, ...fits.slice(1)) * 0.6)
-          : mainFit * 0.65 + sideFit * 0.35;
+          ? (mainFit ? mainFit : best * 0.85)
+          : Math.max(mainFit * 0.65 + sideFit * 0.35, best * 0.8);
         part(30, Math.min(1, fit), hit.length ? { key: hit.length >= Math.min(s.flavours.length, 2) ? 'match.why.flavourAll' : 'match.why.flavour', vars: { flavours: hit }, always: true } : null);
       }
     }

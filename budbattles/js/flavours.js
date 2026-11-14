@@ -32,15 +32,18 @@ export const normFlavour = (f) => SYNONYMS[String(f).toLowerCase()] || String(f)
  * 1 = the same flavour, 0.85 = same family (e.g. strain "earthy", favourite "pine"), 0 = no.
  * (A family match stays above "no flavour data", which counts 0.75 in Strain Match.)
  */
+const familyOf = (x) => (FLAVOUR_FAMILY[x] && FLAVOUR_FAMILY[x].length ? FLAVOUR_FAMILY[x] : [x]);
 export function flavourFit(strainFlavour, favourites) {
   const f = normFlavour(strainFlavour);
   if (favourites.includes(f)) return 1;
-  if (favourites.some((x) => (FLAVOUR_FAMILY[x] || []).includes(f))) return 0.85;
+  // same family either way: strain "earthy" ↔ favourite "pine", or strain "pine" ↔ favourite "woody"/"earthy"
+  const fam = familyOf(f);
+  if (favourites.some((x) => familyOf(x).some((y) => fam.includes(y)))) return 0.85;
   return 0;
 }
 
 /** Does any favourite have a family the strain data can show? (floral/mint alone: no) */
-export const hasMatchableFavourite = (favourites) => favourites.some((x) => (FLAVOUR_FAMILY[x] || [x]).length);
+export const hasMatchableFavourite = (favourites) => favourites.length > 0;
 
 /** How many different flavour wishes the favourites make (pine + woody = one wish: earthy). */
 export function wishCount(favourites) {

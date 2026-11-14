@@ -1,3 +1,6 @@
+-- DO NOT RUN (Nov 2026): Strain Match now reads the app's own list (data/strains.json,
+-- built from data/strains_with_flavors.csv incl. the Huba catalogue flavours). Running this
+-- would switch Strain Match to an older database list without flavours.
 -- =====================================================================
 -- BudBattles update 015: 341 more strains for Strain Match (from strains.csv, Nov 2026)
 -- with breeder, genetics, days and the tags fast / long / balcony_ok / small_space.

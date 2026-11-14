@@ -67,7 +67,10 @@ export async function renderStrainMatch(root) {
   // facts only: the chips show what the data says – nothing about effects, no "best"
   const chips = (s) => (s.breeder ? [
     s.genetics ? t(`match.gen.${s.genetics}`) : '', seedChip(s),
-    s.days ? `⏱ ${t(s.auto ? 'match.daysAuto' : 'match.daysFlower', { days: s.days })}` : '',
+    // catalogue strains: the breeder's own flowering weeks; autos also show seed-to-harvest days if known
+    s.days && !(s.flowering_weeks && s.days_meaning === 'flowering')
+      ? `⏱ ${t(s.days_meaning === 'flowering' || !s.auto ? 'match.daysFlower' : 'match.daysAuto', { days: s.days })}` : '',
+    s.flowering_weeks ? `⏱ ${t('match.weeks', { weeks: s.flowering_weeks.replace('-', '–') })}` : '',
     s.fast ? t('match.fastTag') : '',
     s.small_space ? t('match.smallSpace') : '', s.balcony_ok ? t('match.balconyTag') : '',
     s.seeds === 'regular' ? t('match.seedsRegular') : s.seeds === 'regular+feminized' ? t('match.seedsBoth') : '',
