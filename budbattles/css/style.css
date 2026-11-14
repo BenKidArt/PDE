@@ -1378,3 +1378,77 @@ input[type="date"]:focus { outline: none; border-color: var(--neon-green); box-s
 .battle-pink h2 { color: #ff8cc6; }
 .battle-pink .rules li::marker { color: #ff5fb4; }
 .battle-pink .date-row.active { border-left-color: #ff5fb4; }
+
+/* =====================================================================
+   ADMIN: compact rows (thumbnail, name, strain, date, Show card, Approve/Reject)
+   so 4–5 entries fit on a 360px screen. The full card opens in a popup.
+   ===================================================================== */
+.admin-bar-compact { position: static; gap: 8px; padding: 8px 0 10px; }
+.admin-h1 { margin: 0; font-size: 1.25rem; line-height: 1.2; }
+.admin-bar-compact select { min-height: 40px; padding: 6px 12px; }
+.admin-bar-compact .admin-links {
+  flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 4px; scrollbar-width: none;
+}
+.admin-bar-compact .admin-links::-webkit-scrollbar { display: none; }
+.admin-bar-compact .admin-links .bb-chip { flex: none; white-space: nowrap; }
+.admin-bar-compact .tabs { min-height: 42px; }
+.arow-list { display: grid; gap: 8px; }
+.arow {
+  display: grid; grid-template-columns: 70px minmax(0, 1fr) auto; gap: 10px; align-items: center;
+  padding: 7px 8px 7px 7px; border-radius: 14px; background: var(--card); border: 1px solid var(--line-calm);
+}
+.arow-thumb {
+  position: relative; width: 70px; height: 70px; padding: 0; border: 0; border-radius: 10px; overflow: hidden;
+  background: #000; cursor: pointer;
+}
+.arow-bg { position: absolute; inset: -12%; width: 124%; height: 124%; object-fit: cover; filter: blur(8px) brightness(.45); }
+.arow-img { position: relative; width: 100%; height: 100%; object-fit: contain; }
+.arow-info { min-width: 0; display: grid; gap: 1px; }
+.arow-info p { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.arow-name { font-weight: 800; font-size: .92rem; line-height: 1.25; }
+.arow-name a { color: var(--text); text-decoration: none; }
+.arow-strain { color: var(--neon-green, var(--green)); font-weight: 700; font-size: .82rem; line-height: 1.25; }
+.arow-date { color: var(--muted); font-size: .74rem; line-height: 1.3; }
+.arow-date a { color: var(--pink); }
+.arow-card {
+  justify-self: start; margin-top: 2px; padding: 2px 0; border: 0; background: none; cursor: pointer;
+  color: var(--neon-pink-line, #ff8cc6); font: 700 .76rem/1.2 var(--font); text-decoration: underline; text-underline-offset: 2px;
+}
+.arow-actions { display: grid; gap: 6px; }
+.btn.btn-xs { min-height: 32px; padding: 0 10px; font-size: .74rem; letter-spacing: .02em; border-width: 1.5px; gap: 4px; }
+.card-modal { gap: 10px; padding: 14px; }
+.card-modal-img .share-card-img { width: 100%; height: auto; border-radius: 12px; display: block; }
+.card-modal-img .share-card-wait { padding: 60px 0; }
+.card-modal-desc { text-align: left; color: var(--muted); }
+.card-modal .share-card-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.card-modal .share-card-actions:empty { display: none; }
+
+/* =====================================================================
+   PHOTOS: always the whole photo. The frame keeps the photo's shape between 4:5 and
+   5:4; for unusual shapes the empty space is a blurred, darkened copy of the photo.
+   ===================================================================== */
+.ncard-media { position: relative; width: 100%; overflow: hidden; background: #000; }
+.ncard-media .ncard-photo { position: relative; width: 100%; height: 100%; object-fit: contain; background: transparent; }
+.ncard-bg {
+  position: absolute; inset: -10%; width: 120%; height: 120%; object-fit: cover;
+  filter: blur(18px) brightness(.42) saturate(1.15); transform: translateZ(0);
+}
+/* report flag on the photo corner (saves a row under each card) */
+.ncard-corner { position: absolute; top: 8px; right: 8px; z-index: 2; }
+.report-btn-icon {
+  width: 32px; height: 32px; padding: 0; display: grid; place-items: center; font-size: .9rem;
+  color: #fff; background: rgba(0, 0, 0, .5); border-color: rgba(255, 255, 255, .25);
+}
+/* tighter spacing around cards (the photo itself is never cropped) */
+.ncard-list { gap: 16px; }
+.ncard { gap: 8px; }
+.ncard-below { padding: 0 2px; gap: 8px; }
+.ncard-below .btn-vote { min-height: 42px; }
+/* admin rows: a bit tighter so 4–5 fit on one 360px screen */
+.arow { padding: 6px 8px 6px 6px; gap: 10px; }
+.arow-list { gap: 6px; }
+.arow-name { font-size: .9rem; line-height: 1.15; }
+.arow-strain { font-size: .8rem; line-height: 1.2; }
+.arow-date { font-size: .72rem; line-height: 1.25; }
+.arow-card { margin-top: 1px; padding: 1px 0; font-size: .74rem; }
+.admin-bar-compact { padding: 6px 0 8px; gap: 7px; }

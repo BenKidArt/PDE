@@ -33,16 +33,13 @@ export async function renderAdmin(root) {
   }
 
   root.innerHTML = `
-    <section class="hero hero-small">
-      <p class="eyebrow">${esc(t('profile.admin'))}</p>
-      <h1 class="neon-title">${esc(t('admin.title'))}</h1>
-    </section>
-    <div class="admin-bar">
-      <label class="label" for="admin-battle">${esc(t('nav.battle'))}</label>
+    <div class="admin-bar admin-bar-compact">
+      <h1 class="admin-h1">${esc(t('admin.title'))}</h1>
+      <label class="sr-only" for="admin-battle">${esc(t('nav.battle'))}</label>
       <select id="admin-battle" data-battle>
         ${battles.map((b) => `<option value="${esc(b.id)}" ${b.id === state.battleId ? 'selected' : ''}>${b.isDraft ? `${esc(t('battle.draftLabel'))} · ` : b.isTest ? `${esc(t('battle.testLabel'))} · ` : ''}${esc(tc(b.theme))}</option>`).join('')}
       </select>
-      <div class="admin-links" data-links></div>
+      <div class="admin-links" data-links data-hscroll></div>
       <div class="tabs tabs-3" role="tablist" data-tabs></div>
     </div>
     <div class="admin-list" data-list aria-live="polite"></div>
@@ -102,59 +99,74 @@ export async function renderAdmin(root) {
     const seedButton = isDemo && seedDemoEntries && state.tab === 'pending'
       ? `<p class="center"><button class="btn btn-ghost btn-small" type="button" data-seed>${esc(t('admin.seedDemo'))}</button></p>` : '';
     listEl.innerHTML = shown.length
-      ? shown.map((e) => card(e)).join('') + seedButton
+      ? `<div class="arow-list">${shown.map((e) => row(e)).join('')}</div>${seedButton}`
       : `<section class="card center"><p class="muted">${esc(t(`admin.empty.${state.tab}`))}</p>${seedButton}</section>`;
     listEl.querySelector('[data-seed]')?.addEventListener('click', async () => {
       await seedDemoEntries(state.battleId);
       load();
     });
-    listEl.querySelectorAll('[data-zoom]').forEach((img) => img.addEventListener('click', () => img.classList.toggle('zoomed')));
+    listEl.querySelectorAll('[data-show-card]').forEach((btn) => btn.addEventListener('click', () => {
+      const entry = entries.find((x) => x.id === btn.closest('[data-entry]').dataset.entry);
+      if (entry) openCard(entry);
+    }));
     listEl.querySelectorAll('[data-action]').forEach((btn) => btn.addEventListener('click', () => {
       act(btn.closest('[data-entry]').dataset.entry, btn.dataset.action, btn);
     }));
-    if (state.tab === 'approved') fillCards(shown);
   }
 
-  /** Approved entries automatically become share cards (one after the other). */
-  async function fillCards(shown) {
+  /** Pill on the card: live rank once voting runs, else the entry number (approved only). */
+  function pillOf(e) {
+    if (ranks.has(e.id)) return `#${ranks.get(e.id)}`;
+    if (e.status !== 'approved') return '';
+    const approvedInOrder = entries.filter((x) => x.status === 'approved').sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    return `${t('card.entry')} #${approvedInOrder.indexOf(e) + 1}`;
+  }
+
+  /** "Show card": the full download card in a popup, with Download and Share. Made on demand, then cached. */
+  async function openCard(e) {
+    if (document.querySelector('.modal-backdrop')) return;
     const battle = battles.find((b) => b.id === state.battleId);
-    const approvedInOrder = entries.filter((e) => e.status === 'approved')
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
-    for (const e of shown) {
-      const box = listEl.querySelector(`[data-entry="${CSS.escape(e.id)}"] [data-card]`);
-      if (!box) return; // the list was redrawn meanwhile
-      const pill = ranks.has(e.id) ? `#${ranks.get(e.id)}` : `${t('card.entry')} #${approvedInOrder.indexOf(e) + 1}`;
-      const key = `${e.id}|${pill}|${e.displayName}|${e.instagram}|${e.avatar}|${e.strain}|${getLang()}`;
-      try {
-        let file = cardCache.get(key);
-        if (!file) {
-          file = await entryCardFile({
-            photoUrl: e.photoUrl, displayName: e.displayName, strain: e.strain, pill, avatar: e.avatar, instagram: e.instagram,
-            eyebrow: `${battleLabel(battle)} · ${tc(battle.theme)}`,
-          }, `budbattles-${(e.displayName || 'entry').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`);
-          cardCache.set(key, file);
-        }
-        if (!box.isConnected) return;
-        showCard(box, file);
-      } catch (err) {
-        console.error(err);
-        if (box.isConnected) box.innerHTML = `<p class="error small">${esc(t('card.failed'))}</p>`;
-      }
-    }
-  }
-
-  function showCard(box, file) {
-    const url = URL.createObjectURL(file);
-    const canShare = !!navigator.canShare?.({ files: [file] });
-    box.innerHTML = `
-      <img class="share-card-img" src="${url}" alt="${esc(t('card.alt'))}" width="1080" height="1350">
-      <div class="share-card-actions">
-        <a class="btn btn-primary" href="${url}" download="${esc(file.name)}">⬇ ${esc(t('card.download'))}</a>
-        ${canShare ? `<button type="button" class="btn btn-ghost" data-share>↗ ${esc(t('card.share'))}</button>` : ''}
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-backdrop';
+    wrap.innerHTML = `
+      <div class="modal card-modal" role="dialog" aria-modal="true" aria-label="${esc(t('card.alt'))}">
+        <div class="card-modal-img" data-card><p class="muted small share-card-wait">${esc(t('card.making'))}</p></div>
+        ${e.description ? `<p class="small card-modal-desc">${esc(e.description)}</p>` : ''}
+        <div class="share-card-actions" data-card-actions></div>
+        <button type="button" class="link-button" data-close>${esc(t('app.close'))}</button>
       </div>`;
-    box.querySelector('[data-share]')?.addEventListener('click', async () => {
-      try { await navigator.share({ files: [file] }); } catch { /* closed by the user */ }
-    });
+    document.body.appendChild(wrap);
+    const close = () => wrap.remove();
+    wrap.querySelector('[data-close]').addEventListener('click', close);
+    wrap.addEventListener('click', (ev) => { if (ev.target === wrap) close(); });
+    document.addEventListener('keydown', function esc_(ev) { if (ev.key === 'Escape') { close(); document.removeEventListener('keydown', esc_); } });
+    const box = wrap.querySelector('[data-card]');
+    const pill = pillOf(e);
+    const key = `${e.id}|${pill}|${e.displayName}|${e.instagram}|${e.avatar}|${e.strain}|${getLang()}`;
+    try {
+      let file = cardCache.get(key);
+      if (!file) {
+        file = await entryCardFile({
+          photoUrl: e.photoUrl, displayName: e.displayName, strain: e.strain, pill, avatar: e.avatar, instagram: e.instagram,
+          eyebrow: `${battleLabel(battle)} · ${tc(battle.theme)}`,
+        }, `budbattles-${(e.displayName || 'entry').toLowerCase().replace(/[^a-z0-9]+/g, '-')}.jpg`);
+        cardCache.set(key, file);
+      }
+      if (!box.isConnected) return;
+      const url = URL.createObjectURL(file);
+      const canShare = !!navigator.canShare?.({ files: [file] });
+      box.innerHTML = `<img class="share-card-img" src="${url}" alt="${esc(t('card.alt'))}" width="1080" height="1350">`;
+      const actions = wrap.querySelector('[data-card-actions]');
+      actions.innerHTML = `
+        <a class="btn btn-primary" href="${url}" download="${esc(file.name)}">⬇ ${esc(t('card.download'))}</a>
+        ${canShare ? `<button type="button" class="btn btn-ghost" data-share>↗ ${esc(t('card.share'))}</button>` : ''}`;
+      actions.querySelector('[data-share]')?.addEventListener('click', async () => {
+        try { await navigator.share({ files: [file] }); } catch { /* closed by the user */ }
+      });
+    } catch (err) {
+      console.error(err);
+      if (box.isConnected) box.innerHTML = `<p class="error small">${esc(t('card.failed'))}</p>`;
+    }
   }
 
   async function act(id, status, btn) {
@@ -192,31 +204,32 @@ export async function renderAdmin(root) {
   await load();
 }
 
-function card(e) {
+/** One compact row: thumbnail, name, strain, date, "Show card", Approve / Reject. */
+function row(e) {
   const date = new Intl.DateTimeFormat(getLang() === 'de' ? 'de-DE' : 'en-GB', {
     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin',
   }).format(new Date(e.createdAt));
   const buttons = {
-    pending: ['rejected', 'approved'],
+    pending: ['approved', 'rejected'],
     approved: ['rejected'],
     rejected: ['approved'],
   }[e.status];
+  const name = e.username ? `<a href="#/u/${encodeURIComponent(e.username)}">${esc(e.displayName)}</a>` : esc(e.displayName);
   return `
-    <article class="card review" data-entry="${esc(e.id)}">
-      ${e.status === 'approved'
-        ? `<div class="share-card" data-card><p class="muted small share-card-wait">${esc(t('card.making'))}</p></div>`
-        : `<img class="review-photo" src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" data-zoom
-        width="${e.width}" height="${e.height}" loading="lazy">`}
-      <div class="review-body">
-        <p class="review-meta"><strong>${e.username ? `<a href="#/u/${encodeURIComponent(e.username)}">${esc(e.displayName)}</a>` : esc(e.displayName)}</strong>
-          ${e.instagram ? `<a class="review-insta" href="https://instagram.com/${encodeURIComponent(e.instagram)}" target="_blank" rel="noopener noreferrer">@${esc(e.instagram)}</a>` : `<span class="muted small">${esc(t(e.username ? 'admin.noInstagram' : 'admin.noProfileName'))}</span>`}
-          <span class="muted small">${esc(date)}</span></p>
-        ${e.strain ? `<p class="review-strain">${esc(e.strain)}</p>` : ''}
-        ${e.description ? `<p class="small">${esc(e.description)}</p>` : ''}
+    <article class="arow" data-entry="${esc(e.id)}">
+      <button type="button" class="arow-thumb" data-show-card aria-label="${esc(t('admin.showCard'))}">
+        <img class="arow-bg" src="${esc(e.photoUrl)}" alt="" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="arow-img" src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" loading="lazy" decoding="async">
+      </button>
+      <div class="arow-info">
+        <p class="arow-name">${name}</p>
+        ${e.strain ? `<p class="arow-strain">${esc(e.strain)}</p>` : ''}
+        <p class="arow-date">${esc(date)}${e.instagram ? ` · <a class="review-insta" href="https://instagram.com/${encodeURIComponent(e.instagram)}" target="_blank" rel="noopener noreferrer">@${esc(e.instagram)}</a>` : ''}</p>
+        <button type="button" class="arow-card" data-show-card>▣ ${esc(t('admin.showCard'))}</button>
       </div>
-      <div class="review-actions">
-        ${buttons.map((s) => `<button type="button" class="btn ${s === 'approved' ? 'btn-primary' : 'btn-reject'}" data-action="${s}">
-          ${s === 'approved' ? '✓' : '✕'} ${esc(t(`admin.action.${s}`))}</button>`).join('')}
+      <div class="arow-actions">
+        ${buttons.map((st) => `<button type="button" class="btn btn-xs ${st === 'approved' ? 'btn-primary' : 'btn-reject'}" data-action="${st}">
+          ${st === 'approved' ? '✓' : '✕'} ${esc(t(`admin.action.${st}`))}</button>`).join('')}
       </div>
     </article>`;
 }

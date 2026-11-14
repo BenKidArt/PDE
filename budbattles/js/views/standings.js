@@ -90,9 +90,9 @@ export async function renderStandings(root, { id } = {}) {
           ${e.id === myVote ? `<span class="your-vote">✓ ${esc(t('vote.yourVote'))}</span>` : ''}
         </div>
         <div data-ts></div>
-        <p class="error small" data-error hidden></p>
-        ${user && !e.isMine ? `<div class="ncard-report">${reportButtonHtml({ entryId: e.id })}</div>` : ''}`;
-      return neonCardHtml(e, { eyebrow, pill: pillFor(e, entries, status), top, below });
+        <p class="error small" data-error hidden></p>`;
+      const corner = user && !e.isMine ? reportButtonHtml({ entryId: e.id, iconOnly: true }) : '';
+      return neonCardHtml(e, { eyebrow, pill: pillFor(e, entries, status), top, below, corner });
     }).join('');
     bindReportButtons(listEl);
 

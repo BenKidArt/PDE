@@ -7,8 +7,9 @@ import { esc } from './ui.js';
 const REASONS = ['underage', 'fake', 'spam'];
 
 /** Small "⚑ Report" button. Put data-report-user / data-report-entry on it. */
-export function reportButtonHtml({ userId = '', entryId = '' } = {}) {
-  return `<button type="button" class="report-btn" data-report-user="${esc(userId)}" data-report-entry="${esc(entryId)}">⚑ ${esc(t('report.button'))}</button>`;
+export function reportButtonHtml({ userId = '', entryId = '', iconOnly = false } = {}) {
+  return `<button type="button" class="report-btn${iconOnly ? ' report-btn-icon' : ''}" data-report-user="${esc(userId)}" data-report-entry="${esc(entryId)}"
+    ${iconOnly ? `aria-label="${esc(t('report.button'))}" title="${esc(t('report.button'))}">⚑` : `>⚑ ${esc(t('report.button'))}`}</button>`;
 }
 
 /** Wires every report button inside root. */

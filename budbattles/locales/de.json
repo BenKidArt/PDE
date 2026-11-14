@@ -545,5 +545,6 @@
   "battle.draftNotice": "Entwurf – nur Admins sehen diese Seite.",
   "battle.hostedWith": "Hosted with",
   "battle.logoPlaceholder": "Logo",
-  "app.close": "Schließen"
+  "app.close": "Schließen",
+  "admin.showCard": "Karte zeigen"
 }

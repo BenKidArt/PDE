@@ -52,6 +52,35 @@ function neonStroke(ctx, color, width, glow) {
   ctx.restore();
 }
 
+/**
+ * The whole photo, never cropped or stretched (contain). Any empty space around it is
+ * filled with a blurred, darkened copy of the same photo instead of black bars.
+ * The blur is made by shrinking the photo to a few pixels and scaling it back up,
+ * which works in every browser (also where canvas filters are missing).
+ */
+export function drawPhotoFitted(ctx, photo, x, y, w, h) {
+  const iw = photo.naturalWidth || photo.width, ih = photo.naturalHeight || photo.height;
+  const cover = Math.max(w / iw, h / ih);
+  const contain = Math.min(w / iw, h / ih);
+  const pw = iw * contain, ph = ih * contain;
+  if (Math.abs(pw - w) > 1 || Math.abs(ph - h) > 1) {
+    const tiny = document.createElement('canvas');
+    tiny.width = 32;
+    tiny.height = Math.max(1, Math.round(32 * h / w));
+    const tctx = tiny.getContext('2d');
+    const cw = iw * cover * (tiny.width / w), ch = ih * cover * (tiny.width / w);
+    tctx.drawImage(photo, (tiny.width - cw) / 2, (tiny.height - ch) / 2, cw, ch);
+    ctx.save();
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(tiny, x - w * 0.04, y - h * 0.04, w * 1.08, h * 1.08);
+    ctx.fillStyle = 'rgba(0, 0, 0, .55)';
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  }
+  ctx.drawImage(photo, x + (w - pw) / 2, y + (h - ph) / 2, pw, ph);
+}
+
 /** Shortens text with "…" until it fits. */
 function fit(ctx, text, maxWidth) {
   if (ctx.measureText(text).width <= maxWidth) return text;
@@ -114,11 +143,7 @@ export async function drawEntryCard(data) {
   ctx.save();
   roundRect(ctx, fx, fy, fw, fh, fr);
   ctx.clip();
-  ctx.fillStyle = '#000';
-  ctx.fillRect(fx, fy, fw, fh);
-  const scale = Math.max(fw / photo.naturalWidth, fh / photo.naturalHeight); // cover
-  const pw = photo.naturalWidth * scale, ph = photo.naturalHeight * scale;
-  ctx.drawImage(photo, fx + (fw - pw) / 2, fy + (fh - ph) / 2, pw, ph);
+  drawPhotoFitted(ctx, photo, fx, fy, fw, fh);
   ctx.restore();
   roundRect(ctx, fx, fy, fw, fh, fr);
   neonStroke(ctx, C.green, 7, 30);
