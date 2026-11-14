@@ -1539,3 +1539,14 @@ span.look-opt { display: block; }
 .hero.hero-after-cover { padding-top: 10px; }
 .battle-pink .hero.hero-after-cover { background: none; }
 @media (min-width: 700px) { .battle-cover { min-height: 380px; border-radius: 0 0 var(--radius) var(--radius); } }
+
+/* Start page: partners */
+.partner-grid { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.partner-tile { display: grid; justify-items: center; align-content: start; gap: 6px; padding: 14px 10px; text-align: center; border-radius: 18px;
+  background: rgba(10, 20, 14, .7); border: 1.5px solid rgba(var(--neon-pink-rgb), .45); box-shadow: 0 0 16px rgba(var(--neon-pink-rgb), .2); }
+.partner-tile-logo { width: 116px; height: 116px; object-fit: contain; }
+.partner-tile-logo.is-round { border-radius: 50%; box-shadow: 0 0 0 2px rgba(var(--neon-pink-rgb), .55), 0 0 18px rgba(var(--neon-pink-rgb), .35); }
+.partner-tile-name { margin: 2px 0 0; font-weight: 800; font-size: .95rem; }
+.partner-tile-handle { margin: -4px 0 0; font-size: .78rem; color: var(--muted); overflow-wrap: anywhere; }
+.partner-insta { margin-top: 4px; gap: 6px; }
+.partner-insta svg { width: 15px; height: 15px; flex: none; }

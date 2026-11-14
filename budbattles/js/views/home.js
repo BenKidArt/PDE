@@ -4,6 +4,8 @@ import { getCurrentBattle, battleStatus, getStandings } from '../store.js';
 import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
 import { canInstall, bannerClosed, closeBanner, startInstall } from '../install.js';
 import { esc } from '../ui.js';
+import { PARTNERS } from '../partners.js';
+import { LINK_ICONS } from '../links.js';
 import { battleLabel, countdownHtml, startCountdowns } from './battle.js';
 
 const LATEST = 10;
@@ -73,6 +75,20 @@ export async function renderHome(root) {
             <div><strong>${esc(t(`home.step${n}.title`))}</strong><p class="muted small">${esc(t(`home.step${n}.text`))}</p></div>
           </li>`).join('')}
       </ol>
+    </section>
+
+    <section class="home-section">
+      <h2>${esc(t('home.partnersTitle'))}</h2>
+      <ul class="partner-grid">
+        ${PARTNERS.map((p) => `
+          <li class="partner-tile">
+            <img class="partner-tile-logo${p.round ? ' is-round' : ''}" src="${esc(p.logo)}" alt="${esc(p.name)}" width="140" height="140" loading="lazy" decoding="async">
+            <p class="partner-tile-name">${esc(p.name)}</p>
+            ${p.handle ? `<p class="partner-tile-handle">@${esc(p.handle)}</p>` : ''}
+            ${p.instagram ? `<a class="btn btn-ghost btn-xs partner-insta" href="${esc(p.instagram)}" target="_blank" rel="noopener noreferrer">
+              ${LINK_ICONS.instagram}<span>${esc(t('home.partnerInstagram'))}</span></a>` : ''}
+          </li>`).join('')}
+      </ul>
     </section>`;
 
   startCountdowns(root);

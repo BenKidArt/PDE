@@ -632,5 +632,7 @@
   "pictures.done.approved": "Picture by {name} approved.",
   "pictures.done.rejected": "Picture by {name} rejected and deleted.",
   "admin.drafts": "Drafts (admins only)",
-  "admin.tileText": "Review photos, drafts (Sesh Setup), profile pictures, reports"
+  "admin.tileText": "Review photos, drafts (Sesh Setup), profile pictures, reports",
+  "home.partnersTitle": "Partners",
+  "home.partnerInstagram": "Instagram"
 }

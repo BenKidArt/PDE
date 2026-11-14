@@ -632,5 +632,7 @@
   "pictures.done.approved": "Bild von {name} freigegeben.",
   "pictures.done.rejected": "Bild von {name} abgelehnt und gelöscht.",
   "admin.drafts": "Entwürfe (nur Admins)",
-  "admin.tileText": "Fotos prüfen, Entwürfe (Sesh Setup), Profilbilder, Meldungen"
+  "admin.tileText": "Fotos prüfen, Entwürfe (Sesh Setup), Profilbilder, Meldungen",
+  "home.partnersTitle": "Partner",
+  "home.partnerInstagram": "Instagram"
 }
