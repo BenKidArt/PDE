@@ -1,6 +1,6 @@
 // START PAGE: current battle with countdown, newest approved photos, how it works.
 import { t, tc } from '../i18n.js';
-import { getCurrentBattle, battleStatus, getStandings } from '../store.js';
+import { getCurrentBattle, battleStatus, getStandings, getCurrentUser } from '../store.js';
 import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
 import { canInstall, bannerClosed, closeBanner, startInstall } from '../install.js';
 import { esc } from '../ui.js';
@@ -11,7 +11,7 @@ import { battleLabel, countdownHtml, startCountdowns } from './battle.js';
 const LATEST = 10;
 
 export async function renderHome(root) {
-  const battle = await getCurrentBattle();
+  const [battle, user] = await Promise.all([getCurrentBattle(), getCurrentUser()]);
   let entries = [];
   try { entries = battle ? await getStandings(battle.id) : []; } catch { /* start page still shows */ }
   const status = battle && battleStatus(battle);
@@ -77,19 +77,7 @@ export async function renderHome(root) {
       </ol>
     </section>
 
-    <section class="home-section">
-      <h2>${esc(t('home.partnersTitle'))}</h2>
-      <ul class="partner-grid">
-        ${PARTNERS.map((p) => `
-          <li class="partner-tile">
-            <img class="partner-tile-logo${p.round ? ' is-round' : ''}" src="${esc(p.logo)}" alt="${esc(p.name)}" width="140" height="140" loading="lazy" decoding="async">
-            <p class="partner-tile-name">${esc(p.name)}</p>
-            ${p.handle ? `<p class="partner-tile-handle">@${esc(p.handle)}</p>` : ''}
-            ${p.instagram ? `<a class="btn btn-ghost btn-xs partner-insta" href="${esc(p.instagram)}" target="_blank" rel="noopener noreferrer">
-              ${LINK_ICONS.instagram}<span>${esc(t('home.partnerInstagram'))}</span></a>` : ''}
-          </li>`).join('')}
-      </ul>
-    </section>`;
+    ${partnersHtml(PARTNERS.filter((p) => p.role === 'main'), user ? PARTNERS.filter((p) => p.role === 'upcoming') : [])}`;
 
   startCountdowns(root);
   root.querySelector('[data-install-go]')?.addEventListener('click', () => startInstall());
@@ -105,3 +93,31 @@ function homeOrder(entries, status) {
   return [...entries].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
 }
 
+
+/** Battle #1 partner (big) + "Upcoming battles with" (members only: names contain "seed"). */
+function partnersHtml(main, upcoming) {
+  const logo = (p, size) => (p.logo
+    ? `<img class="partner-logo-img${p.round ? ' is-round' : ''}" src="${esc(p.logo)}" alt="${esc(p.name)}" width="${size}" height="${size}" loading="lazy" decoding="async">`
+    : `<span class="partner-placeholder" aria-hidden="true">${esc(monogram(p.name))}</span>`);
+  const insta = (p) => (p.instagram ? `<a class="btn btn-ghost btn-xs partner-insta" href="${esc(p.instagram)}" target="_blank" rel="noopener noreferrer">
+    ${LINK_ICONS.instagram}<span>${esc(t('home.partnerInstagram'))}</span></a>` : '');
+  return `
+    ${main.length ? `<section class="home-section">
+      <h2>${esc(t('home.partnerMain'))}</h2>
+      ${main.map((p) => `<div class="partner-main">${logo(p, 220)}<p class="partner-main-name">${esc(p.name)}</p>${insta(p)}</div>`).join('')}
+    </section>` : ''}
+    ${upcoming.length ? `<section class="home-section">
+      <h2>${esc(t('home.partnerUpcoming'))}</h2>
+      <ul class="partner-row" data-hscroll>
+        ${upcoming.map((p) => `<li class="partner-card">${logo(p, 96)}<p class="partner-card-name">${esc(p.name)}</p>${insta(p)}</li>`).join('')}
+      </ul>
+    </section>` : ''}`;
+}
+
+/** Placeholder until a logo arrives: short names as they are, else initials (Huba Seed Bank → HSB). */
+function monogram(name) {
+  const words = name.split(/\s+/).filter(Boolean);
+  if (name.length <= 5) return name.toUpperCase();
+  if (words.length > 1) return words.slice(0, 3).map((w) => w[0]).join('').toUpperCase();
+  return name.slice(0, 2).toUpperCase();
+}

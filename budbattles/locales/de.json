@@ -633,6 +633,7 @@
   "pictures.done.rejected": "Bild von {name} abgelehnt und gelöscht.",
   "admin.drafts": "Entwürfe (nur Admins)",
   "admin.tileText": "Fotos prüfen, Entwürfe (Sesh Setup), Profilbilder, Meldungen",
-  "home.partnersTitle": "Partner",
-  "home.partnerInstagram": "Instagram"
+  "home.partnerInstagram": "Instagram",
+  "home.partnerMain": "Partner von Battle #1",
+  "home.partnerUpcoming": "Kommende Battles mit"
 }

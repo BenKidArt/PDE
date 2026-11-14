@@ -633,6 +633,7 @@
   "pictures.done.rejected": "Picture by {name} rejected and deleted.",
   "admin.drafts": "Drafts (admins only)",
   "admin.tileText": "Review photos, drafts (Sesh Setup), profile pictures, reports",
-  "home.partnersTitle": "Partners",
-  "home.partnerInstagram": "Instagram"
+  "home.partnerInstagram": "Instagram",
+  "home.partnerMain": "Battle #1 partner",
+  "home.partnerUpcoming": "Upcoming battles with"
 }

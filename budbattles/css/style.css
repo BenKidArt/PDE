@@ -1550,3 +1550,23 @@ span.look-opt { display: block; }
 .partner-tile-handle { margin: -4px 0 0; font-size: .78rem; color: var(--muted); overflow-wrap: anywhere; }
 .partner-insta { margin-top: 4px; gap: 6px; }
 .partner-insta svg { width: 15px; height: 15px; flex: none; }
+
+/* Start page partners: big Battle #1 partner + "Upcoming battles with" row */
+.partner-main { display: grid; justify-items: center; gap: 8px; margin-top: 12px; padding: 22px 16px; border-radius: 20px; text-align: center;
+  background: rgba(10, 20, 14, .7); border: 1.5px solid rgba(var(--neon-green-rgb), .6); box-shadow: 0 0 22px rgba(var(--neon-green-rgb), .3); }
+.partner-main .partner-logo-img { width: min(220px, 70%); height: auto; max-height: 130px; object-fit: contain; }
+.partner-main .partner-logo-img.is-round { width: 160px; height: 160px; max-height: none; }
+.partner-main-name { margin: 0; font-size: 1.15rem; font-weight: 800; }
+.partner-row { list-style: none; margin: 12px -16px 0; padding: 4px 16px 10px; display: grid; grid-auto-flow: column; grid-auto-columns: 132px;
+  gap: 10px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.partner-card { scroll-snap-align: start; display: grid; justify-items: center; align-content: start; gap: 6px; padding: 12px 8px; text-align: center;
+  border-radius: 16px; background: rgba(10, 20, 14, .7); border: 1.5px solid rgba(var(--neon-pink-rgb), .45); box-shadow: 0 0 12px rgba(var(--neon-pink-rgb), .18); }
+.partner-card .partner-logo-img { width: 96px; height: 96px; object-fit: contain; }
+.partner-logo-img.is-round { border-radius: 50%; box-shadow: 0 0 0 2px rgba(var(--neon-pink-rgb), .55), 0 0 14px rgba(var(--neon-pink-rgb), .3); }
+.partner-placeholder { width: 96px; height: 96px; display: grid; place-items: center; padding: 8px; border-radius: 50%; text-align: center;
+  font: 800 .8rem/1.15 var(--font); color: #ffd1ea; overflow-wrap: anywhere;
+  background: radial-gradient(circle at 50% 35%, rgba(var(--neon-pink-rgb), .25), rgba(10, 13, 11, .9) 70%);
+  border: 1.5px dashed rgba(var(--neon-pink-rgb), .6); }
+.partner-card-name { margin: 0; font-size: .82rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
+.partner-card .partner-insta { margin-top: 2px; padding: 0 10px; }
+.partner-placeholder { font-size: 1.5rem; letter-spacing: .06em; text-shadow: 0 0 12px rgba(255, 61, 154, .6); overflow-wrap: normal; }
