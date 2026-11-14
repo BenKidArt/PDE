@@ -1570,3 +1570,5 @@ span.look-opt { display: block; }
 .partner-card-name { margin: 0; font-size: .82rem; font-weight: 800; line-height: 1.2; overflow-wrap: anywhere; }
 .partner-card .partner-insta { margin-top: 2px; padding: 0 10px; }
 .partner-placeholder { font-size: 1.5rem; letter-spacing: .06em; text-shadow: 0 0 12px rgba(255, 61, 154, .6); overflow-wrap: normal; }
+/* partner logos keep their own shape inside the card (never cropped or stretched) */
+.partner-card .partner-logo-img:not(.is-round) { width: 112px; height: 96px; object-fit: contain; }

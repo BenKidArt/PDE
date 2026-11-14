@@ -10,8 +10,8 @@
 // names contain words like "seed" / "Samen" (visitors never see those words).
 export const PARTNERS = [
   { id: 'cannapot', name: 'Cannapot', role: 'main', logo: 'assets/partner-cannapot.webp' },
-  { id: 'seedstockers', name: 'Seedstockers', role: 'upcoming' },
-  { id: 'hnny', name: 'HNNY', role: 'upcoming' },
+  { id: 'seedstockers', name: 'Seedstockers', role: 'upcoming', logo: 'assets/partner-seedstockers.webp' }, // official logo, unchanged
+  { id: 'hnny', name: 'HNNY', role: 'upcoming', logo: 'assets/partner-hnny.webp' },
   { id: 'huba', name: 'Huba Seed Bank', role: 'upcoming' },
   { id: 'chr_isgrowing', name: 'Chris Schmid', role: 'upcoming', logo: 'assets/partner-chr-isgrowing.webp', round: true,
     instagram: 'https://instagram.com/_chr_isgrowing' },
