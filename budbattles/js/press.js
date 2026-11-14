@@ -1,12 +1,31 @@
 // PHYSICAL PRESS: buttons and chips sink in while pressed (CSS ".is-pressed") and
 // spring back when released. The pressed look stays for at least 100 ms, so even a
-// very quick tap is clearly visible. On Android a short 18 ms vibration confirms the
-// tap (iPhones don't allow web vibration, so they just get the visual press).
-const TARGETS = '.btn, .bb-chip, .btn-vote, .tabs button, .lang button, .report-btn';
+// very quick tap is clearly visible.
+//
+// VIBRATION (Android; iPhones don't allow web vibration): a 20 ms buzz on every tap
+// of anything tappable (buttons, links styled as buttons, chips, tabs, menu links).
+// Chrome only allows navigator.vibrate() inside a real tap, and a finger's
+// "pointerdown" doesn't count until the page has had its first full tap. So:
+//   – once the page has been tapped before: buzz right at pointerdown (instant feel)
+//   – the very first tap: buzz at pointerup, which Chrome does count as a tap
+// Nothing else switches it off (no reduced-motion check; errors are ignored).
+const PRESS_TARGETS = '.btn, .bb-chip, .btn-vote, .tabs button, .lang button, .report-btn';
+const TAP_TARGETS = `${PRESS_TARGETS}, button, [role="button"], a[href], label.check, input[type="checkbox"], input[type="radio"], select, summary`;
 const MIN_PRESS_MS = 100;
-const VIBRATE_MS = 18;
+const VIBRATE_MS = 20;
 let pressed = null;
 let pressedAt = 0;
+let buzzOnRelease = false;
+
+function buzz() {
+  try { if (typeof navigator.vibrate === 'function') navigator.vibrate(VIBRATE_MS); } catch { /* not allowed: ignore */ }
+}
+
+/** Has this page already had a real tap (so Chrome allows vibrate at pointerdown)? */
+function tappedBefore() {
+  const ua = navigator.userActivation;
+  return ua ? ua.hasBeenActive : true; // browsers without the API decide themselves
+}
 
 function release() {
   const el = pressed;
@@ -25,13 +44,20 @@ function press(el) {
 }
 
 document.addEventListener('pointerdown', (e) => {
-  const el = e.target.closest?.(TARGETS);
-  if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
-  press(el);
-  if (e.pointerType === 'touch' && navigator.vibrate) {
-    try { navigator.vibrate(VIBRATE_MS); } catch { /* not allowed: ignore */ }
-  }
-}, { passive: true });
+  buzzOnRelease = false;
+  const tap = e.target.closest?.(TAP_TARGETS);
+  if (!tap || tap.disabled || tap.getAttribute('aria-disabled') === 'true') return;
+  const el = e.target.closest?.(PRESS_TARGETS);
+  if (el && !el.disabled) press(el);
+  if (e.pointerType === 'mouse') return; // vibration is for fingers (and pens)
+  if (tappedBefore()) buzz();
+  else buzzOnRelease = true;
+}, { passive: true, capture: true });
+
+document.addEventListener('pointerup', () => {
+  if (buzzOnRelease) { buzzOnRelease = false; buzz(); } // first tap on the page
+}, { passive: true, capture: true });
+document.addEventListener('pointercancel', () => { buzzOnRelease = false; }, { passive: true, capture: true });
 
 ['pointerup', 'pointercancel', 'pointerleave', 'dragstart'].forEach((t) => document.addEventListener(t, release, { passive: true }));
 window.addEventListener('blur', release);
@@ -39,7 +65,7 @@ document.addEventListener('scroll', release, { passive: true, capture: true }); 
 
 // keyboard: Enter / Space press the focused button the same way
 document.addEventListener('keydown', (e) => {
-  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.(TARGETS) && !e.repeat) {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.(PRESS_TARGETS) && !e.repeat) {
     press(e.target);
   }
 });
