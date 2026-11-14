@@ -4,7 +4,9 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getPublicProfile, getBadgeCatalog, getCurrentUser, signOut, setProfileName, updateProfileDetails,
+  getProfileLook, saveProfileLook, uploadProfileImage, profileImageUrl,
 } from '../store.js';
+import { BG_PRESETS, BANNER_PRESETS, lookUrl, effectiveBg, paletteFrom, applyPalette, prepareUpload } from '../looks.js';
 import { esc, chipHtml, avatarUrl } from '../ui.js';
 import { neonCardHtml } from '../entrycard.js';
 import { reportButtonHtml, bindReportButtons } from '../report.js';
@@ -49,7 +51,9 @@ export function spaceLabel(p) {
 }
 
 export async function renderProfilePage(root, key, { onLogout } = {}) {
-  const [p, catalog, me] = await Promise.all([getPublicProfile(key), getBadgeCatalog(), getCurrentUser()]);
+  const [p, catalog, me, look] = await Promise.all([
+    getPublicProfile(key), getBadgeCatalog(), getCurrentUser(), getProfileLook(key).catch(() => ({ bg: '', banner: '', xmas: true })),
+  ]);
   if (!p) {
     root.innerHTML = `<section class="card"><p>${esc(t('profile.notFound'))}</p><a class="btn btn-ghost" href="#/">${esc(t('app.backHome'))}</a></section>`;
     return;
@@ -72,6 +76,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
 
   root.innerHTML = `
     <div class="${pfClass(setup?.id)}">
+      <div class="pf-cover" data-cover aria-hidden="true"></div>
       <section class="pf-head">
         <div class="pf-art" aria-hidden="true"></div>
         <div class="pf-avatar pf-accent-${esc(p.accent || 'theme')}">
@@ -91,6 +96,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         </div>
         ${me && !isMe ? `<div class="pf-report">${reportButtonHtml({ userId: p.id })}</div>` : ''}
       </section>
+      <div class="pf-banner" data-banner aria-hidden="true" hidden></div>
 
       <section class="pf-stats">
         <div class="pf-stat"><b>${p.stats.battles ?? 0}</b><span>${esc(t('profile.statBattles'))}</span></div>
@@ -159,6 +165,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         </section>` : ''}
     </div>`;
 
+  showLook(root, look);
   fitSinceRow(root);
   document.fonts?.ready.then(() => fitSinceRow(root));
   bindReportButtons(root);
@@ -168,10 +175,10 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
     showWelcome('logout'); // "Bis bald, Grower!"
     onLogout?.();
   });
-  root.querySelector('[data-edit]').addEventListener('click', () => openEditor(root, me, key, onLogout));
+  root.querySelector('[data-edit]').addEventListener('click', () => openEditor(root, me, key, onLogout, look));
   let openNow = false;
   try { openNow = sessionStorage.getItem('bb.openEdit') === '1'; sessionStorage.removeItem('bb.openEdit'); } catch { /* ignore */ }
-  if (openNow) openEditor(root, me, key, onLogout);
+  if (openNow) openEditor(root, me, key, onLogout, look);
 }
 
 /** Page class: theme colours from the setup (the glow colour only changes the picture ring). */
@@ -287,7 +294,49 @@ function chipGroup(group, current) {
     </fieldset>`;
 }
 
-function openEditor(root, me, key, onLogout) {
+/**
+ * Shows the chosen background (top of the profile, fading into the page) and the
+ * underbanner (thin strip under the header), and tints the profile with colours
+ * measured from the picture. On 24.12 the Christmas Eve picture is shown instead.
+ */
+function showLook(root, look) {
+  const pf = root.querySelector('.pf');
+  const cover = root.querySelector('[data-cover]');
+  const banner = root.querySelector('[data-banner]');
+  if (!pf || !cover || !banner) return;
+  const bgUrl = lookUrl('bg', effectiveBg(look), profileImageUrl);
+  const bannerUrl = lookUrl('banner', look?.banner || '', profileImageUrl);
+  cover.innerHTML = bgUrl ? `<img src="${esc(bgUrl)}" alt="" decoding="async">` : '';
+  pf.classList.toggle('pf-has-cover', !!bgUrl);
+  banner.innerHTML = bannerUrl ? `<img src="${esc(bannerUrl)}" alt="" decoding="async">` : '';
+  banner.hidden = !bannerUrl;
+  const source = bgUrl || bannerUrl;
+  pf.dataset.lookSrc = source;
+  if (!source) { applyPalette(pf, null); return; }
+  paletteFrom(source).then((pal) => { if (pf.isConnected && pf.dataset.lookSrc === source) applyPalette(pf, pal); });
+}
+
+/** One scrollable row of small previews: none, own picture (upload), presets. */
+function lookRowHtml(kind, current) {
+  const presets = kind === 'bg' ? BG_PRESETS : BANNER_PRESETS;
+  const own = current?.startsWith('u:') ? current : '';
+  const opt = (value, inner, label, cls = '') => `<button type="button" class="look-opt ${cls}" data-look-value="${esc(value)}"
+    aria-pressed="${value === (current || '')}" aria-label="${esc(label)}" title="${esc(label)}">${inner}</button>`;
+  return `
+    <div class="look-row look-row-${kind}" data-look-row="${kind}" data-hscroll role="group">
+      ${opt('', `<span class="look-none">${esc(t('look.none'))}</span>`, t('look.none'), 'look-opt-text')}
+      <label class="look-opt look-opt-text look-upload" title="${esc(t('look.upload'))}">
+        <input type="file" accept="image/*" data-look-file="${kind}" hidden>
+        <span class="look-none">＋ ${esc(t('look.upload'))}</span>
+      </label>
+      <span data-own-slot>${own ? opt(own, `<img src="${esc(lookUrl(kind, own, profileImageUrl))}" alt="" loading="lazy">`, t('look.own')) : ''}</span>
+      ${presets.map((n) => opt(`p:${n}`, `<img src="${esc(lookUrl(kind, `p:${n}`, null, { thumb: true }))}" alt="" loading="lazy" width="${kind === 'bg' ? 96 : 120}" height="${kind === 'bg' ? 54 : 40}">`,
+        t(`look.preset.${n}`))).join('')}
+    </div>
+    <p class="hint" data-look-status="${kind}" role="status"></p>`;
+}
+
+function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', xmas: true }) {
   const slot = root.querySelector('[data-edit-slot]');
   const changedAt = me.usernameChangedAt ? new Date(me.usernameChangedAt) : null;
   const nextChange = changedAt ? new Date(changedAt.getTime() + NAME_CHANGE_DAYS * 864e5) : null;
@@ -331,6 +380,15 @@ function openEditor(root, me, key, onLogout) {
           ${ACCENTS.map((a) => `<button type="button" class="accent-swatch pf-accent-${a}" data-accent="${a}" aria-pressed="${me.accent === a}" aria-label="${esc(t(`accent.${a}`))}" title="${esc(t(`accent.${a}`))}"><span></span></button>`).join('')}
         </div>
       </fieldset>
+      <fieldset class="field look-field">
+        <legend class="label">${esc(t('look.bgTitle'))}</legend>
+        ${lookRowHtml('bg', startLook.bg)}
+      </fieldset>
+      <fieldset class="field look-field">
+        <legend class="label">${esc(t('look.bannerTitle'))}</legend>
+        ${lookRowHtml('banner', startLook.banner)}
+      </fieldset>
+      <label class="check"><input type="checkbox" id="pf-xmas" ${startLook.xmas !== false ? 'checked' : ''}><span>🎅 ${esc(t('look.xmas'))}</span></label>
       <div class="field"><label class="label" for="pf-bio">${esc(t('profile.bio'))}</label>
         <textarea id="pf-bio" rows="3" maxlength="${BIO_MAX}">${esc(me.bio || '')}</textarea>
         <span class="counter" data-count>${(me.bio || '').length}/${BIO_MAX}</span></div>
@@ -404,6 +462,39 @@ function openEditor(root, me, key, onLogout) {
     b.setAttribute('aria-pressed', String(on));
     root.querySelector('.pf-avatar').className = `pf-avatar pf-accent-${on ? b.dataset.accent : 'theme'}`;
   }));
+  // profile look: tap a preview to choose it (live preview on the page above), or upload an own picture
+  const look = { bg: startLook.bg || '', banner: startLook.banner || '', xmas: startLook.xmas !== false };
+  const markLook = (kind) => form.querySelectorAll(`[data-look-row="${kind}"] [data-look-value]`)
+    .forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.lookValue === look[kind])));
+  form.querySelectorAll('[data-look-row]').forEach((row) => row.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-look-value]');
+    if (!b) return;
+    look[row.dataset.lookRow] = b.dataset.lookValue;
+    markLook(row.dataset.lookRow);
+    showLook(root, look);
+  }));
+  form.querySelectorAll('[data-look-file]').forEach((input) => input.addEventListener('change', async () => {
+    const kind = input.dataset.lookFile;
+    const status = form.querySelector(`[data-look-status="${kind}"]`);
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+    status.className = 'hint'; status.textContent = t('look.uploading');
+    try {
+      const { blob, ext } = await prepareUpload(file, kind);
+      const value = await uploadProfileImage(kind, blob, ext);
+      look[kind] = value;
+      const slot = form.querySelector(`[data-look-row="${kind}"] [data-own-slot]`);
+      slot.innerHTML = `<button type="button" class="look-opt" data-look-value="${esc(value)}" aria-pressed="true" aria-label="${esc(t('look.own'))}" title="${esc(t('look.own'))}">
+        <img src="${esc(lookUrl(kind, value, profileImageUrl))}" alt=""></button>`;
+      markLook(kind);
+      showLook(root, look);
+      status.textContent = t('look.uploaded');
+    } catch (ex) {
+      status.className = 'hint error'; status.textContent = t(ex.code || 'error.generic');
+    }
+  }));
+  form.querySelector('#pf-xmas').addEventListener('change', (e) => { look.xmas = e.target.checked; showLook(root, look); });
   form.querySelector('[data-cancel]').addEventListener('click', () => {
     if (takeReturnTo()) return; // came from Strain Match: go back there
     renderProfilePage(root, key, { onLogout });
@@ -477,6 +568,9 @@ function openEditor(root, me, key, onLogout) {
         bio: bio.value,
         accent: form.querySelector('[data-accent][aria-pressed="true"]')?.dataset.accent || '',
       });
+      if (look.bg !== (startLook.bg || '') || look.banner !== (startLook.banner || '') || look.xmas !== (startLook.xmas !== false)) {
+        await saveProfileLook(look, startLook);
+      }
       if (takeReturnTo()) return; // came from Strain Match: go back with the new matches
       const fresh = await getCurrentUser();
       await renderProfilePage(root, fresh?.username || fresh?.id || key, { onLogout });

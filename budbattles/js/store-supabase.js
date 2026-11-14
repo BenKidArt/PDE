@@ -640,3 +640,45 @@ export async function setReportStatus(id, status) {
   const { error } = await sb.rpc('admin_set_report', { p_id: id, p_status: status });
   if (error) fail(error);
 }
+
+// ---------- Profile look (background + underbanner) ----------
+
+const LOOK_BUCKET = 'profile-images';
+
+/** Address of an own uploaded profile picture (path = '<member id>/<file>'). */
+export function profileImageUrl(path) {
+  return sb.storage.from(LOOK_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+/** Anyone's look: { bg, banner, xmas }. Before database update 017: nothing chosen, Christmas on. */
+export async function getProfileLook(key) {
+  const { data, error } = await sb.rpc('get_profile_look', { p_key: key });
+  if (error || !data) return { bg: '', banner: '', xmas: true };
+  return { bg: data.bg || '', banner: data.banner || '', xmas: data.xmas !== false };
+}
+
+/** Uploads an own picture (already compressed) and returns its stored value 'u:<path>'. */
+export async function uploadProfileImage(kind, blob, ext) {
+  const me = await getCurrentUser();
+  if (!me) throw new StoreError('vote.loginNeeded');
+  const path = `${me.id}/${kind}-${Date.now().toString(36)}.${ext}`;
+  const { error } = await sb.storage.from(LOOK_BUCKET).upload(path, blob, { contentType: blob.type, upsert: false });
+  if (error) {
+    if (/bucket not found/i.test(error.message || '')) throw new StoreError('error.dbUpdateLook');
+    if (/exceeded|too large|payload/i.test(error.message || '')) throw new StoreError('error.photoTooBig', { max: 1 });
+    fail(error);
+  }
+  return `u:${path}`;
+}
+
+/** Saves the look; own uploads that are no longer used are deleted. */
+export async function saveProfileLook({ bg = '', banner = '', xmas = true }, previous = {}) {
+  const { error } = await sb.rpc('save_profile_look', { p_bg: bg, p_banner: banner, p_xmas: xmas });
+  if (error) {
+    if (error.code === 'PGRST202' || /save_profile_look/.test(error.message || '')) throw new StoreError('error.dbUpdateLook');
+    if (/look_invalid/.test(error.message || '')) throw new StoreError('error.profileInvalid');
+    fail(error);
+  }
+  const unused = [previous.bg, previous.banner].filter((v) => v?.startsWith('u:') && v !== bg && v !== banner).map((v) => v.slice(2));
+  if (unused.length) sb.storage.from(LOOK_BUCKET).remove(unused).then(() => {}, () => {});
+}

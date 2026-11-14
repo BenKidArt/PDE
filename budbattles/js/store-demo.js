@@ -551,3 +551,34 @@ export async function getReports() {
 export async function setReportStatus(id, status) {
   writeJson(REPORTS_KEY, readJson(REPORTS_KEY, []).map((r) => (r.id === id ? { ...r, status } : r)));
 }
+
+// ---------- Profile look (this device only) ----------
+const UPLOADS_KEY = 'bb.demo.uploads';
+
+export function profileImageUrl(path) {
+  return readJson(UPLOADS_KEY, {})[path] || '';
+}
+
+export async function getProfileLook(key) {
+  const acc = Object.values(readJson(ACCOUNTS_KEY, {}))
+    .find((a) => a.id === key || (a.username || '').toLowerCase() === String(key).toLowerCase());
+  const look = acc?.look || {};
+  return { bg: look.bg || '', banner: look.banner || '', xmas: look.xmas !== false };
+}
+
+export async function uploadProfileImage(kind, blob, ext) {
+  const me = await getCurrentUser();
+  if (!me) throw new StoreError('vote.loginNeeded');
+  const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+  const path = `${me.id}/${kind}-${Date.now().toString(36)}.${ext}`;
+  const all = readJson(UPLOADS_KEY, {});
+  all[path] = dataUrl;
+  try { writeJson(UPLOADS_KEY, all); } catch { throw new StoreError('error.photoTooBig', { max: 1 }); }
+  return `u:${path}`;
+}
+
+export async function saveProfileLook({ bg = '', banner = '', xmas = true }) {
+  const me = await getCurrentUser();
+  if (!me) throw new StoreError('vote.loginNeeded');
+  updateAccount(me.id, { look: { bg, banner, xmas } });
+}

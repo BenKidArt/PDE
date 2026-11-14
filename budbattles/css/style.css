@@ -1452,3 +1452,47 @@ input[type="date"]:focus { outline: none; border-color: var(--neon-green); box-s
 .arow-date { font-size: .72rem; line-height: 1.25; }
 .arow-card { margin-top: 1px; padding: 1px 0; font-size: .74rem; }
 .admin-bar-compact { padding: 6px 0 8px; gap: 7px; }
+
+/* =====================================================================
+   PROFILE LOOK: background picture at the top (fading into the page), an
+   underbanner strip under the header, and the profile colours taken from the picture.
+   ===================================================================== */
+.pf > *:not(.pf-cover) { position: relative; z-index: 1; }
+.pf-cover { position: absolute; top: 0; left: 0; right: 0; height: 330px; z-index: 0; overflow: hidden; pointer-events: none;
+  border-radius: 0; }
+.pf-cover:empty { display: none; }
+.pf-cover img { width: 100%; height: 100%; object-fit: cover; display: block;
+  -webkit-mask-image: linear-gradient(#000 40%, transparent 100%); mask-image: linear-gradient(#000 40%, transparent 100%); }
+.pf-cover::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, .1), rgba(0, 0, 0, .35) 55%, transparent 100%); }
+.pf-has-cover .pf-name { text-shadow: 0 2px 12px rgba(0, 0, 0, .95), 0 0 22px var(--pf-glow); }
+.pf-has-cover .pf-since, .pf-has-cover .pf-insta { text-shadow: 0 1px 6px rgba(0, 0, 0, .95); }
+.pf-has-cover .pf-since { color: #d9e4dd; }
+/* colours measured from the picture: page tint, sheets, borders, glow */
+.pf.pf-tinted {
+  --pf-bg: radial-gradient(90% 60% at 50% -5%, rgba(var(--pf-rgb), .3), transparent 62%), linear-gradient(var(--pf-dark), var(--bg) 78%);
+}
+.pf.pf-tinted .pf-card, .pf.pf-tinted .pf-stat {
+  background: var(--pf-sheet); border-color: var(--pf-line); box-shadow: 0 0 18px rgba(var(--pf-rgb), .12);
+}
+.pf.pf-tinted .pf-card h2 { color: var(--pf-accent); }
+.pf-banner { height: 64px; margin-top: -6px; border-radius: 14px; overflow: hidden; background: #000;
+  border: 1px solid var(--pf-line, var(--line)); box-shadow: 0 0 16px var(--pf-glow); }
+.pf-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* settings: scrollable rows of small previews */
+.look-field { min-width: 0; }
+.look-row { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; scroll-snap-type: x proximity; scrollbar-width: thin; }
+.look-opt { position: relative; flex: none; width: 96px; height: 54px; padding: 0; border-radius: 10px; overflow: hidden; cursor: pointer;
+  background: #000; border: 2px solid var(--line); scroll-snap-align: start; }
+.look-row-banner .look-opt { width: 120px; height: 40px; }
+.look-opt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.look-opt-text { width: 84px; display: grid; place-items: center; background: var(--card); }
+.look-row-banner .look-opt-text { width: 84px; }
+.look-none { font: 700 .72rem/1.15 var(--font); color: var(--muted); text-align: center; padding: 0 4px; }
+.look-upload { border-style: dashed; border-color: rgba(var(--neon-pink-rgb), .6); }
+.look-upload .look-none { color: var(--neon-pink-line, #ff8cc6); }
+.look-opt[aria-pressed="true"] { border-color: var(--neon-pink, var(--pink)); box-shadow: 0 0 12px rgba(var(--neon-pink-rgb), .6); }
+.look-opt[aria-pressed="true"]::after { content: "✓"; position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center; font: 900 .7rem/1 var(--font); color: #1a0410; background: var(--neon-pink, var(--pink)); }
+.look-opt-text[aria-pressed="true"] .look-none { color: var(--text); }

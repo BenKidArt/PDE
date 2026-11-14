@@ -66,6 +66,10 @@ export const {
   reportContent, // ({ userId | entryId, reason: 'underage'|'fake'|'spam', note })
   getReports, // admin: all reports, open first
   setReportStatus, // admin: (id, 'open' | 'done')
+  getProfileLook, // (profile key) → { bg, banner, xmas }
+  saveProfileLook, // ({ bg, banner, xmas }, previous) – own look
+  uploadProfileImage, // (kind 'bg'|'banner', blob, ext) → 'u:<path>'
+  profileImageUrl, // (path) → picture address of an own upload
 } = impl;
 
 // Demo only (undefined with Supabase):
