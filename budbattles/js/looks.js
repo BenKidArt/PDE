@@ -8,11 +8,31 @@
 export const BG_PRESETS = [
   'pink_moon', 'green_moon', 'neon_rain_window', 'glowing_jungle', 'friends_pink_room', 'reallife_candy',
   'nerdy_clerk_420', 'blurry_downtown', 'headlights_driver_pov', 'granny_purple_dino', 'beach_ruby_agent',
-  'hippie_circle_1970s', 'santa_christmas_eve',
+  'hippie_circle_1970s', 'golden_grandpa', 'santa_christmas_eve',
 ];
 export const BANNER_PRESETS = [
   'pink_swirl_leaf_a', 'pink_swirl_leaf_b', 'candy_pink_slime', 'plant_shadow', 'attic_lightning',
   'skeleton_still_waiting', 'tired_woman_kitchen',
+  'acid_01_gold_green_liquid',
+  'acid_02_gold_emerald_mandala',
+  'acid_03_lime_gold_opart',
+  'acid_04_green_gold_drips',
+  'acid_05_lime_yellow_smoke',
+  'acid_06_yellow_green_spiral',
+  'acid_07_mustard_retro',
+  'acid_08_yellow_marble',
+  'acid_09_gold_orange_drip',
+  'acid_10_yellow_coral_mandala',
+  'acid_11_peach_lava',
+  'acid_12_yellow_salmon_opart',
+  'acid_13_yellow_pink_smoke',
+  'acid_14_pastel_yellow_pink_marble',
+  'acid_15_yellow_hotpink_spiral',
+  'acid_16_retro_yellow_rose',
+  'acid_17_gold_magenta_drip',
+  'acid_18_yellow_pink_mandala',
+  'acid_19_paleyellow_fuchsia_lava',
+  'acid_20_gold_pink_glitter',
 ];
 export const XMAS_BG = 'p:santa_christmas_eve';
 const DIR = { bg: 'assets/profile/bg', banner: 'assets/profile/banner' };
