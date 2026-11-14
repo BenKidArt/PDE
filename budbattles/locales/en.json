@@ -630,5 +630,6 @@
   "pictures.empty.approved": "No approved pictures yet.",
   "pictures.empty.rejected": "No rejected pictures.",
   "pictures.done.approved": "Picture by {name} approved.",
-  "pictures.done.rejected": "Picture by {name} rejected and deleted."
+  "pictures.done.rejected": "Picture by {name} rejected and deleted.",
+  "admin.drafts": "Drafts (admins only)"
 }

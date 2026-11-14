@@ -25,7 +25,7 @@ export async function renderAdmin(root) {
 
   const battles = await getBattles();
   if (!state.battleId || !battles.some((b) => b.id === state.battleId)) {
-    state.battleId = (await getCurrentBattle())?.id ?? battles[0]?.id ?? null;
+    state.battleId = (await getCurrentBattle())?.id ?? battles.find((b) => !b.isDraft)?.id ?? battles[0]?.id ?? null;
   }
   if (!state.battleId) {
     root.innerHTML = `<section class="card"><p>${esc(t('battle.none'))}</p></section>`;
@@ -39,6 +39,10 @@ export async function renderAdmin(root) {
       <select id="admin-battle" data-battle>
         ${battles.map((b) => `<option value="${esc(b.id)}" ${b.id === state.battleId ? 'selected' : ''}>${b.isDraft ? `${esc(t('battle.draftLabel'))} · ` : b.isTest ? `${esc(t('battle.testLabel'))} · ` : ''}${esc(tc(b.theme))}</option>`).join('')}
       </select>
+      ${battles.some((b) => b.isDraft) ? `<div class="admin-drafts">
+        <span class="admin-drafts-label">📝 ${esc(t('admin.drafts'))}</span>
+        ${battles.filter((b) => b.isDraft).map((b) => `<a class="bb-chip bb-chip-pink" href="#/battle/${encodeURIComponent(b.id)}">${esc(tc(b.theme))} →</a>`).join('')}
+      </div>` : ''}
       <div class="admin-links" data-links data-hscroll></div>
       <div class="tabs tabs-3" role="tablist" data-tabs></div>
     </div>

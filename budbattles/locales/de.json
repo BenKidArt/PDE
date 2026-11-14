@@ -630,5 +630,6 @@
   "pictures.empty.approved": "Noch keine freigegebenen Bilder.",
   "pictures.empty.rejected": "Keine abgelehnten Bilder.",
   "pictures.done.approved": "Bild von {name} freigegeben.",
-  "pictures.done.rejected": "Bild von {name} abgelehnt und gelöscht."
+  "pictures.done.rejected": "Bild von {name} abgelehnt und gelöscht.",
+  "admin.drafts": "Entwürfe (nur Admins)"
 }

@@ -1515,3 +1515,7 @@ input[type="date"]:focus { outline: none; border-color: var(--neon-green); box-s
 .pf-review-note.is-rejected { background: rgba(255, 90, 110, .1); border-color: rgba(255, 90, 110, .55); color: #ff8c9a; }
 .look-row [data-pending-slot], .look-row [data-own-slot] { display: contents; }
 span.look-opt { display: block; }
+.admin-drafts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px;
+  background: rgba(var(--neon-pink-rgb), .08); border: 1px dashed rgba(var(--neon-pink-rgb), .6); }
+.admin-drafts-label { font-size: .8rem; font-weight: 700; color: #ff8cc6; }
+.bb-chip-pink { border-color: rgba(var(--neon-pink-rgb), .7); color: #ffd1ea; }
