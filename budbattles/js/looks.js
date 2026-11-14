@@ -35,6 +35,8 @@ export const BANNER_PRESETS = [
   'acid_20_gold_pink_glitter',
 ];
 export const XMAS_BG = 'p:santa_christmas_eve';
+/** Presets where the important part (a face) must not sit behind the round profile picture. */
+export const BG_FOCUS = { golden_grandpa: '0% 0%' };
 const DIR = { bg: 'assets/profile/bg', banner: 'assets/profile/banner' };
 
 /** Picture address for a stored value ('' if none). thumb = the small preview. */

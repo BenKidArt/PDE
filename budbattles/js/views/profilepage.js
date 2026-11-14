@@ -6,7 +6,7 @@ import {
   getPublicProfile, getBadgeCatalog, getCurrentUser, signOut, setProfileName, updateProfileDetails,
   getProfileLook, saveProfileLook, uploadProfileImage, profileImageUrl,
 } from '../store.js';
-import { BG_PRESETS, BANNER_PRESETS, lookUrl, effectiveBg, paletteFrom, applyPalette, prepareUpload } from '../looks.js';
+import { BG_PRESETS, BANNER_PRESETS, BG_FOCUS, lookUrl, effectiveBg, paletteFrom, applyPalette, prepareUpload } from '../looks.js';
 import { esc, chipHtml, avatarUrl } from '../ui.js';
 import { neonCardHtml } from '../entrycard.js';
 import { reportButtonHtml, bindReportButtons } from '../report.js';
@@ -304,9 +304,11 @@ function showLook(root, look) {
   const cover = root.querySelector('[data-cover]');
   const banner = root.querySelector('[data-banner]');
   if (!pf || !cover || !banner) return;
-  const bgUrl = lookUrl('bg', effectiveBg(look), profileImageUrl);
+  const bgValue = effectiveBg(look);
+  const bgUrl = lookUrl('bg', bgValue, profileImageUrl);
+  const focus = bgValue.startsWith('p:') ? BG_FOCUS[bgValue.slice(2)] : '';
   const bannerUrl = lookUrl('banner', look?.banner || '', profileImageUrl);
-  cover.innerHTML = bgUrl ? `<img src="${esc(bgUrl)}" alt="" decoding="async">` : '';
+  cover.innerHTML = bgUrl ? `<img src="${esc(bgUrl)}" alt="" decoding="async"${focus ? ` style="object-position: ${esc(focus)}"` : ''}>` : '';
   pf.classList.toggle('pf-has-cover', !!bgUrl);
   // the strip takes the picture's own shape (between 4:1 and 2:1), so the whole picture shows;
   // an own upload with an unusual shape is shown whole with a blurred copy filling the rest
