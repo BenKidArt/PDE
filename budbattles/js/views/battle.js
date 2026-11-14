@@ -6,6 +6,11 @@ import {
 import { neonCardHtml, pillFor, cardEyebrow } from '../entrycard.js';
 import { esc, splitDuration } from '../ui.js';
 
+// Big picture at the top of a battle page (behind the title), per battle.
+const BATTLE_HEROES = {
+  'draft-sesh-setup': 'assets/battles/sesh-setup.webp',
+};
+
 export async function renderBattle(root, { id } = {}) {
   const battle = id ? await getBattle(id) : await getCurrentBattle();
   if (!battle) {
@@ -23,11 +28,20 @@ export async function renderBattle(root, { id } = {}) {
   const fixedRules = [t('rules.adults'), ...(user ? [t('rules.winnersAge')] : [])]; // prize wording only for members
   const host = battle.partner?.kind === 'host' ? battle.partner : null;
 
-  root.innerHTML = `<div class="${battle.style === 'pink' ? 'battle-pink' : ''}">${testNotice(battle)}
-    <section class="hero">
+  const heroImage = BATTLE_HEROES[battle.id] || '';
+  const titleHtml = `
       <p class="eyebrow">${esc(battleLabel(battle))}</p>
       <h1 class="neon-title">${esc(tc(battle.theme))}</h1>
-      ${tc(battle.subtitle) ? `<p class="hero-subtitle">${esc(tc(battle.subtitle))}</p>` : ''}
+      ${tc(battle.subtitle) ? `<p class="hero-subtitle">${esc(tc(battle.subtitle))}</p>` : ''}`;
+
+  root.innerHTML = `<div class="${battle.style === 'pink' ? 'battle-pink' : ''}">
+    ${heroImage ? `<section class="battle-cover">
+      <img src="${esc(heroImage)}" alt="" decoding="async" fetchpriority="high">
+      <div class="battle-cover-text">${titleHtml}</div>
+    </section>` : ''}
+    ${testNotice(battle)}
+    <section class="hero${heroImage ? ' hero-after-cover' : ''}">
+      ${heroImage ? '' : titleHtml}
       <p class="hero-summary">${esc(tc(battle.summary))}</p>
       <div class="hero-meta">
         <span class="pill pill-${status}">${esc(t(`battle.status.${status}`))}</span>

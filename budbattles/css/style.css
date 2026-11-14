@@ -1525,3 +1525,17 @@ span.look-opt { display: block; }
 .pf-admin-btn { flex-direction: column; gap: 2px; min-height: 56px; padding: 8px 16px; font-size: 1rem; }
 .pf-admin-sub { font-size: .68rem; font-weight: 600; letter-spacing: .02em; text-transform: none; opacity: .85; }
 .pf-admin-sub { text-align: center; }
+
+/* Battle picture: full width at the top, title on a dark fade at the bottom */
+.battle-cover { position: relative; margin: -16px -16px 0; min-height: 300px; overflow: hidden; display: flex; align-items: flex-end; }
+.battle-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 45%; }
+.battle-cover::after { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10, 13, 11, 0) 30%, rgba(10, 13, 11, .55) 58%, rgba(10, 13, 11, .9) 82%, var(--bg) 100%); }
+.battle-cover-text { position: relative; z-index: 1; width: 100%; padding: 0 20px 8px; }
+.battle-cover-text .neon-title { margin-bottom: 4px; text-shadow: 0 2px 14px rgba(0, 0, 0, .95), 0 0 24px rgba(255, 61, 154, .45); }
+.battle-cover-text .hero-subtitle { margin: 0 0 4px; text-shadow: 0 1px 8px rgba(0, 0, 0, .95); }
+.battle-cover-text .eyebrow { background: rgba(0, 0, 0, .55); }
+.battle-cover + .test-notice { margin-top: 8px; }
+.hero.hero-after-cover { padding-top: 10px; }
+.battle-pink .hero.hero-after-cover { background: none; }
+@media (min-width: 700px) { .battle-cover { min-height: 380px; border-radius: 0 0 var(--radius) var(--radius); } }
