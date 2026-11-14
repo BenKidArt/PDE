@@ -114,7 +114,7 @@
   "error.rateLimit": "Zu viele Versuche. Bitte warte kurz und versuche es dann noch einmal.",
   "admin.title": "Fotos prüfen",
   "admin.noAccess": "Dieser Bereich ist nur für Admins.",
-  "admin.open": "Fotos prüfen",
+  "admin.open": "🛠 Admin",
   "admin.tab.pending": "Offen",
   "admin.tab.approved": "Frei",
   "admin.tab.rejected": "Abgelehnt",
@@ -130,7 +130,7 @@
   "admin.seedDemo": "Beispiel-Fotos erzeugen (nur Demo)",
   "nav.gallery": "Galerie",
   "nav.business": "Business",
-  "nav.admin": "Fotos prüfen",
+  "nav.admin": "🛠 Admin",
   "nav.terms": "Teilnahmebedingungen",
   "menu.title": "Menü",
   "menu.open": "Menü öffnen",
@@ -631,5 +631,6 @@
   "pictures.empty.rejected": "Keine abgelehnten Bilder.",
   "pictures.done.approved": "Bild von {name} freigegeben.",
   "pictures.done.rejected": "Bild von {name} abgelehnt und gelöscht.",
-  "admin.drafts": "Entwürfe (nur Admins)"
+  "admin.drafts": "Entwürfe (nur Admins)",
+  "admin.tileText": "Fotos prüfen, Entwürfe (Sesh Setup), Profilbilder, Meldungen"
 }

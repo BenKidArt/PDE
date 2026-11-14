@@ -1519,3 +1519,9 @@ span.look-opt { display: block; }
   background: rgba(var(--neon-pink-rgb), .08); border: 1px dashed rgba(var(--neon-pink-rgb), .6); }
 .admin-drafts-label { font-size: .8rem; font-weight: 700; color: #ff8cc6; }
 .bb-chip-pink { border-color: rgba(var(--neon-pink-rgb), .7); color: #ffd1ea; }
+/* Admin entry: clearly marked in the menu and on the own profile (admins only) */
+.menu-link.menu-admin { border: 1.5px solid rgba(var(--neon-pink-rgb), .7); border-radius: 12px; color: #ffd1ea; font-weight: 800;
+  box-shadow: 0 0 12px rgba(var(--neon-pink-rgb), .3); margin-top: 6px; }
+.pf-admin-btn { flex-direction: column; gap: 2px; min-height: 56px; padding: 8px 16px; font-size: 1rem; }
+.pf-admin-sub { font-size: .68rem; font-weight: 600; letter-spacing: .02em; text-transform: none; opacity: .85; }
+.pf-admin-sub { text-align: center; }

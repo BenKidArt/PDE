@@ -131,7 +131,7 @@ async function renderChrome(activePage, battleId) {
         <button type="button" class="menu-button" data-menu-close aria-label="${esc(t('menu.close'))}">✕</button>
       </div>
       ${MENU.filter((m) => (!m.adminOnly || user?.isAdmin) && (!m.testersOnly || user?.canTest)).map((m) => `
-        <a href="#/${m.path}" class="menu-link ${isActive(m.path) ? 'active' : ''}" data-menu-close>
+        <a href="#/${m.path}" class="menu-link ${isActive(m.path) ? 'active' : ''} ${m.adminOnly ? 'menu-admin' : ''}" data-menu-close>
           <span>${esc(t(`nav.${m.key}`))}</span>
           ${m.soon ? `<span class="pill pill-upcoming">${esc(t('soon.badge'))}</span>` : ''}
         </a>`).join('')}

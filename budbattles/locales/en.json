@@ -114,7 +114,7 @@
   "error.rateLimit": "Too many attempts. Please wait a moment and try again.",
   "admin.title": "Review photos",
   "admin.noAccess": "This area is for admins only.",
-  "admin.open": "Review photos",
+  "admin.open": "🛠 Admin",
   "admin.tab.pending": "Waiting",
   "admin.tab.approved": "Approved",
   "admin.tab.rejected": "Rejected",
@@ -130,7 +130,7 @@
   "admin.seedDemo": "Create sample photos (demo only)",
   "nav.gallery": "Gallery",
   "nav.business": "Business",
-  "nav.admin": "Review photos",
+  "nav.admin": "🛠 Admin",
   "nav.terms": "Terms of participation",
   "menu.title": "Menu",
   "menu.open": "Open menu",
@@ -631,5 +631,6 @@
   "pictures.empty.rejected": "No rejected pictures.",
   "pictures.done.approved": "Picture by {name} approved.",
   "pictures.done.rejected": "Picture by {name} rejected and deleted.",
-  "admin.drafts": "Drafts (admins only)"
+  "admin.drafts": "Drafts (admins only)",
+  "admin.tileText": "Review photos, drafts (Sesh Setup), profile pictures, reports"
 }

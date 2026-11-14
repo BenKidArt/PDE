@@ -101,6 +101,8 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
       <div class="pf-banner" data-banner aria-hidden="true" hidden></div>
       ${reviewNotesHtml(reviews)}
 
+      ${isMe && me?.isAdmin ? `<a class="btn btn-primary btn-block pf-admin-btn" href="#/admin" data-admin-link>🛠 ${esc(t('nav.admin').replace('🛠 ', ''))}
+        <span class="pf-admin-sub">${esc(t('admin.tileText'))}</span></a>` : ''}
       <section class="pf-stats">
         <div class="pf-stat"><b>${p.stats.battles ?? 0}</b><span>${esc(t('profile.statBattles'))}</span></div>
         <div class="pf-stat"><b>${esc(best)}</b><span>${esc(t('profile.statBest'))}</span></div>
