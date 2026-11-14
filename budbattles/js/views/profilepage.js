@@ -308,8 +308,17 @@ function showLook(root, look) {
   const bannerUrl = lookUrl('banner', look?.banner || '', profileImageUrl);
   cover.innerHTML = bgUrl ? `<img src="${esc(bgUrl)}" alt="" decoding="async">` : '';
   pf.classList.toggle('pf-has-cover', !!bgUrl);
-  banner.innerHTML = bannerUrl ? `<img src="${esc(bannerUrl)}" alt="" decoding="async">` : '';
+  // the strip takes the picture's own shape (between 4:1 and 2:1), so the whole picture shows;
+  // an own upload with an unusual shape is shown whole with a blurred copy filling the rest
+  banner.innerHTML = bannerUrl ? `<img class="pf-banner-bg" src="${esc(bannerUrl)}" alt="" decoding="async">
+    <img class="pf-banner-img" src="${esc(bannerUrl)}" alt="" decoding="async">` : '';
   banner.hidden = !bannerUrl;
+  banner.style.aspectRatio = '3 / 1';
+  const bimg = banner.querySelector('.pf-banner-img');
+  if (bimg) {
+    const fit = () => { if (bimg.naturalWidth) banner.style.aspectRatio = String(Math.min(4, Math.max(2, bimg.naturalWidth / bimg.naturalHeight))); };
+    if (bimg.complete) fit(); else bimg.addEventListener('load', fit, { once: true });
+  }
   const source = bgUrl || bannerUrl;
   pf.dataset.lookSrc = source;
   if (!source) { applyPalette(pf, null); return; }
