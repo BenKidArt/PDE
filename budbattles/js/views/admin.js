@@ -56,6 +56,7 @@ export async function renderAdmin(root) {
       .map(([page, key]) => `<a class="bb-chip" href="#/${page}/${id}">${esc(t(key))} →</a>`).join('')
       + `<a class="bb-chip" href="#/votes">⚠ ${esc(t('votecheck.title'))} →</a>`
       + `<a class="bb-chip" href="#/pictures">🖼 ${esc(t('pictures.title'))} →</a>`
+      + `<a class="bb-chip" href="#/spot-map">🗺 ${esc(t('spot.adminLink'))} →</a>`
       + `<a class="bb-chip" href="#/reports">⚑ ${esc(t('reports.title'))} →</a>`;
   };
   drawLinks();

@@ -21,6 +21,7 @@ import { renderVoteCheck } from './views/votecheck.js';
 import { renderStrainMatch } from './views/strainmatch.js';
 import { renderReports } from './views/reports.js';
 import { renderPictures } from './views/pictures.js';
+import { renderSpotMap } from './views/spotmap.js';
 import { canInstall, startInstall } from './install.js';
 import { esc } from './ui.js';
 
@@ -42,6 +43,7 @@ const routes = {
   votes: renderVoteCheck, // admin: suspicious votes
   reports: renderReports, // admin: reported profiles and entries
   pictures: renderPictures, // admin: own profile pictures waiting for approval
+  'spot-map': renderSpotMap, // hidden preview: 3D spot map (only by link and from Admin)
   strainmatch: renderStrainMatch,
 };
 

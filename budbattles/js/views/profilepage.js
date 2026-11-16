@@ -184,7 +184,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   root.querySelector('[data-edit]').addEventListener('click', () => openEditor(root, me, key, onLogout, look, reviews));
   let openNow = false;
   try { openNow = sessionStorage.getItem('bb.openEdit') === '1'; sessionStorage.removeItem('bb.openEdit'); } catch { /* ignore */ }
-  if (openNow) openEditor(root, me, key, onLogout, look, reviews);
+  if (openNow) openEditor(root, me, key, onLogout, look, reviews, true); // from Strain Match: setups + flavours open
 }
 
 /** Page class: theme colours from the setup (the glow colour only changes the picture ring). */
@@ -231,6 +231,18 @@ function setupBlock(s, i, list) {
     ${chips.length ? `<div class="pf-chips">${chips.map((c) => chipHtml(c)).join('')}</div>` : ''}
     ${meta.length ? `<p class="pf-setup-meta">${meta.map(esc).join(' · ')}</p>` : ''}
   </div>`;
+}
+
+/** Tap-to-open category in the profile editor (closed by default; a short summary shows when closed). */
+function categoryHtml(id, title, inner) {
+  return `<section class="pf-cat" data-cat="${id}">
+    <button type="button" class="pf-cat-head" aria-expanded="false" aria-controls="pf-cat-${id}" data-cat-toggle>
+      <span class="pf-cat-title">${esc(title)}</span>
+      <span class="pf-cat-sum" data-cat-sum></span>
+      <span class="pf-cat-arrow" aria-hidden="true"></span>
+    </button>
+    <div class="pf-cat-body" id="pf-cat-${id}" inert><div class="pf-cat-inner">${inner}</div></div>
+  </section>`;
 }
 
 /** One setup card in the editor. */
@@ -371,7 +383,7 @@ function lookRowHtml(kind, current, review) {
     <p class="hint" data-look-status="${kind}" role="status">${review?.status === 'pending' ? `⏳ ${esc(t(`look.pending.${kind}`))}` : ''}</p>`;
 }
 
-function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', xmas: true }, reviews = []) {
+function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', xmas: true }, reviews = [], openCats = false) {
   const reviewOf = (kind) => reviews.find((r) => r.kind === kind);
   const slot = root.querySelector('[data-edit-slot]');
   const changedAt = me.usernameChangedAt ? new Date(me.usernameChangedAt) : null;
@@ -379,6 +391,21 @@ function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', x
   const nameLocked = !!(me.username && nextChange && nextChange > new Date());
   const fmt = (d) => new Intl.DateTimeFormat(getLang() === 'de' ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
   const startSetups = setupsOf(me);
+  const visualHtml = `      <fieldset class="field">
+        <legend class="label">${esc(t('profile.accent'))}</legend>
+        <div class="accent-swatches">
+          ${ACCENTS.map((a) => `<button type="button" class="accent-swatch pf-accent-${a}" data-accent="${a}" aria-pressed="${me.accent === a}" aria-label="${esc(t(`accent.${a}`))}" title="${esc(t(`accent.${a}`))}"><span></span></button>`).join('')}
+        </div>
+      </fieldset>
+      <fieldset class="field look-field">
+        <legend class="label">${esc(t('look.bgTitle'))}</legend>
+        ${lookRowHtml('bg', startLook.bg, reviewOf('bg'))}
+      </fieldset>
+      <fieldset class="field look-field">
+        <legend class="label">${esc(t('look.bannerTitle'))}</legend>
+        ${lookRowHtml('banner', startLook.banner, reviewOf('banner'))}
+      </fieldset>
+      <label class="check"><input type="checkbox" id="pf-xmas" ${startLook.xmas !== false ? 'checked' : ''}><span>🎅 ${esc(t('look.xmas'))}</span></label>`;
   slot.innerHTML = `
     <form class="form pf-form" novalidate>
       <h2>${esc(t('profile.edit'))}</h2>
@@ -397,34 +424,22 @@ function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', x
         </label>`).join('')}
         <p class="hint">${esc(t('links.hint'))}</p>
       </fieldset>
+      ${categoryHtml('setups', t('setups.title'), `
       <fieldset class="field setups-field">
-        <legend class="label">${esc(t('setups.title'))} <span class="muted small">${esc(t('setups.max', { n: MAX_SETUPS }))}</span></legend>
+        <legend class="sr-only">${esc(t('setups.title'))}</legend>
+        <p class="hint">${esc(t('setups.max', { n: MAX_SETUPS }))}</p>
         <div class="setup-list" data-setup-list>${(startSetups.length ? startSetups : [{ main: true }]).map((s, i) => setupCardHtml(s, i)).join('')}</div>
         <button type="button" class="btn btn-ghost btn-small" data-add-setup>＋ ${esc(t('setups.add'))}</button>
-      </fieldset>
+      </fieldset>`)}
       ${chipGroup('growStage', me.growStage)}
       ${chipGroup('experience', me.experience)}
       ${chipGroup('growStyle', me.growStyle)}
-      ${chipGroup('flavours', me.flavours)}
+      ${categoryHtml('flavours', t('cat.flavours'), chipGroup('flavours', me.flavours))}
       <div class="field"><label class="label" for="pf-strain">${esc(t('profile.favStrain'))}</label>
         <input id="pf-strain" type="text" maxlength="40" value="${esc(me.favStrain || '')}"></div>
       <div class="field"><label class="label" for="pf-breeder">${esc(t('profile.breeder'))}</label>
         <input id="pf-breeder" type="text" maxlength="40" value="${esc(me.breeder || '')}"></div>
-      <fieldset class="field">
-        <legend class="label">${esc(t('profile.accent'))}</legend>
-        <div class="accent-swatches">
-          ${ACCENTS.map((a) => `<button type="button" class="accent-swatch pf-accent-${a}" data-accent="${a}" aria-pressed="${me.accent === a}" aria-label="${esc(t(`accent.${a}`))}" title="${esc(t(`accent.${a}`))}"><span></span></button>`).join('')}
-        </div>
-      </fieldset>
-      <fieldset class="field look-field">
-        <legend class="label">${esc(t('look.bgTitle'))}</legend>
-        ${lookRowHtml('bg', startLook.bg, reviewOf('bg'))}
-      </fieldset>
-      <fieldset class="field look-field">
-        <legend class="label">${esc(t('look.bannerTitle'))}</legend>
-        ${lookRowHtml('banner', startLook.banner, reviewOf('banner'))}
-      </fieldset>
-      <label class="check"><input type="checkbox" id="pf-xmas" ${startLook.xmas !== false ? 'checked' : ''}><span>🎅 ${esc(t('look.xmas'))}</span></label>
+      ${categoryHtml('visual', t('cat.visual'), visualHtml)}
       <div class="field"><label class="label" for="pf-bio">${esc(t('profile.bio'))}</label>
         <textarea id="pf-bio" rows="3" maxlength="${BIO_MAX}">${esc(me.bio || '')}</textarea>
         <span class="counter" data-count>${(me.bio || '').length}/${BIO_MAX}</span></div>
@@ -527,6 +542,44 @@ function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', x
     }
   }));
   form.querySelector('#pf-xmas').addEventListener('change', (e) => { look.xmas = e.target.checked; showLook(root, look); });
+  // categories: tap the header to open / close; the closed header shows a short summary
+  const setCatOpen = (cat, open) => {
+    cat.classList.toggle('is-open', open);
+    cat.querySelector('[data-cat-toggle]').setAttribute('aria-expanded', String(open));
+    cat.querySelector('.pf-cat-body').inert = !open;
+  };
+  const openCatFor = (el) => { const cat = el?.closest('[data-cat]'); if (cat) setCatOpen(cat, true); };
+  form.querySelectorAll('[data-cat]').forEach((cat) => cat.querySelector('[data-cat-toggle]')
+    .addEventListener('click', () => setCatOpen(cat, !cat.classList.contains('is-open'))));
+  const catSum = (id) => form.querySelector(`[data-cat="${id}"] [data-cat-sum]`);
+  const updateCatSums = () => {
+    // visual: chosen glow colour + tiny thumbnail of the background
+    const accent = form.querySelector('[data-accent][aria-pressed="true"]')?.dataset.accent || 'theme';
+    const thumb = look.bg ? lookUrl('bg', look.bg, profileImageUrl, { thumb: look.bg.startsWith('p:') }) : '';
+    catSum('visual').innerHTML = `<span class="pf-cat-dot pf-accent-${esc(accent)}" aria-hidden="true"></span>${thumb ? `<img class="pf-cat-thumb" src="${esc(thumb)}" alt="">` : ''}`;
+    // flavours: how many are chosen
+    const n = form.querySelectorAll('[data-group="flavours"] .opt-chip[aria-pressed="true"]').length;
+    catSum('flavours').textContent = n ? t('cat.selected', { n }) : t('cat.noneSelected');
+    // setups: one line about the main setup
+    const cards = [...list.querySelectorAll('[data-setup-card]')];
+    const mainCard = cards.find((c) => c.querySelector('[name=setup-main]').checked) || cards[0];
+    const parts = [];
+    if (mainCard) {
+      const type = mainCard.querySelector('[data-setup][aria-pressed="true"]')?.dataset.setup;
+      if (type) parts.push(t(`setupShort.${type}`));
+      const size = mainCard.querySelector('[data-group="spaceSize"] .opt-chip[aria-pressed="true"]')?.dataset.value;
+      if (size === 'custom') {
+        const w = mainCard.querySelector('[data-f=sw]').value, d = mainCard.querySelector('[data-f=sd]').value;
+        if (w && d) parts.push(`${w}×${d}`);
+      } else if (size) parts.push(optLabel('spaceSize', size));
+      const medium = mainCard.querySelector('[data-f=medium]').value;
+      if (medium) parts.push(t(`medium.${medium}`));
+    }
+    catSum('setups').textContent = (parts.join(' · ') || t('cat.noSetup')) + (cards.length > 1 ? `  +${cards.length - 1}` : '');
+  };
+  ['click', 'input', 'change'].forEach((ev) => form.addEventListener(ev, () => requestAnimationFrame(updateCatSums)));
+  updateCatSums();
+  if (openCats) form.querySelectorAll('[data-cat="setups"], [data-cat="flavours"]').forEach((c) => setCatOpen(c, true));
   form.querySelector('[data-cancel]').addEventListener('click', () => {
     if (takeReturnTo()) return; // came from Strain Match: go back there
     renderProfilePage(root, key, { onLogout });
@@ -582,6 +635,7 @@ function openEditor(root, me, key, onLogout, startLook = { bg: '', banner: '', x
         const okH = (v) => !v || (v >= 20 && v <= 600);
         if (!okWD(s.spaceW) || !okWD(s.spaceD) || !okH(sh1) || !okH(sh2)) {
           err.textContent = t('error.spaceCustom'); err.hidden = false; btn.disabled = false;
+          openCatFor(card);
           card.querySelector('[data-space-custom]').scrollIntoView({ behavior: 'smooth', block: 'center' });
           return;
         }
