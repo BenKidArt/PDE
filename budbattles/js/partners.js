@@ -20,7 +20,7 @@ export const PARTNERS = [
     instagram: 'https://instagram.com/_chr_isgrowing' },
   { id: 'cannabissamen_nrw', name: 'Cannabissamen NRW', role: 'upcoming' },
   { id: 'superskunkgrow', name: 'Superskunk Grow', role: 'shop', shopKey: 'superskunkgrow', country: 'ES',
-    logo: 'assets/partner-superskunkgrow.webp', website: 'https://superskunkgrow.com' },
+    logo: 'assets/partner-superskunkgrow.webp', tile: true, website: 'https://superskunkgrow.com' },
 ];
 
 /** Shop partners by their shopKey – ready for "Available at" in Strain Match (not shown there yet). */

@@ -82,6 +82,7 @@ const BATTLE_PAGES = ['battle', 'enter', 'standings'];
 
 async function render() {
   const { page, id } = parseHash();
+  document.body.dataset.page = page || 'home'; // shared sizes apply everywhere except the Enter page (see style.css)
   await renderChrome(page, BATTLE_PAGES.includes(page) ? id : undefined);
   const main = document.getElementById('main');
   const view = routes[page];

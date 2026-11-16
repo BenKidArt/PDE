@@ -1580,3 +1580,79 @@ span.look-opt { display: block; }
 .partner-shop-info { display: grid; gap: 6px; justify-items: start; min-width: 0; }
 .partner-shop-info .partner-card-name { font-size: .95rem; }
 .partner-web { padding: 0 12px; }
+
+/* =====================================================================
+   SHARED SIZES (one set for the whole app, taken from the compact Home page).
+   Every page uses these – except anything about entries: entry cards (.ncard…),
+   vote buttons (.btn-vote), the Enter page (body[data-page="enter"]) and the
+   admin entry rows (.arow) keep their own sizes.
+   ===================================================================== */
+:root {
+  --fs-h1: 1.6rem;      /* page titles */
+  --fs-h2: 1.05rem;     /* section headings */
+  --fs-h3: .95rem;      /* card titles */
+  --fs-body: .92rem;    /* normal text */
+  --fs-small: .8rem;    /* hints, captions */
+  --fs-xs: .7rem;       /* labels */
+  --btn-h: 44px; --btn-fs: 12.5px; --btn-pad: 0 18px;
+  --btn-h-sm: 36px; --btn-fs-sm: 11.5px; --btn-pad-sm: 0 14px;
+  --card-pad: 14px; --card-radius: 16px; --gap: 10px; --section-gap: 22px;
+}
+/* page titles + section headings */
+body:not([data-page="enter"]) .neon-title,
+body:not([data-page="enter"]) main h1:not(.home-title) { font-size: var(--fs-h1); line-height: 1.15; }
+body:not([data-page="enter"]) .home-title { font-size: clamp(1.5rem, 6.6vw, 1.85rem); }
+body:not([data-page="enter"]) .pf-name { font-size: var(--fs-h1); margin-top: 6px; }
+body:not([data-page="enter"]) .admin-h1 { font-size: var(--fs-h1); }
+body:not([data-page="enter"]) main h2 { font-size: var(--fs-h2); margin-bottom: 8px; }
+body:not([data-page="enter"]) .battle-card-title { font-size: var(--fs-h1); margin: 4px 0 6px; }
+body:not([data-page="enter"]) .hero { padding: 14px 2px 8px; }
+body:not([data-page="enter"]) .hero-summary { font-size: var(--fs-body); }
+body:not([data-page="enter"]) .card p, body:not([data-page="enter"]) .pf-card p, body:not([data-page="enter"]) .rules,
+body:not([data-page="enter"]) .rules-fixed, body:not([data-page="enter"]) .dates { font-size: var(--fs-body); }
+body:not([data-page="enter"]) .card .small, body:not([data-page="enter"]) .hint, body:not([data-page="enter"]) .muted.small { font-size: var(--fs-small); }
+/* buttons (not vote buttons, not the admin entry rows) */
+body:not([data-page="enter"]) .btn:not(.btn-vote):not(.btn-xs) { min-height: var(--btn-h); font-size: var(--btn-fs); padding: var(--btn-pad); border-radius: 12px; }
+body:not([data-page="enter"]) .btn.btn-small:not(.btn-vote) { min-height: var(--btn-h-sm); font-size: var(--btn-fs-sm); padding: var(--btn-pad-sm); }
+body:not([data-page="enter"]) .pf-admin-btn { min-height: 52px; padding: 6px 16px; }
+/* cards: same padding, corner radius and spacing everywhere */
+body:not([data-page="enter"]) .card, body:not([data-page="enter"]) .pf-card,
+body:not([data-page="enter"]) .match-card, body:not([data-page="enter"]) .notice, body:not([data-page="enter"]) .modal:not(.card-modal) {
+  padding: var(--card-pad); border-radius: var(--card-radius);
+}
+/* compact Home cards: same corner radius, tighter padding (set below) */
+.step, .partner-main, .partner-card { border-radius: var(--card-radius); }
+body:not([data-page="enter"]) .card { margin: var(--gap) 0; }
+body:not([data-page="enter"]) .pf { gap: var(--gap); }
+body:not([data-page="enter"]) .pf-stat { padding: 10px 6px; border-radius: var(--card-radius); }
+body:not([data-page="enter"]) .pf-stat b { font-size: 1.3rem; }
+body:not([data-page="enter"]) .home-section { margin: var(--section-gap) 0; }
+/* menu */
+.menu-link { min-height: 46px; font-size: .98rem; border-radius: 12px; }
+.menu-sheet { gap: 0; }
+
+/* ---------- Home: "How it works" – compact steps ---------- */
+.steps { gap: 8px; }
+.step { gap: 10px; align-items: center; padding: 10px 12px; }
+.step-num { width: 26px; height: 26px; border-radius: 8px; font-size: .8rem; }
+.step strong { font-size: var(--fs-h3); line-height: 1.25; }
+.step p, .step .muted.small { margin: 1px 0 0; font-size: var(--fs-small); line-height: 1.35; }
+
+/* ---------- Home: partners – one compact style for all partner cards ---------- */
+.partner-main { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 14px; margin-top: 8px; padding: 10px 14px; text-align: left; }
+.partner-main .partner-logo-img { width: auto; max-width: 140px; height: 40px; max-height: 40px; object-fit: contain; }
+.partner-main .partner-logo-img.is-round { width: 48px; height: 48px; max-height: none; }
+.partner-main-name { margin: 0; font-size: var(--fs-h3); font-weight: 800; }
+.partner-row { margin: 8px -16px 0; padding: 2px 16px 8px; grid-auto-columns: 92px; gap: 8px; }
+.partner-card { gap: 5px; padding: 8px 6px 10px; border-width: 1.5px; box-shadow: 0 0 8px rgba(var(--neon-pink-rgb), .15); }
+.partner-card .partner-logo-img, .partner-card .partner-logo-img:not(.is-round) { width: 60px; height: 56px; object-fit: contain; }
+.partner-card .partner-logo-img.is-round { width: 56px; height: 56px; }
+.partner-card .partner-logo-img.is-tile { width: 56px; height: 56px; border-radius: 10px; background: #fff; }
+.partner-placeholder { width: 56px; height: 56px; padding: 4px; font-size: .95rem; letter-spacing: .04em; }
+.partner-card-name { font-size: .72rem; line-height: 1.2; }
+/* the same small round link button on every partner card (Instagram / website) */
+.partner-links { display: inline-flex; gap: 6px; }
+.partner-link { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; color: #ffd1ea;
+  border: 1.5px solid rgba(var(--neon-pink-rgb), .7); background: rgba(var(--neon-pink-rgb), .08); box-shadow: 0 0 8px rgba(var(--neon-pink-rgb), .3); }
+.partner-link svg { width: 14px; height: 14px; }
+.partner-link:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

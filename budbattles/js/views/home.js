@@ -95,39 +95,35 @@ function homeOrder(entries, status) {
 }
 
 
-/** Battle #1 partner (big) + "Upcoming battles with" (members only: names contain "seed"). */
+/** Battle #1 partner + "Upcoming battles with" + "Shop partners" (both members only: names contain "seed").
+ *  All partner cards share one compact style; links are the same small round button on every card. */
 function partnersHtml(main, upcoming, shops = []) {
-  const logo = (p, size) => (p.logo
-    ? `<img class="partner-logo-img${p.round ? ' is-round' : ''}" src="${esc(p.logo)}" alt="${esc(p.name)}" width="${size}" height="${size}" loading="lazy" decoding="async">`
+  const logo = (p) => (p.logo
+    ? `<img class="partner-logo-img${p.round ? ' is-round' : ''}${p.tile ? ' is-tile' : ''}" src="${esc(p.logo)}" alt="${esc(p.name)}" loading="lazy" decoding="async">`
     : `<span class="partner-placeholder" aria-hidden="true">${esc(monogram(p.name))}</span>`);
-  const insta = (p) => (p.instagram ? `<a class="btn btn-ghost btn-xs partner-insta" href="${esc(p.instagram)}" target="_blank" rel="noopener noreferrer">
-    ${LINK_ICONS.instagram}<span>${esc(t('home.partnerInstagram'))}</span></a>` : '');
+  const links = (p) => {
+    const l = [];
+    if (p.instagram) l.push(`<a class="partner-link" href="${esc(p.instagram)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(`${t('home.partnerInstagram')}: ${p.name}`)}" title="${esc(t('home.partnerInstagram'))}">${LINK_ICONS.instagram}</a>`);
+    if (p.website) l.push(`<a class="partner-link" href="${esc(p.website)}" target="_blank" rel="noopener noreferrer sponsored" aria-label="${esc(`${t('home.partnerWebsite')}: ${p.name}`)}" title="${esc(t('home.partnerWebsite'))}">${WEB_ICON}</a>`);
+    return l.length ? `<span class="partner-links">${l.join('')}</span>` : '';
+  };
+  const card = (p) => `<li class="partner-card">${logo(p)}<p class="partner-card-name">${esc(p.name)}</p>${links(p)}</li>`;
   return `
     ${main.length ? `<section class="home-section">
       <h2>${esc(t('home.partnerMain'))}</h2>
-      ${main.map((p) => `<div class="partner-main">${logo(p, 220)}<p class="partner-main-name">${esc(p.name)}</p>${insta(p)}</div>`).join('')}
+      ${main.map((p) => `<div class="partner-main">${logo(p)}<p class="partner-main-name">${esc(p.name)}</p>${links(p)}</div>`).join('')}
     </section>` : ''}
     ${upcoming.length ? `<section class="home-section">
       <h2>${esc(t('home.partnerUpcoming'))}</h2>
-      <ul class="partner-row" data-hscroll>
-        ${upcoming.map((p) => `<li class="partner-card">${logo(p, 96)}<p class="partner-card-name">${esc(p.name)}</p>${insta(p)}</li>`).join('')}
-      </ul>
+      <ul class="partner-row" data-hscroll>${upcoming.map(card).join('')}</ul>
     </section>` : ''}
     ${shops.length ? `<section class="home-section">
       <h2>${esc(t('home.partnerShops'))}</h2>
-      <ul class="partner-shops">
-        ${shops.map((p) => `<li class="partner-shop">
-          <span class="partner-shop-logo">${logo(p, 88)}</span>
-          <div class="partner-shop-info">
-            <p class="partner-card-name">${esc(p.name)}</p>
-            ${p.website ? `<a class="btn btn-ghost btn-xs partner-web" href="${esc(p.website)}" target="_blank" rel="noopener noreferrer sponsored">
-              ${esc(t('home.partnerWebsite'))} ↗</a>` : ''}
-          </div>
-        </li>`).join('')}
-      </ul>
+      <ul class="partner-row" data-hscroll>${shops.map(card).join('')}</ul>
     </section>` : ''}`;
 }
 
+const WEB_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
 /** Placeholder until a logo arrives: short names as they are, else initials (Huba Seed Bank → HSB). */
 function monogram(name) {
   const words = name.split(/\s+/).filter(Boolean);
