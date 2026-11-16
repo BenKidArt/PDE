@@ -41,6 +41,18 @@ function press(el) {
   pressed = el;
   pressedAt = performance.now();
   el.classList.add('is-pressed');
+  shine(el);
+}
+
+// CHROME SHINE: main buttons get one light sweep per press (CSS ".is-shine").
+const SHINE_TARGETS = '.btn-go, .btn-vote, .btn-primary';
+function shine(el) {
+  if (!el.matches(SHINE_TARGETS) || el.matches('.btn-small, .btn-xs')) return;
+  el.classList.remove('is-shine');
+  void el.offsetWidth; // restart the sweep on a quick second tap
+  el.classList.add('is-shine');
+  clearTimeout(el._shineT);
+  el._shineT = setTimeout(() => el.classList.remove('is-shine'), 700);
 }
 
 document.addEventListener('pointerdown', (e) => {
