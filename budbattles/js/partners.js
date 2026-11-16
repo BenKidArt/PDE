@@ -15,7 +15,7 @@ export const PARTNERS = [
   { id: 'cannapot', name: 'Cannapot', role: 'main', logo: 'assets/partner-cannapot.webp' },
   { id: 'seedstockers', name: 'Seedstockers', role: 'upcoming', logo: 'assets/partner-seedstockers.webp' }, // official logo, unchanged
   { id: 'hnny', name: 'HNNY', role: 'upcoming', logo: 'assets/partner-hnny.webp' },
-  { id: 'huba', name: 'Huba Seed Bank', role: 'upcoming' },
+  { id: 'huba', name: 'Huba Seed Bank', role: 'upcoming', logo: 'assets/partner-huba.webp', round: true },
   { id: 'chr_isgrowing', name: 'Chris Schmid', role: 'upcoming', logo: 'assets/partner-chr-isgrowing.webp', round: true,
     instagram: 'https://instagram.com/_chr_isgrowing' },
   { id: 'cannabissamen_nrw', name: 'Cannabissamen NRW', role: 'upcoming' },
