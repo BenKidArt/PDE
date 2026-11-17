@@ -1756,30 +1756,52 @@ body.sm-open { overflow: hidden; }
 .sm-eyebrow { background: rgba(10, 13, 11, .8); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 
 /* =====================================================================
-   CHROME MAIN BUTTONS (inspired by the logo): only the big main actions
-   (green Enter/Vote, pink Save/primary). Colours stay exactly the same; a layer
-   on top adds a soft highlight on the upper half, a thin chrome rim just inside
-   the border, and a light shine that sweeps across once when pressed
-   (".is-shine" is set by js/press.js). Small buttons, chips and tabs: untouched.
+   CHROME LOOK (inspired by the logo) – reusable: add class "bb-chrome" to any
+   button. The big main actions (green Enter/Vote, pink Save/primary) get it
+   automatically. Colours stay exactly the same; a layer on top adds a soft
+   highlight on the upper half, a thin chrome rim just inside the border, and a
+   light shine that sweeps across once when pressed (".is-shine", set by
+   js/press.js). "bb-chrome--soft" = gentler version for dark buttons.
+   Small buttons, chips and tabs: untouched unless they get the class.
    The layer sits behind the text, so the text stays fully readable.
    ===================================================================== */
-:is(.btn-go, .btn-vote, .btn-primary):not(.btn-small):not(.btn-xs) { position: relative; isolation: isolate; overflow: hidden; }
-:is(.btn-go, .btn-vote, .btn-primary):not(.btn-small):not(.btn-xs)::before {
+:is(.btn-go, .btn-vote, .btn-primary):not(.btn-small):not(.btn-xs), .bb-chrome { position: relative; isolation: isolate; overflow: hidden; }
+:is(.btn-go, .btn-vote, .btn-primary):not(.btn-small):not(.btn-xs)::before, .bb-chrome::before {
   content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none;
   background:
     linear-gradient(105deg, transparent 0 38%, rgba(255, 255, 255, .5) 50%, transparent 62% 100%) -160% 0 / 60% 100% no-repeat,
     linear-gradient(180deg, rgba(255, 255, 255, .34) 0%, rgba(255, 255, 255, .12) 42%, rgba(255, 255, 255, 0) 52%, rgba(0, 0, 0, .08) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), inset 0 -1px 0 rgba(0, 0, 0, .28), inset 0 0 0 1px rgba(255, 255, 255, .16);
 }
-/* pink outline main buttons (Save …): dark inside, so a gentler highlight */
-.btn-primary:not(.btn-go):not(.btn-small):not(.btn-xs)::before {
+/* dark / outline buttons (pink Save …, map controls): a gentler highlight */
+.btn-primary:not(.btn-go):not(.btn-small):not(.btn-xs)::before, .bb-chrome--soft:not(.on)::before {
   background:
     linear-gradient(105deg, transparent 0 38%, rgba(255, 190, 225, .32) 50%, transparent 62% 100%) -160% 0 / 60% 100% no-repeat,
     linear-gradient(180deg, rgba(255, 255, 255, .14) 0%, rgba(255, 255, 255, .04) 45%, rgba(255, 255, 255, 0) 55%);
   box-shadow: inset 0 1px 0 rgba(255, 220, 240, .45), inset 0 -1px 0 rgba(0, 0, 0, .35), inset 0 0 0 1px rgba(255, 255, 255, .08);
 }
-:is(.btn-go, .btn-vote, .btn-primary).is-shine:not(.btn-small):not(.btn-xs)::before { animation: bb-shine .55s ease-out; }
+.bb-chrome--soft:not(.on)::before { /* green-tinted shine on the green-edged map buttons */
+  background:
+    linear-gradient(105deg, transparent 0 38%, rgba(214, 255, 170, .32) 50%, transparent 62% 100%) -160% 0 / 60% 100% no-repeat,
+    linear-gradient(180deg, rgba(255, 255, 255, .14) 0%, rgba(255, 255, 255, .04) 45%, rgba(255, 255, 255, 0) 55%);
+  box-shadow: inset 0 1px 0 rgba(230, 255, 210, .42), inset 0 -1px 0 rgba(0, 0, 0, .35), inset 0 0 0 1px rgba(255, 255, 255, .07);
+}
+:is(.btn-go, .btn-vote, .btn-primary).is-shine:not(.btn-small):not(.btn-xs)::before, .bb-chrome.is-shine::before { animation: bb-shine .55s ease-out; }
 @keyframes bb-shine { from { background-position: -160% 0, 0 0; } to { background-position: 260% 0, 0 0; } }
 @media (prefers-reduced-motion: reduce) {
-  :is(.btn-go, .btn-vote, .btn-primary).is-shine::before { animation: none; }
+  :is(.btn-go, .btn-vote, .btn-primary, .bb-chrome).is-shine::before { animation: none; }
 }
+
+/* SPOT MAP v2: control column always fully on screen (also with the X-ray button);
+   two fingers on the overlay never zoom the page (that pushed the buttons off-screen). */
+.spotmap { touch-action: none; overscroll-behavior: none; }
+.spotmap .sm-sheet .sm-scroll { touch-action: pan-y; }
+.spotmap .sm-chips { touch-action: pan-x; }
+.sm-ctl { right: calc(12px + env(safe-area-inset-right, 0px)); left: auto; width: 44px; box-sizing: border-box; gap: 8px; }
+.sm-ctl .sm-btn { width: 44px; height: 44px; }
+.sm-ctl.is-tight { gap: 5px; }
+.sm-ctl.is-tight .sm-btn { width: 40px; height: 40px; }
+.sm-btn-text { font-size: 9.5px; letter-spacing: .04em; }
+.sm-chip.bb-chrome { border-radius: 999px; }
+@media (min-width: 760px) { .sm-ctl { top: 50% !important; transform: translateY(-50%); } }
+.sm-btn.is-pressed { transform: translateY(2px) scale(.93); filter: brightness(.9); transition-duration: .05s; }

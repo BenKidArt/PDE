@@ -644,10 +644,10 @@
   "cat.noneSelected": "keine ausgewählt",
   "cat.noSetup": "noch nicht angegeben",
   "spot.adminLink": "Spot Map (Vorschau)",
-  "spot.title": "Spot Map · Kreuzberg",
+  "spot.title": "Spot Map · Berlin",
   "spot.count": "Kottbusser Tor · {n} Demo-Spots · 1 frei",
-  "spot.stageLabel": "3D-Karte von Kreuzberg rund um das Kottbusser Tor, Berlin. Ziehen zum Drehen, mit zwei Fingern zoomen.",
-  "spot.loading": "Kreuzberg wird gebaut …",
+  "spot.stageLabel": "3D-Karte von Kreuzberg, Neukölln, Friedrichshain und Mitte (Berlin). Ziehen zum Drehen, mit zwei Fingern zoomen.",
+  "spot.loading": "Berlin wird gebaut …",
   "spot.engineFailed": "Die 3D-Grafik konnte nicht laden – bitte Seite neu laden.",
   "spot.filter": "Spots filtern",
   "spot.light": "Licht ändern",
@@ -686,5 +686,8 @@
   "spot.modeName.morning": "Morgen",
   "spot.modeName.day": "Tag",
   "spot.modeName.evening": "Abend",
-  "spot.modeName.night": "Nacht"
+  "spot.modeName.night": "Nacht",
+  "spot.xray": "X-RAY",
+  "spot.xrayLabel": "Röntgenblick: U-Bahn unter der Straße zeigen",
+  "spot.xrayHint": "Röntgenblick: Tippe auf einen U-Bahnhof"
 }

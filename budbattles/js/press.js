@@ -9,7 +9,7 @@
 //   – once the page has been tapped before: buzz right at pointerdown (instant feel)
 //   – the very first tap: buzz at pointerup, which Chrome does count as a tap
 // Nothing else switches it off (no reduced-motion check; errors are ignored).
-const PRESS_TARGETS = '.btn, .bb-chip, .btn-vote, .tabs button, .lang button, .report-btn';
+const PRESS_TARGETS = '.btn, .bb-chip, .btn-vote, .tabs button, .lang button, .report-btn, .bb-chrome';
 const TAP_TARGETS = `${PRESS_TARGETS}, button, [role="button"], a[href], label.check, input[type="checkbox"], input[type="radio"], select, summary`;
 const MIN_PRESS_MS = 100;
 const VIBRATE_MS = 20;
@@ -45,9 +45,9 @@ function press(el) {
 }
 
 // CHROME SHINE: main buttons get one light sweep per press (CSS ".is-shine").
-const SHINE_TARGETS = '.btn-go, .btn-vote, .btn-primary';
+const SHINE_TARGETS = '.btn-go, .btn-vote, .btn-primary, .bb-chrome';
 function shine(el) {
-  if (!el.matches(SHINE_TARGETS) || el.matches('.btn-small, .btn-xs')) return;
+  if (!el.matches(SHINE_TARGETS) || (el.matches('.btn-small, .btn-xs') && !el.matches('.bb-chrome'))) return;
   el.classList.remove('is-shine');
   void el.offsetWidth; // restart the sweep on a quick second tap
   el.classList.add('is-shine');

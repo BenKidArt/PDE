@@ -1,0 +1,1 @@
+{"v":1,"lat0":52.499,"lon0":13.418,"tile":500,"bounds":[-520,-400,520,400],"starter":"Kottbusser Tor only – run tools/build-map-tiles.mjs for the full area","credit":"Map data © OpenStreetMap contributors (ODbL)","tiles":[[0,0],[0,-1],[-1,0],[-1,-1],[-2,0],[1,0]]}

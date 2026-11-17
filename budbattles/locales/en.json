@@ -644,10 +644,10 @@
   "cat.noneSelected": "none selected",
   "cat.noSetup": "not set yet",
   "spot.adminLink": "Spot Map (preview)",
-  "spot.title": "Spot Map · Kreuzberg",
+  "spot.title": "Spot Map · Berlin",
   "spot.count": "Kottbusser Tor · {n} demo spots · 1 free",
-  "spot.stageLabel": "3D map of Kreuzberg around Kottbusser Tor, Berlin. Drag to orbit, pinch or scroll to zoom.",
-  "spot.loading": "Building Kreuzberg …",
+  "spot.stageLabel": "3D map of Kreuzberg, Neukölln, Friedrichshain and Mitte, Berlin. Drag to orbit, pinch or scroll to zoom.",
+  "spot.loading": "Building Berlin …",
   "spot.engineFailed": "The 3D engine did not load – please reload the page.",
   "spot.filter": "Filter spots",
   "spot.light": "Change light",
@@ -686,5 +686,8 @@
   "spot.modeName.morning": "morning",
   "spot.modeName.day": "day",
   "spot.modeName.evening": "evening",
-  "spot.modeName.night": "night"
+  "spot.modeName.night": "night",
+  "spot.xray": "X-RAY",
+  "spot.xrayLabel": "X-ray: show the U-Bahn below the streets",
+  "spot.xrayHint": "X-ray: tap a U-Bahn station"
 }
