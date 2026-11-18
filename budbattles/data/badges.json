@@ -350,6 +350,34 @@
       "earned": false,
       "tradeable": true,
       "sort": 117
+    },
+    {
+      "id": "badge_banana_round",
+      "image": "assets/badges/badge_banana_round.png",
+      "name_de": "Banana Blaster",
+      "name_en": "Banana Blaster",
+      "description_de": "60 Minuten Zillah Banana Toss gespielt.",
+      "description_en": "Played 60 minutes of Zillah Banana Toss.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 40,
+      "earned": true,
+      "tradeable": false
+    },
+    {
+      "id": "badge_login10_gorilla",
+      "image": "assets/badges/badge_login10_gorilla.png",
+      "name_de": "10 Days Deep",
+      "name_en": "10 Days Deep",
+      "description_de": "An 10 verschiedenen Tagen in BudBattles eingeloggt.",
+      "description_en": "Logged in to BudBattles on 10 different days.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 41,
+      "earned": true,
+      "tradeable": false
     }
   ]
 }

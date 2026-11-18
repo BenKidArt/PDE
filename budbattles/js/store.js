@@ -54,6 +54,12 @@ export const {
   finalizeBattles, // Top 3 + champion choices for ended battles (safe to call often)
   getPendingChampion, // [{ battleId, number, isTest, theme }] where you are #1 and must pick son/daughter
   chooseChampionBadge, // (battleId, 'badge_heir_son' | 'badge_heir_daughter')
+  // Zillah Banana Toss (database update 019) – each returns { budPoints, todayPoints, gameSeconds, loginDays, newBadges }
+  gameAddPoints, // (points) max 50 game BudPoints per day
+  gameAddSeconds, // (seconds, demo) play time; Banana Blaster at 60 min (demo mode: 1 min, admins only)
+  gameLoginDay, // once per app start; one login day per calendar day; 10 Days Deep on day 10
+  gameMyStats,
+  gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, // admin demo tools (own account)
   registerBusinessInterest, // ({ email, company, lang }) – Business page "Interested?" list
   checkProfileName, // (name) → 'ok' | 'invalid' | 'blocked' | 'taken'
   setProfileName, // (name) – max once every 30 days

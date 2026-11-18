@@ -23,6 +23,7 @@ import { renderReports } from './views/reports.js';
 import { renderPictures } from './views/pictures.js';
 import { renderSpotMap } from './views/spotmap.js';
 import { renderBananaToss } from './views/bananatoss.js';
+import { checkLoginDay } from './gamebadges.js';
 import { canInstall, startInstall } from './install.js';
 import { esc } from './ui.js';
 
@@ -88,6 +89,7 @@ async function render() {
   const { page, id } = parseHash();
   document.body.dataset.page = page || 'home'; // shared sizes apply everywhere except the Enter page (see style.css)
   await renderChrome(page, BATTLE_PAGES.includes(page) ? id : undefined);
+  checkLoginDay(); // one login day per calendar day (10 Days Deep badge)
   const main = document.getElementById('main');
   const view = routes[page];
   if (!view) {

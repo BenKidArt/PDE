@@ -692,5 +692,21 @@
   "spot.xrayHint": "Röntgenblick: Tippe auf einen U-Bahnhof",
   "game.adminLink": "Zillah Banana Toss (Vorschau)",
   "game.frameTitle": "Zillah Banana Toss – Minispiel",
-  "game.back": "Zurück zum Admin-Bereich"
+  "game.back": "Zurück zum Admin-Bereich",
+  "game.budPoints": "BudPoints",
+  "game.plusPoints": "+{n} BudPoints",
+  "game.dailyMax": "Tagesmaximum erreicht (50)",
+  "game.loginToEarn": "Einloggen und BudPoints sammeln",
+  "game.badgeUnlocked": "Badge freigeschaltet",
+  "game.addedToProfile": "Zu deinem Profil hinzugefügt",
+  "game.nice": "Nice!",
+  "demo.title": "Demo",
+  "demo.mode": "Demo-Modus: Banana Blaster schon nach 1 Minute",
+  "demo.setDays9": "Login-Tage auf 9 setzen",
+  "demo.nextDay": "Nächsten Login-Tag simulieren",
+  "demo.reset": "Meine Demo-Badges zurücksetzen",
+  "demo.resetConfirm": "Banana Blaster und 10 Days Deep entfernen und Spielzeit, Login-Tage und Spiel-BudPoints auf 0 setzen (nur dein Konto)?",
+  "demo.openGame": "Banana Toss öffnen",
+  "demo.stats": "Dein Konto: {days} Login-Tage · Spielzeit {min} min {sec} s · {points} BudPoints",
+  "demo.needSql": "Noch nicht verfügbar – zuerst Datenbank-Update 019 ausführen."
 }

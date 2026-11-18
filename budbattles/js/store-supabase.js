@@ -721,3 +721,23 @@ export async function reviewImage(id, status) {
   const remove = [status === 'rejected' ? data?.path : null, data?.replaced].filter(Boolean);
   if (remove.length) await sb.storage.from(LOOK_BUCKET).remove(remove).catch(() => {});
 }
+
+// ---------- Zillah Banana Toss: BudPoints, play time, login days (database update 019) ----------
+// Every call returns { budPoints, todayPoints, gameSeconds, loginDays, newBadges: [ids] }.
+// The limits (50 game BudPoints a day, one login day per calendar day) are checked in the database.
+// TODO (real launch): points are still counted in the browser – add server-side checks against cheating.
+async function gameRpc(fn, args) {
+  const { data, error } = await sb.rpc(fn, args || {});
+  if (error) fail(error);
+  if (profileCache && data?.newBadges?.length) profileCache.badges = [...new Set([...profileCache.badges, ...data.newBadges])];
+  if (profileCache && fn === 'game_demo_reset') profileCache.badges = profileCache.badges.filter((b) => !GAME_BADGES.includes(b));
+  return data;
+}
+const GAME_BADGES = ['badge_banana_round', 'badge_login10_gorilla'];
+export const gameAddPoints = (points) => gameRpc('game_add_points', { p_points: points });
+export const gameAddSeconds = (seconds, demo) => gameRpc('game_add_seconds', { p_seconds: seconds, p_demo: !!demo });
+export const gameLoginDay = () => gameRpc('game_login_day');
+export const gameMyStats = () => gameRpc('game_my_stats');
+export const gameDemoSetLoginDays = (days) => gameRpc('game_demo_set_login_days', { p_days: days });
+export const gameDemoNextLoginDay = () => gameRpc('game_demo_next_login_day');
+export const gameDemoReset = () => gameRpc('game_demo_reset');

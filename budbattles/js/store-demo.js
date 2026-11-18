@@ -624,3 +624,43 @@ export async function reviewImage(id, status) {
   else if (look[key] === `u:${r.path}`) look[key] = '';
   updateAccount(r.userId, { look });
 }
+
+// ---------- Zillah Banana Toss: BudPoints, play time, login days (same rules as database update 019) ----------
+const GAME_BADGES = ['badge_banana_round', 'badge_login10_gorilla'];
+const statsKey = (id) => `bb.demo.stats.${id}`;
+const berlinDay = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
+async function gameDo(change) {
+  const user = await getCurrentUser();
+  if (!user?.id) throw new StoreError('error.generic');
+  const s = { loginDays: 0, lastLoginDate: null, gameSeconds: 0, budPoints: 0, pointsDay: null, pointsToday: 0, ...readJson(statsKey(user.id), {}) };
+  const give = [];
+  change(s, give, user);
+  writeJson(statsKey(user.id), s);
+  const badges = user.badges || [];
+  const fresh = give.filter((b) => !badges.includes(b));
+  if (fresh.length || change.reset) updateAccount(user.id, { badges: change.reset ? badges.filter((b) => !GAME_BADGES.includes(b)) : [...badges, ...fresh] });
+  return { budPoints: s.budPoints, gameSeconds: s.gameSeconds, loginDays: s.loginDays,
+    todayPoints: s.pointsDay === berlinDay() ? s.pointsToday : 0, newBadges: fresh };
+}
+export const gameAddPoints = (points) => gameDo((s) => {
+  if (s.pointsDay !== berlinDay()) { s.pointsDay = berlinDay(); s.pointsToday = 0; }
+  const add = Math.min(Math.max(0, 50 - s.pointsToday), Math.max(0, Math.min(points | 0, 50)));
+  s.budPoints += add; s.pointsToday += add;
+});
+export const gameAddSeconds = (seconds, demo) => gameDo((s, give, u) => {
+  s.gameSeconds += Math.max(0, Math.min(seconds | 0, 15));
+  if (s.gameSeconds >= (demo && u.isAdmin ? 60 : 3600)) give.push('badge_banana_round');
+});
+export const gameLoginDay = () => gameDo((s, give) => {
+  if (s.lastLoginDate !== berlinDay()) { s.loginDays += 1; s.lastLoginDate = berlinDay(); }
+  if (s.loginDays >= 10) give.push('badge_login10_gorilla');
+});
+export const gameMyStats = () => gameDo(() => {});
+const adminOnly = (fn) => gameDo((s, give, u) => { if (!u.isAdmin) throw new StoreError('error.generic'); fn(s, give); });
+export const gameDemoSetLoginDays = (days) => adminOnly((s) => { s.loginDays = Math.max(0, days | 0); s.lastLoginDate = berlinDay(); });
+export const gameDemoNextLoginDay = () => adminOnly((s, give) => { s.loginDays += 1; s.lastLoginDate = berlinDay(); if (s.loginDays >= 10) give.push('badge_login10_gorilla'); });
+export function gameDemoReset() {
+  const ch = (s) => Object.assign(s, { gameSeconds: 0, loginDays: 0, lastLoginDate: null, budPoints: 0, pointsDay: null, pointsToday: 0 });
+  ch.reset = true;
+  return getCurrentUser().then((u) => { if (!u?.isAdmin) throw new StoreError('error.generic'); return gameDo(ch); });
+}
