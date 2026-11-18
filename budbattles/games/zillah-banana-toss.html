@@ -473,6 +473,7 @@ function land() {
   var mult = comboMult();
   var pts = Math.floor(m * mult);
   state.last = m; state.points += pts;
+  emit('throw', { meters: Math.round(m * 10) / 10, points: pts, roundPoints: state.points, turbo: !!state.firedTurbo });
   if (mult > state.topMult) state.topMult = mult;
   if (m > state.bestM) state.bestM = m;
   if (m > bestToday) { bestToday = m; try { localStorage.setItem('zbt_best_' + DAY_KEY, String(bestToday)); } catch (e) {} }
@@ -486,6 +487,7 @@ function land() {
 }
 function endRound() {
   state.phase = 'over';
+  emit('round', { roundPoints: state.points, bestMeters: Math.round(state.bestM * 10) / 10 });
   $('sumDay').textContent = 'Daily course ' + DAY_LABEL + ' · round over';
   $('sumPts').textContent = state.points;
   $('sumBest').textContent = state.bestM.toFixed(0) + ' m';
@@ -793,6 +795,24 @@ function frame(now) {
   drawParts();
   requestAnimationFrame(frame);
 }
+
+// ---------- app bridge: tells the BudBattles app (when embedded) about points + play time ----------
+function emit(type, data) {
+  try {
+    if (window.parent && window.parent !== window) {
+      var msg = { source: 'zillah-banana-toss', type: type };
+      for (var k in data) msg[k] = data[k];
+      window.parent.postMessage(msg, '*');
+    }
+  } catch (e) {}
+}
+var lastInput = performance.now();
+['pointerdown', 'keydown'].forEach(function (ev) { window.addEventListener(ev, function () { lastInput = performance.now(); }, true); });
+// every 10 s of real play (tab visible + touched in the last 60 s) report 10 s of play time
+setInterval(function () {
+  if (document.visibilityState === 'visible' && performance.now() - lastInput < 60000) emit('playtime', { seconds: 10 });
+}, 10000);
+emit('ready', {});
 
 newRound();
 requestAnimationFrame(frame);

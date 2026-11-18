@@ -33,11 +33,13 @@ grant select on public.user_stats to authenticated;
 
 -- the two new badges (pictures in assets/badges/)
 insert into public.badges (id, image, name_de, name_en, description_de, description_en, kind, active, earned, tradeable, sort) values
-  ('badge_banana_round', 'assets/badges/badge_banana_round.png', 'Banana Blaster', 'Banana Blaster',
+  ('badge_banana_round', 'assets/badges/badge_golden_bananas.png', 'Banana Blaster', 'Banana Blaster',
    '60 Minuten Zillah Banana Toss gespielt.', 'Played 60 minutes of Zillah Banana Toss.', 'award', true, true, false, 40),
   ('badge_login10_gorilla', 'assets/badges/badge_login10_gorilla.png', '10 Days Deep', '10 Days Deep',
    'An 10 verschiedenen Tagen in BudBattles eingeloggt.', 'Logged in to BudBattles on 10 different days.', 'award', true, true, false, 41)
 on conflict (id) do nothing;
+-- picture of Banana Blaster (also fixes it if this file already ran with the old name)
+update public.badges set image = 'assets/badges/badge_golden_bananas.png' where id = 'badge_banana_round';
 
 -- ---------- helpers ----------
 create or replace function public.game_today() returns date
