@@ -689,5 +689,8 @@
   "spot.modeName.night": "night",
   "spot.xray": "X-RAY",
   "spot.xrayLabel": "X-ray: show the U-Bahn below the streets",
-  "spot.xrayHint": "X-ray: tap a U-Bahn station"
+  "spot.xrayHint": "X-ray: tap a U-Bahn station",
+  "game.adminLink": "Zillah Banana Toss (preview)",
+  "game.frameTitle": "Zillah Banana Toss – mini game",
+  "game.back": "Back to Admin"
 }

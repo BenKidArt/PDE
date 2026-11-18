@@ -689,5 +689,8 @@
   "spot.modeName.night": "Nacht",
   "spot.xray": "X-RAY",
   "spot.xrayLabel": "Röntgenblick: U-Bahn unter der Straße zeigen",
-  "spot.xrayHint": "Röntgenblick: Tippe auf einen U-Bahnhof"
+  "spot.xrayHint": "Röntgenblick: Tippe auf einen U-Bahnhof",
+  "game.adminLink": "Zillah Banana Toss (Vorschau)",
+  "game.frameTitle": "Zillah Banana Toss – Minispiel",
+  "game.back": "Zurück zum Admin-Bereich"
 }

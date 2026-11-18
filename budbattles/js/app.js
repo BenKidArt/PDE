@@ -22,6 +22,7 @@ import { renderStrainMatch } from './views/strainmatch.js';
 import { renderReports } from './views/reports.js';
 import { renderPictures } from './views/pictures.js';
 import { renderSpotMap } from './views/spotmap.js';
+import { renderBananaToss } from './views/bananatoss.js';
 import { canInstall, startInstall } from './install.js';
 import { esc } from './ui.js';
 
@@ -44,6 +45,7 @@ const routes = {
   reports: renderReports, // admin: reported profiles and entries
   pictures: renderPictures, // admin: own profile pictures waiting for approval
   'spot-map': renderSpotMap, // hidden preview: 3D spot map (only by link and from Admin)
+  'banana-toss': renderBananaToss, // hidden preview: Zillah Banana Toss mini game (only from Admin)
   strainmatch: renderStrainMatch,
 };
 

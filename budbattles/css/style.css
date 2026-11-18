@@ -1805,3 +1805,14 @@ body.sm-open { overflow: hidden; }
 .sm-chip.bb-chrome { border-radius: 999px; }
 @media (min-width: 760px) { .sm-ctl { top: 50% !important; transform: translateY(-50%); } }
 .sm-btn.is-pressed { transform: translateY(2px) scale(.93); filter: brightness(.9); transition-duration: .05s; }
+
+/* ZILLAH BANANA TOSS (#/banana-toss): the game fills the whole screen, above the app's
+   bars. Safe areas (notch, home bar) stay free; the page itself never scrolls or
+   pulls to refresh while you aim. Back button: top right, just under the game's
+   "Bananas" box, so it never covers the score boxes. */
+html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflow: hidden; overscroll-behavior: none; touch-action: none; }
+.bt-game { position: fixed; inset: 0; z-index: 60; background: #070b08; touch-action: none; overscroll-behavior: none;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+.bt-frame { display: block; width: 100%; height: 100%; border: 0; overflow: hidden; background: #070b08; }
+.bt-back { position: absolute; z-index: 1; width: 40px; height: 40px; border-radius: 12px; text-decoration: none;
+  top: calc(env(safe-area-inset-top, 0px) + 110px); right: calc(env(safe-area-inset-right, 0px) + 20px); }
