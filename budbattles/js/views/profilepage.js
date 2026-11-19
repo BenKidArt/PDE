@@ -5,6 +5,8 @@ import { t, tc, getLang } from '../i18n.js';
 import {
   getPublicProfile, getBadgeCatalog, getCurrentUser, signOut, setProfileName, updateProfileDetails,
   getProfileLook, saveProfileLook, uploadProfileImage, profileImageUrl, submitProfileImage, getMyImageReviews, ackImageReview, gameMyStats } from '../store.js';
+import { profileChecklist, checkProfileRewards, progressText, maxedText } from '../budpoints.js';
+import { BUDPOINTS } from '../budpoints-config.js';
 import { FLAVOURS, FLAVOUR_GROUPS } from '../flavours.js';
 import { BG_PRESETS, BANNER_PRESETS, BG_FOCUS, lookUrl, effectiveBg, paletteFrom, applyPalette, prepareUpload } from '../looks.js';
 import { esc, chipHtml, avatarUrl } from '../ui.js';
@@ -50,6 +52,26 @@ export function spaceLabel(p) {
   return h ? t('space.showH', { w: p.spaceW, d: p.spaceD, h }) : t('space.show', { w: p.spaceW, d: p.spaceD });
 }
 
+/** Own profile: BudPoints balance, Banana Toss progress, profile checklist, Badge Shop, tip. */
+function budPointsCard(r, me, look) {
+  const list = profileChecklist(me, look);
+  const X = BUDPOINTS.extra;
+  const maxed = maxedText(r);
+  return `<section class="pf-card bp-card">
+    <div class="bp-card-head"><span class="bp-pill bp-pill-big"><b>${esc(Number(r.budPoints).toLocaleString())}</b> ${esc(t('game.budPoints'))}</span>
+      ${r.shopUnlocked ? `<a class="bb-chip" href="#/badges">🛍 ${esc(t('bp.shop'))} →</a>` : ''}</div>
+    <p class="small bp-progress">${esc(progressText(r.tossEarned))}</p>
+    ${maxed ? `<p class="small bp-maxed">${esc(maxed)}</p>` : ''}
+    ${!r.done?.profileComplete ? `<div class="bp-check">
+      <p class="bp-check-title">${esc(t('bp.completeTitle', { n: X.profile_complete }))}</p>
+      <ul>${list.items.map(([k, ok]) => `<li class="${ok ? 'ok' : ''}">${ok ? '✓' : '○'} ${esc(t(`bp.check.${k}`))}</li>`).join('')}</ul>
+    </div>` : ''}
+    ${!r.done?.profileVisual ? `<p class="small muted">🎨 ${esc(t('bp.visualHint', { n: X.profile_visual }))}</p>` : ''}
+    <p class="small muted">${esc(t('bp.earnMore', { vote: X.vote, enter: X.enter }))}</p>
+    <p class="small bp-tip">💡 ${esc(t('bp.tip'))}</p>
+  </section>`;
+}
+
 export async function renderProfilePage(root, key, { onLogout } = {}) {
   const [p, catalog, me, look] = await Promise.all([
     getPublicProfile(key), getBadgeCatalog(), getCurrentUser(), getProfileLook(key).catch(() => ({ bg: '', banner: '', xmas: true })),
@@ -61,6 +83,8 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
   const isMe = p.isMe || (me && me.id === p.id);
   const reviews = isMe ? await getMyImageReviews().catch(() => []) : []; // own uploaded pictures waiting / rejected
   const gameStats = isMe ? await gameMyStats().catch(() => null) : null; // own BudPoints (database update 019)
+  // already complete before this feature? (the database gives each reward only once)
+  if (gameStats && (!gameStats.done?.profileComplete || !gameStats.done?.profileVisual)) checkProfileRewards();
   const setupList = setupsOf(p);
   const main = mainSetup(setupList);
   const setup = SETUPS.find((s) => s.id === main?.type);
@@ -108,7 +132,7 @@ export async function renderProfilePage(root, key, { onLogout } = {}) {
         <div class="pf-stat"><b>${esc(best)}</b><span>${esc(t('profile.statBest'))}</span></div>
         <div class="pf-stat"><b>${p.stats.votes_given ?? 0}</b><span>${esc(t('profile.statVotes'))}</span></div>
       </section>
-      ${gameStats ? `<p class="pf-budpoints"><span class="bp-pill"><b>${esc(Number(gameStats.budPoints).toLocaleString())}</b> ${esc(t('game.budPoints'))}</span></p>` : ''}
+      ${gameStats ? budPointsCard(gameStats, me, look) : ''}
 
       <section class="pf-card pf-setup">
         <h2>${setup ? `${setup.icon} ` : ''}${esc(t('profile.setupTitle'))}</h2>

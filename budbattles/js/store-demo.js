@@ -2,6 +2,7 @@
 // localStorage). Used when js/config.js has no Supabase details.
 import { CONFIG } from './config.js';
 import { StoreError, battleStatus, setClockOffset, withRanks, toBadge } from './shared.js';
+import { BUDPOINTS, DEMO_BADGES, tossPoints } from './budpoints-config.js';
 
 const DB_NAME = 'budbattles-demo';
 const DB_VERSION = 2;
@@ -625,42 +626,77 @@ export async function reviewImage(id, status) {
   updateAccount(r.userId, { look });
 }
 
-// ---------- Zillah Banana Toss: BudPoints, play time, login days (same rules as database update 019) ----------
-const GAME_BADGES = ['badge_banana_round', 'badge_login10_gorilla'];
+// ---------- BudPoints + game badges (same rules as database updates 019 + 021, js/budpoints-config.js) ----------
 const statsKey = (id) => `bb.demo.stats.${id}`;
 const berlinDay = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(new Date());
+const HOUR = 3600 * 1000;
 async function gameDo(change) {
   const user = await getCurrentUser();
   if (!user?.id) throw new StoreError('error.generic');
-  const s = { loginDays: 0, lastLoginDate: null, gameSeconds: 0, budPoints: 0, pointsDay: null, pointsToday: 0, ...readJson(statsKey(user.id), {}) };
+  const s = { loginDays: 0, lastLoginDate: null, gameSeconds: 0, budPoints: 0, tossEarned: 0, events: [], ...readJson(statsKey(user.id), {}) };
+  const C = BUDPOINTS;
+  const windowStart = Date.now() - C.toss.windowHours * HOUR;
+  const used = () => s.events.filter((e) => e.source === 'toss' && e.at > windowStart).reduce((a, e) => a + e.points, 0);
   const give = [];
-  change(s, give, user);
+  const tossBadges = () => {
+    if (s.tossEarned >= C.milestones.blaster) give.push(C.blasterBadge);
+    if (s.tossEarned >= C.milestones.freeSet) give.push(...C.freeSet);
+  };
+  const out = { granted: 0 };
+  change(s, { give, used, tossBadges, out, user, C, windowStart });
   writeJson(statsKey(user.id), s);
-  const badges = user.badges || [];
-  const fresh = give.filter((b) => !badges.includes(b));
-  if (fresh.length || change.reset) updateAccount(user.id, { badges: change.reset ? badges.filter((b) => !GAME_BADGES.includes(b)) : [...badges, ...fresh] });
-  return { budPoints: s.budPoints, gameSeconds: s.gameSeconds, loginDays: s.loginDays,
-    todayPoints: s.pointsDay === berlinDay() ? s.pointsToday : 0, newBadges: fresh };
+  const badges = (await getCurrentUser()).badges || [];
+  const fresh = [...new Set(give)].filter((b) => !badges.includes(b));
+  if (fresh.length || out.reset) updateAccount(user.id, { badges: out.reset ? badges.filter((b) => !DEMO_BADGES.includes(b)) : [...badges, ...fresh] });
+  const u = used();
+  const inWin = s.events.filter((e) => e.source === 'toss' && e.at > windowStart);
+  return {
+    ...out, budPoints: s.budPoints, tossEarned: s.tossEarned, gameSeconds: s.gameSeconds, loginDays: s.loginDays,
+    windowUsed: u, windowMax: C.toss.windowMax,
+    windowResetAt: u >= C.toss.windowMax && inWin.length ? new Date(Math.min(...inWin.map((e) => e.at)) + C.toss.windowHours * HOUR).toISOString() : null,
+    shopUnlocked: s.tossEarned >= C.milestones.shop,
+    done: { profileComplete: s.events.some((e) => e.source === 'profile_complete'), profileVisual: s.events.some((e) => e.source === 'profile_visual') },
+    newBadges: fresh,
+  };
 }
-export const gameAddPoints = (points) => gameDo((s) => {
-  if (s.pointsDay !== berlinDay()) { s.pointsDay = berlinDay(); s.pointsToday = 0; }
-  const add = Math.min(Math.max(0, 50 - s.pointsToday), Math.max(0, Math.min(points | 0, 50)));
-  s.budPoints += add; s.pointsToday += add;
+export const gameTossThrow = (t) => gameDo((s, { used, tossBadges, out, C }) => {
+  const worth = tossPoints(t);
+  const add = Math.min(worth, Math.max(0, C.toss.windowMax - used()));
+  if (add > 0) { s.events.push({ source: 'toss', points: add, at: Date.now() }); s.budPoints += add; s.tossEarned += add; }
+  tossBadges();
+  Object.assign(out, { granted: add, worth });
 });
-export const gameAddSeconds = (seconds, demo) => gameDo((s, give, u) => {
-  s.gameSeconds += Math.max(0, Math.min(seconds | 0, 15));
-  if (s.gameSeconds >= (demo && u.isAdmin ? 60 : 3600)) give.push('badge_banana_round');
+// Demo: the conditions are checked by the app itself (votes/entries live only on this device)
+export const gameAward = (kind, ref = '') => gameDo((s, { out, C }) => {
+  const pts = C.extra[kind];
+  if (!pts) throw new StoreError('error.generic');
+  const r = kind.startsWith('profile_') ? '' : String(ref || '');
+  if (s.events.some((e) => e.source === kind && e.ref === r)) return;
+  s.events.push({ source: kind, ref: r, points: pts, at: Date.now() }); s.budPoints += pts;
+  Object.assign(out, { granted: pts, kind });
 });
-export const gameLoginDay = () => gameDo((s, give) => {
+export const gameBuyBadge = (badgeId) => gameDo((s, { give, user, C }) => {
+  const price = C.shop[badgeId];
+  if (price == null || s.tossEarned < C.milestones.shop || (user.badges || []).includes(badgeId) || s.budPoints < price) throw new StoreError('error.generic');
+  s.budPoints -= price; s.events.push({ source: 'shop', ref: badgeId, points: -price, at: Date.now() });
+  give.push(badgeId);
+});
+export const gameAddSeconds = (seconds) => gameDo((s) => { s.gameSeconds += Math.max(0, Math.min(seconds | 0, 15)); });
+export const gameLoginDay = () => gameDo((s, { give }) => {
   if (s.lastLoginDate !== berlinDay()) { s.loginDays += 1; s.lastLoginDate = berlinDay(); }
   if (s.loginDays >= 10) give.push('badge_login10_gorilla');
 });
 export const gameMyStats = () => gameDo(() => {});
-const adminOnly = (fn) => gameDo((s, give, u) => { if (!u.isAdmin) throw new StoreError('error.generic'); fn(s, give); });
+export const gameSyncConfig = async () => {}; // demo: the rules come straight from js/budpoints-config.js
+const adminOnly = (fn) => gameDo((s, ctx) => { if (!ctx.user.isAdmin) throw new StoreError('error.generic'); fn(s, ctx); });
+export const gameDemoAddToss = (points) => adminOnly((s, { tossBadges, out, windowStart }) => {
+  const add = Math.max(0, Math.min(points | 0, 500));
+  s.events.push({ source: 'toss', points: add, at: windowStart - HOUR }); s.budPoints += add; s.tossEarned += add;
+  tossBadges(); out.granted = add;
+});
 export const gameDemoSetLoginDays = (days) => adminOnly((s) => { s.loginDays = Math.max(0, days | 0); s.lastLoginDate = berlinDay(); });
-export const gameDemoNextLoginDay = () => adminOnly((s, give) => { s.loginDays += 1; s.lastLoginDate = berlinDay(); if (s.loginDays >= 10) give.push('badge_login10_gorilla'); });
-export function gameDemoReset() {
-  const ch = (s) => Object.assign(s, { gameSeconds: 0, loginDays: 0, lastLoginDate: null, budPoints: 0, pointsDay: null, pointsToday: 0 });
-  ch.reset = true;
-  return getCurrentUser().then((u) => { if (!u?.isAdmin) throw new StoreError('error.generic'); return gameDo(ch); });
-}
+export const gameDemoNextLoginDay = () => adminOnly((s, { give }) => { s.loginDays += 1; s.lastLoginDate = berlinDay(); if (s.loginDays >= 10) give.push('badge_login10_gorilla'); });
+export const gameDemoReset = () => adminOnly((s, { out }) => {
+  Object.assign(s, { gameSeconds: 0, loginDays: 0, lastLoginDate: null, budPoints: 0, tossEarned: 0, events: [] });
+  out.reset = true;
+});

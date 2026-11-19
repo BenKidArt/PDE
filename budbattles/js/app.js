@@ -24,6 +24,7 @@ import { renderPictures } from './views/pictures.js';
 import { renderSpotMap } from './views/spotmap.js';
 import { renderBananaToss } from './views/bananatoss.js';
 import { checkLoginDay } from './gamebadges.js';
+import { listenForEarnings } from './budpoints.js';
 import { canInstall, startInstall } from './install.js';
 import { esc } from './ui.js';
 
@@ -90,6 +91,7 @@ async function render() {
   document.body.dataset.page = page || 'home'; // shared sizes apply everywhere except the Enter page (see style.css)
   await renderChrome(page, BATTLE_PAGES.includes(page) ? id : undefined);
   checkLoginDay(); // one login day per calendar day (10 Days Deep badge)
+  listenForEarnings(); // BudPoints for votes, entries, profile (js/budpoints.js)
   const main = document.getElementById('main');
   const view = routes[page];
   if (!view) {

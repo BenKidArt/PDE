@@ -1,9 +1,20 @@
 // BADGES PAGE: every active badge with its name and how to earn it.
 // Badges you don't have yet are greyed out. Admins can add and edit badges here.
 import { t, tc } from '../i18n.js';
-import { getCurrentUser, getBadgeCatalog, getAllBadges, saveBadge } from '../store.js';
+import { getCurrentUser, getBadgeCatalog, getAllBadges, saveBadge, gameMyStats, gameBuyBadge } from '../store.js';
+import { BUDPOINTS } from '../budpoints-config.js';
+import { progressText, celebrate } from '../budpoints.js';
 import { makeBadgeIcon } from '../photo.js';
 import { esc } from '../ui.js';
+
+/** How to get a game badge (from js/budpoints-config.js, so the text always matches the rules). */
+function ruleFor(id) {
+  const C = BUDPOINTS;
+  if (id === C.blasterBadge) return t('bp.ruleBlaster', { n: C.milestones.blaster });
+  if (C.shop[id] != null) return t('bp.ruleShop', { at: C.milestones.shop, price: C.shop[id] });
+  if (C.freeSet.includes(id)) return t('bp.ruleFree', { n: C.milestones.freeSet });
+  return null;
+}
 
 export async function renderBadges(root) {
   const [user, catalog] = await Promise.all([getCurrentUser(), getBadgeCatalog()]);
@@ -27,6 +38,7 @@ export async function renderBadges(root) {
         ? `<p class="badges-count"><strong>${unlocked}</strong> / ${groups.length} ${esc(t('badges.unlocked'))}</p>`
         : `<p class="small"><a class="link" href="#/profile">${esc(t('badges.loginToCollect'))} →</a></p>`}
     </section>
+    ${user ? '<section class="card bp-shop" id="shop" data-shop aria-live="polite"></section>' : ''}
     ${user?.isAdmin ? `<div class="actions badges-admin-bar"><button type="button" class="btn btn-ghost btn-small" data-new>＋ ${esc(t('badges.add'))}</button></div><div data-form-slot></div>` : ''}
     <ul class="badge-grid">
       ${groups.map((g) => {
@@ -36,7 +48,7 @@ export async function renderBadges(root) {
         <li class="badge-card ${has ? 'is-unlocked' : 'is-locked'}">
           <div class="badge-card-imgs">${g.badges.map((b) => `<img src="${esc(b.image)}" alt="" width="64" height="64" loading="lazy">`).join('')}</div>
           <h2 class="badge-card-name">${esc(tc(first.name))}</h2>
-          <p class="badge-card-rule">${esc(tc(first.description) || t('badges.noRule'))}</p>
+          <p class="badge-card-rule">${esc(ruleFor(first.id) || tc(first.description) || t('badges.noRule'))}</p>
           <p class="badge-card-state">${has ? `✓ ${esc(t('badges.have'))}` : `🔒 ${esc(t('badges.locked'))}`}</p>
           ${user?.isAdmin ? g.badges.map((b) => `<button type="button" class="link-button small" data-edit="${esc(b.id)}">${esc(t('badges.edit'))}${g.badges.length > 1 ? ` (${esc(b.id.replace('badge_', ''))})` : ''}</button>`).join('') : ''}
         </li>`;
@@ -44,6 +56,7 @@ export async function renderBadges(root) {
     </ul>
     ${user?.isAdmin ? '<section class="badges-inactive" data-inactive></section>' : ''}`;
 
+  if (user) drawShop(root, catalog, own);
   if (!user?.isAdmin) return;
 
   // ---------- admin: inactive badges + add / edit form ----------
@@ -150,4 +163,33 @@ function newBadgeId(nameEn, all) {
   let id = base, n = 2;
   while (all.some((b) => b.id === id)) id = `${base}_${n++}`;
   return id;
+}
+
+// ---------- Badge Shop: opens at 120 lifetime Banana Toss points; buying uses the balance ----------
+async function drawShop(root, catalog, own) {
+  const el = root.querySelector('[data-shop]');
+  let r;
+  try { r = await gameMyStats(); } catch { el.remove(); return; } // database update 021 not run yet
+  const C = BUDPOINTS;
+  const items = Object.entries(C.shop).map(([id, price]) => ({ b: catalog.find((x) => x.id === id), id, price })).filter((x) => x.b);
+  el.innerHTML = `
+    <div class="bp-shop-head"><h2>🛍 ${esc(t('bp.shop'))}</h2><span class="bp-pill"><b>${esc(Number(r.budPoints).toLocaleString())}</b> ${esc(t('game.budPoints'))}</span></div>
+    ${r.shopUnlocked ? '' : `<p class="small">🔒 ${esc(t('bp.shopLocked', { at: C.milestones.shop }))}</p><p class="small bp-progress">${esc(progressText(r.tossEarned))}</p>`}
+    <ul class="bp-shop-grid ${r.shopUnlocked ? '' : 'is-locked'}">
+      ${items.map(({ b, id, price }) => {
+        const has = own.has(id);
+        return `<li><img src="${esc(b.image)}" alt="" width="56" height="56" loading="lazy"><span class="bp-shop-name">${esc(tc(b.name))}</span>
+          ${has ? `<span class="small">✓ ${esc(t('badges.have'))}</span>`
+            : `<button type="button" class="bb-chip" data-buy="${esc(id)}" ${r.shopUnlocked && r.budPoints >= price ? '' : 'disabled'}>${esc(t('bp.buy', { price }))}</button>`}</li>`;
+      }).join('')}
+    </ul>
+    <p class="small bp-tip">💡 ${esc(t('bp.tip'))}</p>`;
+  el.querySelectorAll('[data-buy]').forEach((btn) => btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try {
+      const res = await gameBuyBadge(btn.dataset.buy);
+      celebrate(res);
+      renderBadges(root); // fresh counts and balance
+    } catch { btn.disabled = false; btn.textContent = t('error.generic'); }
+  }));
 }

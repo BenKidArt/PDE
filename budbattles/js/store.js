@@ -42,28 +42,28 @@ export const {
   updatePassword, // (newPassword)
   countEntries, // (battleId)
   getEntryByUser, // (battleId, userId) → entry or null
-  addEntry, // ({ battleId, strain, description, photo, width, height }) → entry
   withdrawEntry, // (entry)
   listEntries, // (battleId) → all entries incl. displayName (admin only)
   reviewEntry, // (entryId, 'pending' | 'approved' | 'rejected') (admin only)
   getPrize, // (battleId) → { text:{de,en}, terms:{de,en} } or null. Members only.
   getStandings, // (battleId) → approved entries with votes, rank, isMine
   getMyVote, // (battleId) → entryId you voted for, or null
-  castVote, // (battleId, entryId)
   listLatestApproved, // (limit) → newest approved entries
   finalizeBattles, // Top 3 + champion choices for ended battles (safe to call often)
   getPendingChampion, // [{ battleId, number, isTest, theme }] where you are #1 and must pick son/daughter
   chooseChampionBadge, // (battleId, 'badge_heir_son' | 'badge_heir_daughter')
-  // Zillah Banana Toss (database update 019) – each returns { budPoints, todayPoints, gameSeconds, loginDays, newBadges }
-  gameAddPoints, // (points) max 50 game BudPoints per day
-  gameAddSeconds, // (seconds, demo) play time; Banana Blaster at 60 min (demo mode: 1 min, admins only)
+  // BudPoints + game badges (database updates 019 + 021, rules in js/budpoints-config.js). Each returns
+  // { budPoints, tossEarned, windowUsed, windowMax, windowResetAt, shopUnlocked, done, granted, newBadges }
+  gameTossThrow, // ({ meters, rings, combo }) one Banana Toss throw (max 45 per 12 h)
+  gameAward, // (kind, ref) profile_complete | profile_visual | vote (battleId) | enter (battleId), once each
+  gameBuyBadge, // (badgeId) Badge Shop
+  gameAddSeconds, // (seconds) play time (no badge any more)
   gameLoginDay, // once per app start; one login day per calendar day; 10 Days Deep on day 10
   gameMyStats,
-  gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, // admin demo tools (own account)
+  gameSyncConfig, // admin: copies js/budpoints-config.js into the database
+  gameDemoAddToss, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, // admin demo tools (own account)
   registerBusinessInterest, // ({ email, company, lang }) – Business page "Interested?" list
   checkProfileName, // (name) → 'ok' | 'invalid' | 'blocked' | 'taken'
-  setProfileName, // (name) – max once every 30 days
-  updateProfileDetails, // ({ instagram, growSetup, lights, medium, favStrain, bio })
   getPublicProfile, // (key) → public profile (never the email) or null
   getVoteReport, // admin: (battleId) → per entry vote statistics, flagged
   getEntryVotes, // admin: (entryId) → single votes
@@ -73,10 +73,8 @@ export const {
   getReports, // admin: all reports, open first
   setReportStatus, // admin: (id, 'open' | 'done')
   getProfileLook, // (profile key) → { bg, banner, xmas }
-  saveProfileLook, // ({ bg, banner, xmas }, previous) – own look
   uploadProfileImage, // (kind 'bg'|'banner', blob, ext) → 'u:<path>'
   profileImageUrl, // (path) → picture address of an own upload
-  submitProfileImage, // (kind, 'u:<path>') – own picture goes to the admin for approval
   getMyImageReviews, // own latest review per kind (pending / approved / rejected)
   ackImageReview, // (id) – the member has seen the result note
   getImageReviews, // admin: uploaded profile pictures
@@ -84,6 +82,15 @@ export const {
 } = impl;
 
 // Demo only (undefined with Supabase):
+// These also tell the app that BudPoints may be earned now (js/budpoints.js listens).
+const earn = (kind, ref) => { try { window.dispatchEvent(new CustomEvent('bb:earn', { detail: { kind, ref } })); } catch { /* ignore */ } };
+const after = (fn, kind, refOf) => async (...args) => { const r = await fn(...args); earn(kind, refOf ? refOf(...args) : ''); return r; };
+export const addEntry = after(impl.addEntry, 'enter', (o) => o?.battleId); // ({ battleId, strain, description, photo, width, height }) → entry
+export const castVote = after(impl.castVote, 'vote', (battleId) => battleId); // (battleId, entryId)
+export const setProfileName = after(impl.setProfileName, 'profile'); // (name) – max once every 30 days
+export const updateProfileDetails = after(impl.updateProfileDetails, 'profile'); // ({ instagram, growSetup, lights, medium, favStrain, bio })
+export const saveProfileLook = after(impl.saveProfileLook, 'profile'); // ({ bg, banner, xmas }, previous) – own look
+export const submitProfileImage = after(impl.submitProfileImage, 'profile'); // (kind, 'u:<path>') – own picture goes to the admin for approval
 export const seedDemoEntries = impl.seedDemoEntries; // sample entries for the admin view
 export const getDemoPhase = impl.getDemoPhase; // 'real' | 'open' | 'voting' | 'ended'
 export const setDemoPhase = impl.setDemoPhase;

@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { toDb, fromDb } from './setups.js';
 import { getDeviceId } from './device.js';
 import { StoreError, withRanks, toBadge } from './shared.js';
+import { DEMO_BADGES } from './budpoints-config.js';
 
 const BUCKET = 'entry-photos';
 let sb; // Supabase client
@@ -722,22 +723,26 @@ export async function reviewImage(id, status) {
   if (remove.length) await sb.storage.from(LOOK_BUCKET).remove(remove).catch(() => {});
 }
 
-// ---------- Zillah Banana Toss: BudPoints, play time, login days (database update 019) ----------
-// Every call returns { budPoints, todayPoints, gameSeconds, loginDays, newBadges: [ids] }.
-// The limits (50 game BudPoints a day, one login day per calendar day) are checked in the database.
-// TODO (real launch): points are still counted in the browser – add server-side checks against cheating.
+// ---------- BudPoints + game badges (database updates 019 + 021; rules in js/budpoints-config.js) ----------
+// Every call returns { budPoints, tossEarned, windowUsed, windowMax, windowResetAt, shopUnlocked,
+//   done: { profileComplete, profileVisual }, granted, newBadges: [ids], gameSeconds, loginDays }.
+// The database checks every limit and condition.
+// TODO (real launch): Banana Toss throws are still reported by the browser – add server-side checks against cheating.
 async function gameRpc(fn, args) {
   const { data, error } = await sb.rpc(fn, args || {});
   if (error) fail(error);
   if (profileCache && data?.newBadges?.length) profileCache.badges = [...new Set([...profileCache.badges, ...data.newBadges])];
-  if (profileCache && fn === 'game_demo_reset') profileCache.badges = profileCache.badges.filter((b) => !GAME_BADGES.includes(b));
+  if (profileCache && fn === 'game_demo_reset') profileCache.badges = profileCache.badges.filter((b) => !DEMO_BADGES.includes(b));
   return data;
 }
-const GAME_BADGES = ['badge_banana_round', 'badge_login10_gorilla'];
-export const gameAddPoints = (points) => gameRpc('game_add_points', { p_points: points });
-export const gameAddSeconds = (seconds, demo) => gameRpc('game_add_seconds', { p_seconds: seconds, p_demo: !!demo });
+export const gameTossThrow = ({ meters, rings, combo }) => gameRpc('game_toss_throw', { p_meters: Number(meters) || 0, p_rings: rings | 0, p_combo: combo === true });
+export const gameAward = (kind, ref = '') => gameRpc('game_award', { p_kind: kind, p_ref: String(ref || '') });
+export const gameBuyBadge = (badgeId) => gameRpc('game_buy_badge', { p_badge: badgeId });
+export const gameAddSeconds = (seconds) => gameRpc('game_add_seconds', { p_seconds: seconds });
 export const gameLoginDay = () => gameRpc('game_login_day');
 export const gameMyStats = () => gameRpc('game_my_stats');
+export const gameSyncConfig = async (cfg) => { const { error } = await sb.rpc('game_sync_config', { p_cfg: cfg }); if (error) fail(error); };
+export const gameDemoAddToss = (points) => gameRpc('game_demo_add_toss', { p_points: points });
 export const gameDemoSetLoginDays = (days) => gameRpc('game_demo_set_login_days', { p_days: days });
 export const gameDemoNextLoginDay = () => gameRpc('game_demo_next_login_day');
 export const gameDemoReset = () => gameRpc('game_demo_reset');

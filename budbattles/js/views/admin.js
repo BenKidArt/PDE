@@ -2,8 +2,9 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
-  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset } from '../store.js';
-import { gameDemo, setGameDemo, showBadgeUnlock } from '../gamebadges.js';
+  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameSyncConfig } from '../store.js';
+import { celebrate } from '../budpoints.js';
+import { BUDPOINTS } from '../budpoints-config.js';
 import { esc } from '../ui.js';
 import { battleLabel } from './battle.js';
 import { entryCardFile } from '../card.js';
@@ -46,9 +47,9 @@ export async function renderAdmin(root) {
       <div class="admin-links" data-links data-hscroll></div>
       <details class="admin-demo" data-demo>
         <summary>🎬 ${esc(t('demo.title'))}</summary>
-        <label class="admin-demo-toggle"><input type="checkbox" data-demo-mode ${gameDemo() ? 'checked' : ''}> ${esc(t('demo.mode'))}</label>
         <p class="small muted admin-demo-stats" data-demo-stats></p>
         <div class="admin-demo-btns">
+          <button type="button" class="bb-chip" data-demo-act="toss40">${esc(t('demo.toss40'))}</button>
           <button type="button" class="bb-chip" data-demo-act="days9">${esc(t('demo.setDays9'))}</button>
           <button type="button" class="bb-chip" data-demo-act="next">${esc(t('demo.nextDay'))}</button>
           <button type="button" class="bb-chip bb-chip-pink" data-demo-act="reset">${esc(t('demo.reset'))}</button>
@@ -74,24 +75,25 @@ export async function renderAdmin(root) {
   drawLinks();
 
   // DEMO box (for recording a video): own account only
+  gameSyncConfig(BUDPOINTS).catch(() => {}); // copies js/budpoints-config.js into the database
   const demoEl = root.querySelector('[data-demo]');
   const statsEl = root.querySelector('[data-demo-stats]');
   const showStats = (r) => {
-    statsEl.textContent = r ? t('demo.stats', { days: r.loginDays, min: Math.floor(r.gameSeconds / 60), sec: r.gameSeconds % 60, points: r.budPoints })
+    statsEl.textContent = r ? t('demo.stats2', { points: r.budPoints, toss: r.tossEarned, used: r.windowUsed, max: r.windowMax, days: r.loginDays })
       : t('demo.needSql');
   };
   try { demoEl.open = sessionStorage.getItem('bb.demoOpen') === '1'; } catch { /* ignore */ }
   demoEl.addEventListener('toggle', () => { try { sessionStorage.setItem('bb.demoOpen', demoEl.open ? '1' : '0'); } catch { /* ignore */ } });
   gameMyStats().then(showStats).catch(() => showStats(null));
-  root.querySelector('[data-demo-mode]').addEventListener('change', (e) => setGameDemo(e.target.checked));
   root.querySelectorAll('[data-demo-act]').forEach((b) => b.addEventListener('click', async () => {
     const act = b.dataset.demoAct;
-    if (act === 'reset' && !window.confirm(t('demo.resetConfirm'))) return;
+    if (act === 'reset' && !window.confirm(t('demo.resetConfirm2'))) return;
     b.disabled = true;
     try {
-      const r = act === 'days9' ? await gameDemoSetLoginDays(9) : act === 'next' ? await gameDemoNextLoginDay() : await gameDemoReset();
+      const r = act === 'toss40' ? await gameDemoAddToss(40) : act === 'days9' ? await gameDemoSetLoginDays(9)
+        : act === 'next' ? await gameDemoNextLoginDay() : await gameDemoReset();
       showStats(r);
-      if (r.newBadges?.length) showBadgeUnlock(r.newBadges);
+      celebrate(r);
     } catch { showStats(null); }
     b.disabled = false;
   }));
@@ -99,29 +101,6 @@ export async function renderAdmin(root) {
   root.querySelector('[data-battle]').addEventListener('change', (e) => {
     state.battleId = e.target.value;
     drawLinks();
-
-  // DEMO box (for recording a video): own account only
-  const demoEl = root.querySelector('[data-demo]');
-  const statsEl = root.querySelector('[data-demo-stats]');
-  const showStats = (r) => {
-    statsEl.textContent = r ? t('demo.stats', { days: r.loginDays, min: Math.floor(r.gameSeconds / 60), sec: r.gameSeconds % 60, points: r.budPoints })
-      : t('demo.needSql');
-  };
-  try { demoEl.open = sessionStorage.getItem('bb.demoOpen') === '1'; } catch { /* ignore */ }
-  demoEl.addEventListener('toggle', () => { try { sessionStorage.setItem('bb.demoOpen', demoEl.open ? '1' : '0'); } catch { /* ignore */ } });
-  gameMyStats().then(showStats).catch(() => showStats(null));
-  root.querySelector('[data-demo-mode]').addEventListener('change', (e) => setGameDemo(e.target.checked));
-  root.querySelectorAll('[data-demo-act]').forEach((b) => b.addEventListener('click', async () => {
-    const act = b.dataset.demoAct;
-    if (act === 'reset' && !window.confirm(t('demo.resetConfirm'))) return;
-    b.disabled = true;
-    try {
-      const r = act === 'days9' ? await gameDemoSetLoginDays(9) : act === 'next' ? await gameDemoNextLoginDay() : await gameDemoReset();
-      showStats(r);
-      if (r.newBadges?.length) showBadgeUnlock(r.newBadges);
-    } catch { showStats(null); }
-    b.disabled = false;
-  }));
     load();
   });
 

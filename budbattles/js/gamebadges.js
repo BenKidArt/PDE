@@ -2,47 +2,51 @@
 //   showBadgeUnlock(ids)   full-screen "badge unlocked" moment (queued, one after another)
 //   pointsChip(host, n)    small "+n BudPoints" pill that floats up for ~1.5 s
 //   checkLoginDay()        once per app start: counts today's login day (10 Days Deep on day 10)
-//   gameDemo()             admin "Demo mode" switch (localStorage): Banana Blaster after 1 minute
 import { t, getLang } from './i18n.js';
 import { esc } from './ui.js';
 import { getCurrentUser, getBadgeCatalog, gameLoginDay } from './store.js';
 
-const DEMO_KEY = 'bb.gameDemo';
-export function gameDemo() { try { return localStorage.getItem(DEMO_KEY) === '1'; } catch { return false; } }
-export function setGameDemo(on) { try { localStorage.setItem(DEMO_KEY, on ? '1' : '0'); } catch { /* ignore */ } }
 
 // ---------- badge unlock moment ----------
+// showBadgeUnlock(['a']) → one badge; showBadgeUnlock(['a','b',…]) → ONE moment with all of them.
 const queue = [];
 let showing = false;
 export function showBadgeUnlock(ids) {
-  (ids || []).forEach((id) => { if (!queue.includes(id)) queue.push(id); });
+  const list = [...new Set(ids || [])];
+  if (list.length) queue.push(list);
   if (!showing) next();
 }
 async function next() {
-  const id = queue.shift();
-  if (!id) { showing = false; return; }
+  const group = queue.shift();
+  if (!group) { showing = false; return; }
   showing = true;
-  const badge = (await getBadgeCatalog().catch(() => [])).find((b) => b.id === id);
+  const catalog = await getBadgeCatalog().catch(() => []);
   const lang = getLang();
-  const name = badge?.name?.[lang] || badge?.name?.en || id;
-  const img = badge?.image || '';
+  const badges = group.map((id) => {
+    const b = catalog.find((x) => x.id === id);
+    return { id, name: b?.name?.[lang] || b?.name?.en || id, img: b?.image || '' };
+  });
+  const many = badges.length > 1;
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const el = document.createElement('div');
-  el.className = `bu${reduce ? ' bu-calm' : ''}`;
+  el.className = `bu${reduce ? ' bu-calm' : ''}${many ? ' bu-many' : ''}`;
   el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-labelledby', 'bu-name');
   const COLORS = ['var(--neon-green)', 'var(--neon-pink)', '#ffd43b', '#ffffff'];
   const sparks = reduce ? '' : Array.from({ length: 26 }, (_, i) => {
     const a = (i / 26) * 360 + (i % 3) * 7, d = 120 + (i * 37) % 110, s = 4 + (i % 4) * 2;
     return `<i style="--a:${a}deg;--d:${d}px;--s:${s}px;--c:${COLORS[i % 4]};--t:${(i % 5) * 40}ms"></i>`;
   }).join('');
+  const pics = many
+    ? `<div class="bu-set">${badges.map((b, i) => `<figure style="--i:${i}">${b.img ? `<img src="${esc(b.img)}" alt="">` : ''}<figcaption>${esc(b.name)}</figcaption></figure>`).join('')}</div>`
+    : (badges[0].img ? `<img class="bu-img" src="${esc(badges[0].img)}" alt="">` : '');
   el.innerHTML = `
     <div class="bu-box">
-      <p class="bu-kicker">${esc(t('game.badgeUnlocked'))}</p>
+      <p class="bu-kicker">${esc(t(many ? 'game.setUnlocked' : 'game.badgeUnlocked'))}</p>
       <div class="bu-stage" aria-hidden="true">
         <span class="bu-rays"></span><span class="bu-ring"></span><span class="bu-sparks">${sparks}</span>
-        ${img ? `<img class="bu-img" src="${esc(img)}" alt="">` : ''}
+        ${pics}
       </div>
-      <h2 class="bu-name" id="bu-name">${esc(name)}</h2>
+      <h2 class="bu-name" id="bu-name">${esc(many ? t('game.setTitle', { n: badges.length }) : badges[0].name)}</h2>
       <p class="bu-sub">${esc(t('game.addedToProfile'))}</p>
       <button type="button" class="btn btn-go bu-ok">${esc(t('game.nice'))}</button>
     </div>`;
