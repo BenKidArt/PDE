@@ -67,6 +67,8 @@ export async function renderBattle(root, { id } = {}) {
     ${prize ? `
     <section class="card card-pink">
       <h2>${esc(t('battle.prize'))}</h2>
+      ${showPartner && battle.partner.logo ? `<div class="prize-partner"><img class="partner-logo" src="${esc(battle.partner.logo)}" alt="${esc(battle.partner.name)}" loading="lazy">
+        <span>${esc(t('battle.prizePartner', { name: battle.partner.name }))}</span></div>` : ''}
       <p class="prize-text">${esc(tc(prize.text))}</p>
       ${tc(prize.terms) ? `<p class="muted small">${esc(tc(prize.terms))}</p>` : ''}
       <p class="muted small">${esc(t('battle.free'))}</p>
@@ -85,7 +87,7 @@ export async function renderBattle(root, { id } = {}) {
       ${/^https:\/\//.test(host.url || '') ? `<a class="link" href="${esc(host.url)}" target="_blank" rel="noopener noreferrer">${esc(t('battle.partnerVisit'))} ↗</a>` : ''}
     </section>` : ''}
 
-    ${showPartner && !host ? `
+    ${showPartner && !host && !prize ? `
     <section class="card partner">
       <h2>${esc(t('battle.partner'))}</h2>
       ${battle.partner.logo ? `<img class="partner-logo" src="${esc(battle.partner.logo)}" alt="${esc(battle.partner.name)}" loading="lazy">` : ''}

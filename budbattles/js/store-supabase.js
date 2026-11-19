@@ -253,6 +253,8 @@ function toEntry(r) {
     battleId: r.battle_id,
     userId: r.user_id,
     strain: r.strain,
+    breeder: r.breeder ?? null,
+    guestHandle: r.guest_handle ?? null, // entry added by an admin for a grower without the app
     description: r.description,
     status: r.status,
     width: r.width,
@@ -276,7 +278,7 @@ export async function getEntryByUser(battleId, userId) {
   return toEntry(data);
 }
 
-export async function addEntry({ battleId, strain, description, photo, width, height }) {
+export async function addEntry({ battleId, strain, breeder, description, photo, width, height }) {
   const user = await getCurrentUser();
   if (!user) throw new StoreError('enter.loginNeeded');
   if (await getEntryByUser(battleId, user.id)) throw new StoreError('error.alreadyEntered');
@@ -287,6 +289,7 @@ export async function addEntry({ battleId, strain, description, photo, width, he
 
   const { data, error } = await sb.from('entries').insert({
     battle_id: battleId, photo_path: path, width, height, strain: strain || null, description,
+    ...(breeder ? { breeder } : {}),
   }).select().single();
   if (error) {
     await sb.storage.from(BUCKET).remove([path]); // don't leave an orphan photo behind
@@ -306,9 +309,9 @@ export async function listEntries(battleId) {
   if (error) fail(error);
   return data.map((r) => ({
     ...toEntry(r),
-    displayName: r.profiles?.username || r.profiles?.display_name || '?',
+    displayName: r.profiles?.username || r.profiles?.display_name || (r.guest_handle ? `@${r.guest_handle}` : '?'),
     username: r.profiles?.username ?? null,
-    instagram: r.profiles?.instagram ?? null,
+    instagram: r.profiles?.instagram ?? r.guest_handle ?? null,
     avatar: r.profiles?.avatar ?? null,
   }));
 }
@@ -356,7 +359,9 @@ export async function getStandings(battleId) {
     username: r.username ?? null,
     instagram: r.instagram ?? null,
     avatar: r.avatar ?? null,
-    profileKey: r.profile_key ?? null, // opens #/u/<key>
+    profileKey: r.profile_key ?? null, // opens #/u/<key> (none for guest entries)
+    breeder: r.breeder ?? null,
+    isGuest: !!r.is_guest,
   })));
 }
 
@@ -746,3 +751,24 @@ export const gameDemoAddToss = (points) => gameRpc('game_demo_add_toss', { p_poi
 export const gameDemoSetLoginDays = (days) => gameRpc('game_demo_set_login_days', { p_days: days });
 export const gameDemoNextLoginDay = () => gameRpc('game_demo_next_login_day');
 export const gameDemoReset = () => gameRpc('game_demo_reset');
+
+// ---------- Admin: entry for a grower who doesn't use the app (database update 023) ----------
+/** ({ battleId, handle, strain, breeder, photo, width, height }) → entry id. Shown with the @handle, approved straight away. */
+export async function adminAddEntry({ battleId, handle, strain, breeder, photo, width, height }) {
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) throw new StoreError('admin.noAccess');
+  const path = `${user.id}/guest-${crypto.randomUUID()}.jpg`;
+  const up = await sb.storage.from(BUCKET).upload(path, photo, { contentType: 'image/jpeg', upsert: false });
+  if (up.error) fail(up.error);
+  const { data, error } = await sb.rpc('admin_add_entry', {
+    p_battle: battleId, p_handle: handle, p_strain: strain || null, p_breeder: breeder || null,
+    p_photo_path: path, p_width: width, p_height: height,
+  });
+  if (error) {
+    await sb.storage.from(BUCKET).remove([path]);
+    if (/already entered/.test(error.message)) throw new StoreError('guest.already');
+    if (/instagram handle/.test(error.message)) throw new StoreError('guest.badHandle');
+    fail(error);
+  }
+  return data;
+}

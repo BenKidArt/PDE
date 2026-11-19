@@ -44,6 +44,7 @@ export const {
   getEntryByUser, // (battleId, userId) → entry or null
   withdrawEntry, // (entry)
   listEntries, // (battleId) → all entries incl. displayName (admin only)
+  adminAddEntry, // admin: ({ battleId, handle, strain, breeder, photo, width, height }) entry for a grower without the app
   reviewEntry, // (entryId, 'pending' | 'approved' | 'rejected') (admin only)
   getPrize, // (battleId) → { text:{de,en}, terms:{de,en} } or null. Members only.
   getStandings, // (battleId) → approved entries with votes, rank, isMine

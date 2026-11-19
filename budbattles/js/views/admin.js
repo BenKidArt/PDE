@@ -2,7 +2,8 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
-  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameSyncConfig } from '../store.js';
+  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameSyncConfig, adminAddEntry } from '../store.js';
+import { cleanPhoto } from '../photo.js';
 import { celebrate } from '../budpoints.js';
 import { BUDPOINTS } from '../budpoints-config.js';
 import { esc } from '../ui.js';
@@ -45,6 +46,22 @@ export async function renderAdmin(root) {
         ${battles.filter((b) => b.isDraft).map((b) => `<a class="bb-chip bb-chip-pink" href="#/battle/${encodeURIComponent(b.id)}">${esc(tc(b.theme))} →</a>`).join('')}
       </div>` : ''}
       <div class="admin-links" data-links data-hscroll></div>
+      <details class="admin-demo admin-guest" data-guest>
+        <summary>＋ ${esc(t('guest.title'))}</summary>
+        <p class="small muted">${esc(t('guest.intro'))}</p>
+        <form class="form guest-form" novalidate data-guest-form>
+          <div class="field"><label class="label" for="g-handle">${esc(t('guest.handle'))} *</label>
+            <input id="g-handle" name="handle" type="text" maxlength="31" required autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@grower"></div>
+          <div class="field"><label class="label" for="g-strain">${esc(t('enter.strain'))}</label>
+            <input id="g-strain" name="strain" type="text" maxlength="60" autocomplete="off"></div>
+          <div class="field"><label class="label" for="g-breeder">${esc(t('enter.breeder'))}</label>
+            <input id="g-breeder" name="breeder" type="text" maxlength="60" autocomplete="off"></div>
+          <div class="field"><label class="label" for="g-photo">${esc(t('guest.photo'))} *</label>
+            <input id="g-photo" name="photo" type="file" accept="image/*" required></div>
+          <p class="error small" data-guest-error hidden></p>
+          <button type="submit" class="btn btn-primary btn-small">${esc(t('guest.submit'))}</button>
+        </form>
+      </details>
       <details class="admin-demo" data-demo>
         <summary>🎬 ${esc(t('demo.title'))}</summary>
         <p class="small muted admin-demo-stats" data-demo-stats></p>
@@ -73,6 +90,33 @@ export async function renderAdmin(root) {
       + `<a class="bb-chip" href="#/reports">⚑ ${esc(t('reports.title'))} →</a>`;
   };
   drawLinks();
+
+  // ADD ENTRY FOR SOMEONE (grower without the app): @handle, strain, breeder, photo
+  const gForm = root.querySelector('[data-guest-form]');
+  const gErr = root.querySelector('[data-guest-error]');
+  gForm.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    gErr.hidden = true;
+    const handle = gForm.handle.value.trim().replace(/^@+/, '');
+    const file = gForm.photo.files?.[0];
+    const fail = (key) => { gErr.textContent = t(key); gErr.hidden = false; };
+    if (!/^[A-Za-z0-9._]{1,30}$/.test(handle)) return fail('guest.badHandle');
+    if (!file) return fail('error.photoRequired');
+    const btn = gForm.querySelector('[type=submit]');
+    btn.disabled = true; btn.textContent = t('enter.submitting');
+    try {
+      const photo = await cleanPhoto(file);
+      await adminAddEntry({ battleId: state.battleId, handle, strain: gForm.strain.value.trim(), breeder: gForm.breeder.value.trim(),
+        photo: photo.blob, width: photo.width, height: photo.height });
+      gForm.reset();
+      showToast(t('guest.added', { handle: `@${handle.toLowerCase()}` }));
+      load();
+    } catch (e) {
+      console.error(e);
+      fail(e.code || 'error.generic');
+    }
+    btn.disabled = false; btn.textContent = t('guest.submit');
+  });
 
   // DEMO box (for recording a video): own account only
   gameSyncConfig(BUDPOINTS).catch(() => {}); // copies js/budpoints-config.js into the database

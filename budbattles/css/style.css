@@ -1927,3 +1927,12 @@ html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflo
 @keyframes bu-pop { 0% { opacity: 0; transform: translateY(40px) scale(.2) rotate(-20deg); } 70% { opacity: 1; transform: scale(1.15) rotate(4deg); } 100% { transform: none; } }
 .bt-side .bp-pill.bp-note { max-width: none; }
 .bt-status.is-covered { display: none; }
+
+/* Battle page: prize card with the partner logo (members only) */
+.prize-partner { display: flex; align-items: center; gap: 12px; margin: 4px 0 8px; }
+.prize-partner .partner-logo { width: 64px; height: 64px; object-fit: contain; border-radius: 12px; margin: 0; }
+.prize-partner span { font-weight: 700; }
+/* Admin: add entry for someone */
+.admin-guest { border-color: rgba(var(--neon-green-rgb), .6); background: rgba(var(--neon-green-rgb), .05); }
+.guest-form { display: grid; gap: 8px; margin-top: 8px; }
+.guest-form .field { margin: 0; }

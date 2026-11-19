@@ -731,5 +731,16 @@
   "demo.toss40": "+40 Banana-Toss-Punkte (ohne 12-Std.-Limit)",
   "demo.stats2": "Dein Konto: {points} BudPoints · {toss} aus Banana Toss (insgesamt) · {used}/{max} in den letzten 12 Std. · {days} Login-Tage",
   "demo.resetConfirm2": "Alle Spiel- und Shop-Badges entfernen (Banana Blaster, 10 Days Deep, Shop und Gratis-Set) und alle BudPoints, Banana-Toss-Punkte und Login-Tage auf 0 setzen (nur dein Konto)?",
-  "game.roundEarned": "+{n} BudBattles-Punkte"
+  "game.roundEarned": "+{n} BudBattles-Punkte",
+  "battle.prizePartner": "Preispartner: {name}",
+  "enter.breeder": "Breeder / Samenbank (optional)",
+  "enter.breederPlaceholder": "z. B. Barney's Farm",
+  "guest.title": "Beitrag für jemanden hinzufügen",
+  "guest.intro": "Für Grower ohne App: Das Foto wird sofort freigegeben und mit dem Instagram-@Namen gezeigt. Man kann normal dafür abstimmen. Badges gibt es nur mit eigenem Konto.",
+  "guest.handle": "Instagram-@Name",
+  "guest.photo": "Foto",
+  "guest.submit": "Beitrag hinzufügen",
+  "guest.added": "Beitrag von {handle} hinzugefügt.",
+  "guest.badHandle": "Bitte einen gültigen Instagram-@Namen eingeben (Buchstaben, Zahlen, Punkt, Unterstrich).",
+  "guest.already": "Dieser @Name hat in diesem Battle schon einen Beitrag."
 }

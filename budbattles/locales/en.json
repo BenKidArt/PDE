@@ -731,5 +731,16 @@
   "demo.toss40": "+40 Banana Toss points (ignores the 12h limit)",
   "demo.stats2": "Your account: {points} BudPoints · {toss} from Banana Toss (lifetime) · {used}/{max} in the last 12 h · {days} login days",
   "demo.resetConfirm2": "Remove all game and shop badges (Banana Blaster, 10 Days Deep, shop and free set) and reset all your BudPoints, Banana Toss points and login days to 0 (your account only)?",
-  "game.roundEarned": "+{n} BudBattles points"
+  "game.roundEarned": "+{n} BudBattles points",
+  "battle.prizePartner": "Prize partner: {name}",
+  "enter.breeder": "Breeder / seed bank (optional)",
+  "enter.breederPlaceholder": "e.g. Barney's Farm",
+  "guest.title": "Add entry for someone",
+  "guest.intro": "For growers who don't use the app: the photo is approved right away and shown with the Instagram @handle. People can vote on it normally. Badges only go to growers with an account.",
+  "guest.handle": "Instagram @handle",
+  "guest.photo": "Photo",
+  "guest.submit": "Add entry",
+  "guest.added": "Entry from {handle} added.",
+  "guest.badHandle": "Please enter a valid Instagram @handle (letters, numbers, dot, underscore).",
+  "guest.already": "This @handle already has an entry in this battle."
 }

@@ -66,6 +66,11 @@ export async function renderEnter(root, { id } = {}) {
       </div>` : ''}
 
       <div class="field">
+        <label class="label" for="breeder">${esc(t('enter.breeder'))}</label>
+        <input id="breeder" name="breeder" type="text" maxlength="60" autocomplete="off" placeholder="${esc(t('enter.breederPlaceholder'))}">
+      </div>
+
+      <div class="field">
         <label class="label" for="description">${esc(t('enter.description'))}</label>
         <textarea id="description" name="description" rows="3" maxlength="${DESC_MAX}"
           placeholder="${esc(t('enter.descriptionPlaceholder'))}"></textarea>
@@ -143,6 +148,7 @@ export async function renderEnter(root, { id } = {}) {
       const entry = await addEntry({
         battleId: battle.id,
         strain: strain.slice(0, STRAIN_MAX),
+        breeder: form.breeder.value.trim().slice(0, 60),
         description: desc.value.trim().slice(0, DESC_MAX),
         photo: cleaned.blob,
         width: cleaned.width,
@@ -168,7 +174,7 @@ function entryCard(entry, title, text, { success = false, canWithdraw = false } 
       <figure class="entry">
         <img src="${esc(entry.photoUrl)}" alt="${esc(entry.strain || '')}">
         <figcaption>
-          ${entry.strain ? `<strong>${esc(entry.strain)}</strong>` : ''}
+          ${entry.strain ? `<strong>${esc(entry.strain)}</strong>` : ''}${entry.breeder ? ` <span class="muted">· ${esc(entry.breeder)}</span>` : ''}
           ${entry.description ? `<p>${esc(entry.description)}</p>` : ''}
           <p class="small">${esc(t('enter.statusLabel'))}:
             <span class="pill pill-${esc(entry.status)}">${esc(t(`enter.status.${entry.status}`))}</span></p>

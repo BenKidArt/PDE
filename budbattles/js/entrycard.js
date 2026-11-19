@@ -59,7 +59,7 @@ export function neonCardHtml(e, { pill = '', top = false, below = '', compact = 
             ${insta ? `<a class="ncard-insta" href="${esc(linkUrl('instagram', insta))}" target="_blank" rel="noopener noreferrer nofollow"
               aria-label="${esc(`${t('links.instagram')}: @${insta}`)}" title="@${esc(insta)}">${LINK_ICONS.instagram}</a>` : ''}
           </div>
-          ${e.strain ? `<p class="ncard-strain">${esc(e.strain)}</p>` : ''}
+          ${e.strain || e.breeder ? `<p class="ncard-strain">${esc([e.strain, e.breeder].filter(Boolean).join(' · '))}</p>` : ''}
         </div>
       </div>
       ${below}

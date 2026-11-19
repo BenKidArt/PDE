@@ -244,7 +244,7 @@ export async function countEntries(battleId) {
   return all.filter((e) => e.status !== 'rejected').length;
 }
 
-export async function addEntry({ battleId, strain, description, photo, width, height }) {
+export async function addEntry({ battleId, strain, breeder, description, photo, width, height }) {
   const user = await getCurrentUser();
   if (!user) throw new StoreError('enter.loginNeeded');
   const battle = (await getBattles()).find((b) => b.id === battleId);
@@ -255,6 +255,7 @@ export async function addEntry({ battleId, strain, description, photo, width, he
     battleId,
     userId: user.id,
     strain: strain || null,
+    breeder: breeder || null,
     description,
     photo, // Blob, already cleaned of GPS/metadata
     width,
@@ -272,6 +273,26 @@ export async function addEntry({ battleId, strain, description, photo, width, he
 }
 
 // ---------- Admin ----------
+
+/** Entry for a grower who doesn't use the app: shown with the @handle, approved straight away. */
+export async function adminAddEntry({ battleId, handle, strain, breeder, photo, width, height }) {
+  const user = await getCurrentUser();
+  if (!user?.isAdmin) throw new StoreError('admin.noAccess');
+  const h = String(handle || '').trim().replace(/^@+/, '').toLowerCase();
+  if (!/^[a-z0-9._]{1,30}$/.test(h)) throw new StoreError('guest.badHandle');
+  const row = {
+    id: crypto.randomUUID(), battleId, userId: `guest:${h}`, guestHandle: h, displayName: `@${h}`,
+    strain: strain || null, breeder: breeder || null, description: '', photo, width, height,
+    status: 'approved', createdAt: new Date().toISOString(), reviewedAt: new Date().toISOString(),
+  };
+  try {
+    await tx('readwrite', (st) => st.add(row));
+  } catch (e) {
+    if (e && e.name === 'ConstraintError') throw new StoreError('guest.already');
+    throw e;
+  }
+  return row.id;
+}
 
 /** All entries of a battle (admin view), oldest first, with the grower's display name. */
 export async function listEntries(battleId) {
@@ -432,6 +453,7 @@ export async function registerBusinessInterest({ email, company, lang }) {
 
 const nameOf = (acc) => acc?.username || acc?.displayName || '?';
 function profileBits(r, accounts) {
+  if (r.guestHandle) return { username: null, instagram: r.guestHandle, avatar: null, profileKey: null, isGuest: true };
   const acc = accounts.find((a) => a.id === r.userId);
   if (!acc) return { username: r.displayName || null, instagram: r.instagram || null, avatar: null, profileKey: r.displayName || null };
   return { username: acc.username ?? null, instagram: acc.instagram ?? null, avatar: acc.avatar ?? null, profileKey: profileKeyOf(acc) };
