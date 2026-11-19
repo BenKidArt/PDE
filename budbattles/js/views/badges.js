@@ -165,7 +165,7 @@ function newBadgeId(nameEn, all) {
   return id;
 }
 
-// ---------- Badge Shop: opens at 120 lifetime Banana Toss points; buying uses the balance ----------
+// ---------- Badge Shop: opens at the shop milestone (lifetime Banana Toss points); buying uses the balance ----------
 async function drawShop(root, catalog, own) {
   const el = root.querySelector('[data-shop]');
   let r;

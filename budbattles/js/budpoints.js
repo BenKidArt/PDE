@@ -2,7 +2,7 @@
 //   • listens for "bb:earn" (sent by js/store.js after a vote, an entry or a profile save)
 //     and asks the database for the matching BudPoints → "+X BudPoints" + badge moments
 //   • profileChecklist / visualDone: what "profile completed" and "profile look" mean
-//   • progressText: "Next: Badge Shop at 120 (you have 84)"
+//   • progressText: "Next: Badge Shop at 150 (you have 84)"
 import { t } from './i18n.js';
 import { getCurrentUser, getProfileLook, gameAward } from './store.js';
 import { BUDPOINTS, nextMilestone } from './budpoints-config.js';
@@ -48,7 +48,7 @@ export async function checkProfileRewards() {
   if (visualDone(user, look)) celebrate(await gameAward('profile_visual').catch(() => null));
 }
 
-/** "Next: Badge Shop at 120 (you have 84)" – counts only BudPoints earned in Banana Toss. */
+/** "Next: Badge Shop at 150 (you have 84)" – counts only BudPoints earned in Banana Toss. */
 export function progressText(tossEarned) {
   const nx = nextMilestone(tossEarned || 0);
   if (!nx) return t('bp.allReached');

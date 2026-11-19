@@ -18,9 +18,9 @@ export const BUDPOINTS = {
 
   // Badges from LIFETIME BudPoints earned in Banana Toss (not the current balance)
   milestones: {
-    blaster: 35,       // "Banana Blaster" badge, given automatically
-    shop: 120,         // the Badge Shop unlocks
-    freeSet: 200,      // the free badge set below is given automatically
+    blaster: 50,       // "Banana Blaster" badge, given automatically
+    shop: 150,         // the Badge Shop unlocks
+    freeSet: 300,      // the free badge set below is given automatically
   },
   blasterBadge: 'badge_banana_round', // picture: assets/badges/badge_golden_bananas.png
 

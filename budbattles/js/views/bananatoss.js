@@ -4,14 +4,13 @@
 //   { source:'zillah-banana-toss', type:'ready' }
 //   { …, type:'throw', meters, rings, combo, comboEvents, … } → BudPoints (logged in only)
 //   { …, type:'round', roundPoints, bestMeters }
-//   { …, type:'playtime', seconds:10 }                       → play time (counted, no badge)
 // BudPoints per throw, limit (45 per 12 h) and the badges at 35 / 120 / 200 lifetime
 // Banana Toss points: see js/budpoints-config.js (the database checks them).
 // TODO (real launch): throws are reported by the browser – needs server-side checks against cheating.
 // Partner codes inside the game are demo placeholders and are not connected.
 import { t } from '../i18n.js';
 import { esc } from '../ui.js';
-import { getCurrentUser, gameTossThrow, gameAddSeconds, gameMyStats } from '../store.js';
+import { getCurrentUser, gameTossThrow, gameMyStats } from '../store.js';
 import { showBadgeUnlock, pointsChip } from '../gamebadges.js';
 import { progressText, maxedText, pointsToast } from '../budpoints.js';
 
@@ -124,9 +123,6 @@ export async function renderBananaToss(root) {
         if (r.shopUnlocked && !wasShop) setTimeout(() => pointsToast(0, t('bp.shopOpen')), 700);
         if (r.newBadges?.length) setTimeout(() => showBadgeUnlock(r.newBadges), 900);
       });
-    } else if (d.type === 'playtime') {
-      const sec = Math.min(Number(d.seconds) || 0, 15);
-      if (sec > 0) run(() => gameAddSeconds(sec));
     }
   }
   window.addEventListener('message', onMessage);

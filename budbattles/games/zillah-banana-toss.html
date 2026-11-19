@@ -834,12 +834,6 @@ function emit(type, data) {
     }
   } catch (e) {}
 }
-var lastInput = performance.now();
-['pointerdown', 'keydown'].forEach(function (ev) { window.addEventListener(ev, function () { lastInput = performance.now(); }, true); });
-// every 10 s of real play (tab visible + touched in the last 60 s) report 10 s of play time
-setInterval(function () {
-  if (document.visibilityState === 'visible' && performance.now() - lastInput < 60000) emit('playtime', { seconds: 10 });
-}, 10000);
 emit('ready', {});
 
 newRound();
