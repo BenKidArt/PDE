@@ -4,7 +4,7 @@
 -- Paste into Supabase → SQL Editor → New query → Run. Run once. Safe to run again.
 --
 --   1) Battle #1 "Frostiest Bud" times (Finnish time, Europe/Helsinki):
---      entries open Sun 22.11 12:00 · entries close 29.11 23:59 · voting until 6.12 23:59
+--      entries open Sun 22.11 00:00 · entries close 29.11 23:59 · voting until 6.12 23:59
 --   2) Prize text (members only): winner gets a pack of 5 seeds from Cannapot
 --   3) Entries get an optional breeder / seed bank
 --   4) Guest entries: no app account, shown with the Instagram @handle. They are
@@ -14,7 +14,7 @@
 
 -- ---------- 1) Battle #1 times ----------
 update public.battles set
-  start_at = timestamptz '2026-11-22 12:00 Europe/Helsinki',
+  start_at = timestamptz '2026-11-22 00:00 Europe/Helsinki',
   entries_close_at = timestamptz '2026-11-29 23:59 Europe/Helsinki',
   voting_ends_at = timestamptz '2026-12-06 23:59 Europe/Helsinki'
 where id = 'battle-1-frostiest-bud';
