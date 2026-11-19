@@ -40,7 +40,17 @@ export async function renderBananaToss(root) {
   const fx = root.querySelector('[data-fx]');
   const pill = root.querySelector('[data-pill]');
   // the game gets the touches straight away (no extra tap needed on phones)
-  frame.addEventListener('load', () => { try { frame.contentWindow.focus(); } catch { /* ignore */ } setTimeout(() => placeStatus(), 300); });
+  frame.addEventListener('load', () => {
+    try { frame.contentWindow.focus(); } catch { /* ignore */ }
+    setTimeout(() => placeStatus(), 300);
+    // the game's end-of-round card covers the field: hide our status line while it is open
+    try {
+      const sheet = frame.contentDocument.getElementById('sheet');
+      const sync = () => statusEl.classList.toggle('is-covered', !sheet.hidden);
+      new MutationObserver(sync).observe(sheet, { attributes: true, attributeFilter: ['hidden'] });
+      sync();
+    } catch { /* ignore */ }
+  });
 
   const statusEl = root.querySelector('[data-status]');
   let last = null, dbReady = true;
@@ -77,6 +87,17 @@ export async function renderBananaToss(root) {
     gameMyStats().then(show).catch(() => { dbReady = false; });
   }
 
+  let roundGranted = 0;
+  function writeRoundLine() {
+    try {
+      const el = frame.contentDocument?.getElementById('appPts');
+      if (!el) return;
+      const maxed = last ? maxedText(last) : null;
+      el.innerHTML = `${esc(t('game.roundEarned', { n: roundGranted }))}${maxed ? `<small>${esc(maxed)}</small>` : ''}`;
+      el.hidden = false;
+    } catch { /* ignore */ }
+  }
+
   // one call at a time, in order
   let chain = Promise.resolve();
   const run = (fn) => { chain = chain.then(fn).catch(() => { /* ignore one failed call */ }); };
@@ -86,12 +107,19 @@ export async function renderBananaToss(root) {
     if (e.origin !== window.location.origin) return;
     const d = e.data;
     if (!d || typeof d !== 'object' || d.source !== SOURCE) return;
-    if (!user || !dbReady) return;
-    if (d.type === 'throw') {
+    if (!user || !dbReady) {
+      if (d.type === 'round') try { const el = frame.contentDocument?.getElementById('appPts'); if (el) { el.textContent = t('game.loginToEarn'); el.hidden = false; } } catch { /* ignore */ }
+      return;
+    }
+    if (d.type === 'round') {
+      // end-of-round card in the game: "+12 BudBattles points" under the score (after all throws are counted)
+      run(async () => { writeRoundLine(); roundGranted = 0; });
+    } else if (d.type === 'throw') {
       run(async () => {
         const wasShop = !!last?.shopUnlocked;
         const r = await gameTossThrow({ meters: d.meters, rings: d.rings, combo: d.combo === true });
         show(r);
+        roundGranted += r.granted || 0;
         if (r.granted > 0) pointsChip(fx, r.granted);
         if (r.shopUnlocked && !wasShop) setTimeout(() => pointsToast(0, t('bp.shopOpen')), 700);
         if (r.newBadges?.length) setTimeout(() => showBadgeUnlock(r.newBadges), 900);

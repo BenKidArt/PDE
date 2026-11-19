@@ -730,5 +730,6 @@
   "bp.ruleFree": "Gratis bei {n} BudPoints aus Banana Toss.",
   "demo.toss40": "+40 Banana-Toss-Punkte (ohne 12-Std.-Limit)",
   "demo.stats2": "Dein Konto: {points} BudPoints · {toss} aus Banana Toss (insgesamt) · {used}/{max} in den letzten 12 Std. · {days} Login-Tage",
-  "demo.resetConfirm2": "Alle Spiel- und Shop-Badges entfernen (Banana Blaster, 10 Days Deep, Shop und Gratis-Set) und alle BudPoints, Banana-Toss-Punkte und Login-Tage auf 0 setzen (nur dein Konto)?"
+  "demo.resetConfirm2": "Alle Spiel- und Shop-Badges entfernen (Banana Blaster, 10 Days Deep, Shop und Gratis-Set) und alle BudPoints, Banana-Toss-Punkte und Login-Tage auf 0 setzen (nur dein Konto)?",
+  "game.roundEarned": "+{n} BudBattles-Punkte"
 }

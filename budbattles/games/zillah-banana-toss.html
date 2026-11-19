@@ -72,6 +72,8 @@ canvas:active{cursor:grabbing}
 .unlocks{display:flex;flex-direction:column;gap:6px}
 .unlock{border:1px solid rgba(255,212,59,.6);border-radius:14px;background:rgba(255,212,59,.06);padding:9px 12px;font-size:12px;line-height:1.45}
 .unlock.locked{border-color:var(--line);background:none;color:var(--muted)}
+.apppts{margin-top:-6px;font-weight:700;font-size:15px;color:var(--neon);text-shadow:0 0 12px rgba(124,255,79,.45);line-height:1.4}
+.apppts small{display:block;font-size:12px;color:var(--banana);text-shadow:none}
 .note{font-size:11px;color:var(--muted);line-height:1.55}
 .daily{font-size:10px;letter-spacing:1.6px;font-weight:600;color:var(--ink);background:var(--slab);border:1px solid var(--edge);border-radius:999px;padding:5px 12px;text-transform:uppercase}
 </style>
@@ -83,7 +85,7 @@ canvas:active{cursor:grabbing}
 
   <div class="hud">
     <div class="panel score">
-      <div class="label">Points <span class="combo" id="combo"></span></div>
+      <div class="label">Score <span class="combo" id="combo"></span></div>
       <div class="big neon" id="points">0</div>
       <div class="row small"><span>Today <b id="best">0 m</b></span><span>Last <b id="last">–</b></span></div>
     </div>
@@ -105,14 +107,15 @@ canvas:active{cursor:grabbing}
   <div class="sheet" id="sheet" hidden>
     <div class="card" role="dialog" aria-labelledby="sumTitle">
       <div class="label" id="sumDay">Round over</div>
-      <h2 id="sumTitle"><span id="sumPts">0</span> <em>points</em></h2>
+      <h2 id="sumTitle"><span id="sumPts">0</span> <em>score</em></h2>
+      <div class="apppts" id="appPts" hidden></div>
       <div class="stats">
         <div class="stat"><span class="label">Best throw</span><b id="sumBest">0 m</b></div>
         <div class="stat"><span class="label">Top combo</span><b id="sumCombo">×1</b></div>
         <div class="stat"><span class="label">Rings</span><b id="sumRings">0</b></div>
       </div>
       <div class="unlocks" id="sumUnlocks"></div>
-      <div class="note">Everyone plays the same course today, so scores are comparable. In the app this feeds a daily top list, and points go to your BudBattles account for badges. Free to play, partner codes are free.</div>
+      <div class="note">Everyone plays the same course today, so scores are comparable. In the app the score feeds a daily top list. BudBattles points (shown under your score) go to your account for badges. Free to play, partner codes are free.</div>
       <button type="button" class="btn primary" id="againBtn">Play again</button>
     </div>
   </div>

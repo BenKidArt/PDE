@@ -8,9 +8,10 @@
 export const BUDPOINTS = {
   // Zillah Banana Toss – per throw
   toss: {
-    per100m: 1,        // BudPoints per full 100 m (floor(meters / 100) × this)
-    perRing: 3,        // BudPoints per ring hit
-    combo: 3,          // BudPoints if the throw had a combo
+    metersPerPoint: 250, // 1 BudPoint per full 250 m thrown (floor(meters / 250))
+    perRing: 1,          // BudPoints per ring hit
+    combo: 2,            // BudPoints if the throw had a combo
+    // (goal: reaching the 45 below takes about 20–30 minutes of play)
     windowHours: 12,   // rolling window …
     windowMax: 45,     // … max BudPoints from Banana Toss in that window (per user)
   },
@@ -51,7 +52,7 @@ export const DEMO_BADGES = ['badge_banana_round', 'badge_login10_gorilla', ...Ob
 /** BudPoints for one throw (before the 12-hour limit). */
 export function tossPoints({ meters, rings, combo }) {
   const c = BUDPOINTS.toss;
-  return Math.floor(Math.max(0, Math.min(Number(meters) || 0, 5000)) / 100) * c.per100m
+  return Math.floor(Math.max(0, Math.min(Number(meters) || 0, 5000)) / c.metersPerPoint)
     + Math.max(0, Math.min(Number(rings) || 0, 20)) * c.perRing
     + (combo === true ? c.combo : 0);
 }

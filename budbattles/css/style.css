@@ -1926,3 +1926,4 @@ html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflo
 .bu-set figcaption { font-size: .66rem; font-weight: 700; color: #e9fff2; white-space: nowrap; }
 @keyframes bu-pop { 0% { opacity: 0; transform: translateY(40px) scale(.2) rotate(-20deg); } 70% { opacity: 1; transform: scale(1.15) rotate(4deg); } 100% { transform: none; } }
 .bt-side .bp-pill.bp-note { max-width: none; }
+.bt-status.is-covered { display: none; }
