@@ -12,7 +12,7 @@ function ruleFor(id) {
   const C = BUDPOINTS;
   if (id === C.blasterBadge) return t('bp.ruleBlaster', { n: C.milestones.blaster });
   if (C.shop[id] != null) return t('bp.ruleShop', { at: C.milestones.shop, price: C.shop[id] });
-  if (id === C.crown.badge) return t('bp.ruleCrown', { n: C.crown.beats });
+  if (id === C.crown.badge) return t('bp.ruleCrown', { n: C.crown.days });
   const ms = Object.entries(C.milestoneBadges).find(([, b]) => b === id);
   if (ms) return t('bp.ruleReach', { n: C.milestones[ms[0]] });
   return null;

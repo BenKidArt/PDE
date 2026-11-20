@@ -20,13 +20,13 @@ export const BUDPOINTS = {
   milestones: {
     blaster: 50,       // "Banana Blaster" badge, given automatically
     shop: 150,         // the Badge Shop unlocks
-    gorillaKing: 300,  // "Gorilla King" badge, given automatically
-    goldenNug: 600,    // "Golden Nug" badge, given automatically
+    gorillaKing: 500,  // "Gorilla King" badge, given automatically
+    goldenNug: 3000,   // "Golden Nug" badge, given automatically
   },
   milestoneBadges: { gorillaKing: 'badge_gorilla_king', goldenNug: 'badge_golden_nug' },
 
-  // Banana Crown: beat your own Banana Toss high score this many times (the first round ever doesn't count)
-  crown: { badge: 'badge_banana_crown', beats: 5 },
+  // Banana Crown: play Banana Toss on this many different days (Finnish calendar day)
+  crown: { badge: 'badge_banana_crown', days: 3 },
   blasterBadge: 'badge_banana_round', // picture: assets/badges/badge_golden_bananas.png
 
   // Badge Shop: badge id → price in BudPoints (buying lowers the balance, not "lifetime earned")

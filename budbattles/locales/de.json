@@ -726,7 +726,7 @@
   "bp.tip": "Tipp: Spar deine BudPoints. Bald gibt es mehr Möglichkeiten, sie zu nutzen.",
   "bp.ruleBlaster": "Sammle {n} BudPoints in Zillah Banana Toss.",
   "bp.ruleShop": "Badge-Shop (öffnet bei {at} Banana-Toss-Punkten) · {price} BudPoints",
-  "demo.toss40": "+40 Banana-Toss-Punkte (ohne 12-Std.-Limit)",
+  "demo.toss40": "+250 Banana-Toss-Punkte (ohne 12-Std.-Limit)",
   "demo.stats2": "Dein Konto: {points} BudPoints · {toss} aus Banana Toss (insgesamt) · {used}/{max} in den letzten 12 Std. · {days} Login-Tage",
   "demo.resetConfirm2": "Alle Spiel- und Shop-Badges entfernen (Banana Blaster, 10 Days Deep, Shop und Gratis-Set) und alle BudPoints, Banana-Toss-Punkte und Login-Tage auf 0 setzen (nur dein Konto)?",
   "game.roundEarned": "+{n} BudBattles-Punkte",
@@ -744,10 +744,8 @@
   "battle.foundingLeft": "Founding Member: noch {left}/{total} Plätze",
   "bp.milestone.gorillaKing": "Gorilla-King-Badge",
   "bp.milestone.goldenNug": "Golden-Nug-Badge",
-  "bp.ruleCrown": "Schlage deinen Banana-Toss-Highscore {n}-mal.",
+  "bp.ruleCrown": "Spiele Banana Toss an {n} verschiedenen Tagen.",
   "bp.ruleReach": "Erreiche {n} BudPoints in Banana Toss.",
-  "bp.newBest": "Neuer Highscore! {n}/{max} für die Banana Crown",
-  "demo.beat": "+1 geschlagener Highscore (Demo)",
   "claims.title": "Badge-Anfragen",
   "claims.intro": "Jemand hat einen Instagram-@Namen in sein Profil eingetragen, auf dem Badges gespeichert sind (z. B. Founding Member für einen Beitrag, den du hinzugefügt hast). Prüfe, ob es wirklich diese Person ist – das Badge gibt es erst nach deiner Freigabe.",
   "claims.by": "beansprucht von {name}",
@@ -755,5 +753,7 @@
   "claims.others": "{n} weitere Anfrage(n) für diesen @Namen",
   "claims.openProfile": "Profil ansehen",
   "claims.approved": "Freigegeben – Badge vergeben.",
-  "claims.rejected": "Abgelehnt."
+  "claims.rejected": "Abgelehnt.",
+  "bp.playDay": "Banana Crown: Spieltag {n}/{max}",
+  "demo.playDay": "+1 Spieltag (Demo)"
 }

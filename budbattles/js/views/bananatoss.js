@@ -114,9 +114,9 @@ export async function renderBananaToss(root) {
       // end-of-round card in the game: "+12 BudBattles points" under the score (after all throws are counted)
       run(async () => {
         writeRoundLine(); roundGranted = 0;
-        // Banana Crown: count every new personal best (the very first round only sets it)
+        // Banana Crown: one play day per Finnish calendar day
         const r = await gameTossRound(d.roundPoints);
-        if (r.newBest) pointsToast(0, t('bp.newBest', { n: Math.min(r.beats, r.beatsNeeded), max: r.beatsNeeded }));
+        if (r.newDay && r.days <= r.daysNeeded) pointsToast(0, t('bp.playDay', { n: r.days, max: r.daysNeeded }));
         if (r.newBadges?.length) setTimeout(() => showBadgeUnlock(r.newBadges), 900);
       });
     } else if (d.type === 'throw') {

@@ -762,8 +762,8 @@ export const gameDemoAddToss = (points) => gameRpc('game_demo_add_toss', { p_poi
 export const gameDemoSetLoginDays = (days) => gameRpc('game_demo_set_login_days', { p_days: days });
 export const gameDemoNextLoginDay = () => gameRpc('game_demo_next_login_day');
 export const gameDemoReset = () => gameRpc('game_demo_reset');
-export const gameTossRound = (score) => gameRpc('game_toss_round', { p_score: Math.max(0, Math.round(Number(score) || 0)) }); // Banana Crown (update 024)
-export const gameDemoBeat = () => gameRpc('game_demo_beat');
+export const gameTossRound = (score) => gameRpc('game_toss_round', { p_score: Math.max(0, Math.round(Number(score) || 0)) }); // play days → Banana Crown (update 026)
+export const gameDemoPlayDay = () => gameRpc('game_demo_play_day');
 
 // ---------- Admin: entry for a grower who doesn't use the app (database update 023) ----------
 /** ({ battleId, handle, strain, breeder, photo, width, height }) → entry id. Shown with the @handle, approved straight away. */

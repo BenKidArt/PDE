@@ -726,7 +726,7 @@
   "bp.tip": "Tip: save your BudPoints. More ways to use them are coming.",
   "bp.ruleBlaster": "Earn {n} BudPoints in Zillah Banana Toss.",
   "bp.ruleShop": "Badge Shop (opens at {at} Banana Toss points) · {price} BudPoints",
-  "demo.toss40": "+40 Banana Toss points (ignores the 12h limit)",
+  "demo.toss40": "+250 Banana Toss points (ignores the 12h limit)",
   "demo.stats2": "Your account: {points} BudPoints · {toss} from Banana Toss (lifetime) · {used}/{max} in the last 12 h · {days} login days",
   "demo.resetConfirm2": "Remove all game and shop badges (Banana Blaster, 10 Days Deep, shop and free set) and reset all your BudPoints, Banana Toss points and login days to 0 (your account only)?",
   "game.roundEarned": "+{n} BudBattles points",
@@ -744,10 +744,8 @@
   "battle.foundingLeft": "Founding Member: {left}/{total} left",
   "bp.milestone.gorillaKing": "Gorilla King badge",
   "bp.milestone.goldenNug": "Golden Nug badge",
-  "bp.ruleCrown": "Beat your Banana Toss high score {n} times.",
+  "bp.ruleCrown": "Play Banana Toss on {n} different days.",
   "bp.ruleReach": "Reach {n} BudPoints in Banana Toss.",
-  "bp.newBest": "New high score! {n}/{max} for the Banana Crown",
-  "demo.beat": "+1 beaten high score (demo)",
   "claims.title": "Badge claims",
   "claims.intro": "Someone put an Instagram @handle in their profile that has badges saved on it (e.g. Founding Member for an entry you added). Check it's really that person – the badge is only given after you approve.",
   "claims.by": "claimed by {name}",
@@ -755,5 +753,7 @@
   "claims.others": "{n} other claim(s) for this @handle",
   "claims.openProfile": "View profile",
   "claims.approved": "Approved – badge given.",
-  "claims.rejected": "Rejected."
+  "claims.rejected": "Rejected.",
+  "bp.playDay": "Banana Crown: play day {n}/{max}",
+  "demo.playDay": "+1 play day (demo)"
 }
