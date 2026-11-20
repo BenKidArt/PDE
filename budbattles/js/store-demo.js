@@ -682,6 +682,15 @@ async function gameDo(change) {
   };
 }
 export const gameTossThrow = (t) => gameDo((s, { used, tossBadges, out, C }) => {
+  // same checks as the database (update 028): impossible / too fast / too many → 0 points + flag
+  const now = Date.now(), c = C.toss;
+  if (!s.minuteStart || now - s.minuteStart > 60000) { s.minuteStart = now; s.minuteCount = 1; } else s.minuteCount += 1;
+  let reason = null;
+  if (s.minuteCount > c.maxThrowsPerMinute) reason = 'too_many';
+  else if (s.lastThrowAt && now - s.lastThrowAt < c.minGapSeconds * 1000) reason = 'too_fast';
+  else if ((Number(t.meters) || 0) < 0 || (Number(t.meters) || 0) > c.maxMeters || (t.rings | 0) < 0 || (t.rings | 0) > c.maxRings) reason = 'impossible';
+  s.lastThrowAt = now;
+  if (reason) { s.tossFlags = (s.tossFlags || 0) + 1; s.tossFlagReason = reason; tossBadges(); Object.assign(out, { granted: 0, worth: 0, rejected: reason }); return; }
   const worth = tossPoints(t);
   const add = Math.min(worth, Math.max(0, C.toss.windowMax - used()));
   if (add > 0) { s.events.push({ source: 'toss', points: add, at: Date.now() }); s.budPoints += add; s.tossEarned += add; }
@@ -737,3 +746,7 @@ export const gameDemoPlayDay = () => adminOnly((s, { give, out, C }) => { s.last
 // Badge claims by @handle only exist with the real database (update 025)
 export async function adminBadgeClaims() { return []; }
 export async function adminReviewClaim() {}
+
+// Banana Toss check (admin): in demo mode only this device's own account exists
+export async function adminTossSuspects() { return []; }
+export async function adminTossClear() {}

@@ -2030,3 +2030,12 @@ html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflo
 }
 .bt1-tk-up { font: 800 .58rem/1 var(--font); letter-spacing: .12em; text-transform: uppercase; color: var(--neon-green);
   padding: 3px 7px; border-radius: 999px; border: 1px solid rgba(var(--neon-green-rgb), .55); white-space: nowrap; }
+/* Admin: Banana Toss check */
+.admin-toss { border-color: rgba(255, 90, 110, .7); background: rgba(255, 90, 110, .05); }
+/* Home: Banana Toss tile (members) */
+.home-game { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; text-decoration: none; color: var(--text);
+  background: linear-gradient(120deg, rgba(255, 212, 59, .1), rgba(10, 20, 14, .8) 60%); border: 1.5px solid rgba(255, 212, 59, .6); box-shadow: 0 0 16px rgba(255, 212, 59, .15); }
+.home-game-icon { font-size: 2rem; flex: none; }
+.home-game-text { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.home-game-text span { font-size: .8rem; color: var(--muted); }
+.home-game-btn { flex: none; pointer-events: none; }

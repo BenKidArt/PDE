@@ -44,6 +44,7 @@ export const {
   getEntryByUser, // (battleId, userId) → entry or null
   withdrawEntry, // (entry)
   listEntries, // (battleId) → all entries incl. displayName (admin only)
+  adminTossSuspects, adminTossClear, // admin: Banana Toss check (update 028)
   adminBadgeClaims, adminReviewClaim, // admin: confirm badges claimed by Instagram @handle (update 025)
   adminAddEntry, // admin: ({ battleId, handle, strain, breeder, photo, width, height }) entry for a grower without the app
   reviewEntry, // (entryId, 'pending' | 'approved' | 'rejected') (admin only)

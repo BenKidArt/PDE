@@ -14,6 +14,13 @@ export const BUDPOINTS = {
     // (goal: reaching the 45 below takes about 20–30 minutes of play)
     windowHours: 12,   // rolling window …
     windowMax: 200,    // … max BudPoints from Banana Toss in that window (per user)
+    // protection against faked throws (the game runs in the browser): such throws give 0 points
+    // and show up on the Admin page ("Banana Toss check")
+    maxMeters: 6000,        // the course is 6000 m long
+    maxRings: 20,           // rings in one throw
+    maxPerThrow: 30,        // BudPoints from one throw
+    minGapSeconds: 2,       // a real throw + landing takes longer than this
+    maxThrowsPerMinute: 15,
   },
 
   // Badges from LIFETIME BudPoints earned in Banana Toss (not the current balance)
@@ -55,9 +62,9 @@ export const DEMO_BADGES = ['badge_banana_round', 'badge_login10_gorilla', BUDPO
 /** BudPoints for one throw (before the 12-hour limit). */
 export function tossPoints({ meters, rings, combo }) {
   const c = BUDPOINTS.toss;
-  return Math.floor(Math.max(0, Math.min(Number(meters) || 0, 5000)) / c.metersPerPoint)
-    + Math.max(0, Math.min(Number(rings) || 0, 20)) * c.perRing
-    + (combo === true ? c.combo : 0);
+  return Math.min(c.maxPerThrow, Math.floor(Math.max(0, Number(meters) || 0) / c.metersPerPoint)
+    + Math.max(0, Number(rings) || 0) * c.perRing
+    + (combo === true ? c.combo : 0));
 }
 
 /** The next Banana Toss milestone for a lifetime total, or null when all are reached. */

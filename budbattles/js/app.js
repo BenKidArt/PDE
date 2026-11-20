@@ -47,7 +47,7 @@ const routes = {
   reports: renderReports, // admin: reported profiles and entries
   pictures: renderPictures, // admin: own profile pictures waiting for approval
   'spot-map': renderSpotMap, // hidden preview: 3D spot map (only by link and from Admin)
-  'banana-toss': renderBananaToss, // hidden preview: Zillah Banana Toss mini game (only from Admin)
+  'banana-toss': renderBananaToss, // Zillah Banana Toss mini game (BudPoints for members)
   strainmatch: renderStrainMatch,
 };
 
@@ -70,6 +70,7 @@ const MENU = [
   { key: 'business', path: 'business', soon: true },
   { key: 'profile', path: 'profile' },
   { key: 'badges', path: 'badges' },
+  { key: 'bananaToss', path: 'banana-toss' },
   { key: 'tests', path: 'tests', testersOnly: true },
   { key: 'admin', path: 'admin', adminOnly: true },
   { key: 'terms', path: 'terms' },

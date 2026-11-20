@@ -18,11 +18,8 @@ const GAME_URL = 'games/zillah-banana-toss.html';
 const SOURCE = 'zillah-banana-toss';
 
 export async function renderBananaToss(root) {
-  const user = await getCurrentUser();
-  if (!user?.isAdmin) { // hidden preview: admins only
-    root.innerHTML = `<section class="card"><p>${esc(t('admin.noAccess'))}</p></section>`;
-    return;
-  }
+  // open to everyone: logged-in members earn BudPoints, visitors can play without them
+  const user = await getCurrentUser().catch(() => null);
   root.innerHTML = `
     <div class="bt-game">
       <iframe class="bt-frame" src="${GAME_URL}" title="${esc(t('game.frameTitle'))}" allow="fullscreen; autoplay" scrolling="no"></iframe>
@@ -30,7 +27,7 @@ export async function renderBananaToss(root) {
       <div class="bt-status" data-status hidden></div>
       <div class="bt-side">
         <span class="bp-pill" data-pill hidden></span>
-        <a class="sm-btn bb-chrome bb-chrome--soft bt-back" href="#/admin" aria-label="${esc(t('game.back'))}">
+        <a class="sm-btn bb-chrome bb-chrome--soft bt-back" href="${user?.isAdmin ? '#/admin' : '#/'}" aria-label="${esc(t(user?.isAdmin ? 'game.back' : 'game.backHome'))}">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M11 3L5 9l6 6"/></svg>
         </a>
       </div>
@@ -76,8 +73,7 @@ export async function renderBananaToss(root) {
   window.addEventListener('resize', placeStatus);
   const tick = setInterval(() => { if (!root.isConnected) { clearInterval(tick); window.removeEventListener('resize', placeStatus); return; } if (last) show(last); }, 30000);
   const follow = setInterval(() => { if (!root.isConnected) { clearInterval(follow); return; } placeStatus(); }, 2000);
-  // not logged in: the game still works, one small note (can't happen on this admin page today,
-  // but stays right when the page opens to everyone)
+  // not logged in: the game still works, one small note
   if (!user) {
     pill.hidden = false;
     pill.innerHTML = `<a href="#/profile">${esc(t('game.loginToEarn'))}</a>`;

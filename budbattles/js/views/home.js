@@ -66,6 +66,12 @@ export async function renderHome(root) {
       : `<p class="muted card">${esc(t('home.latestEmpty'))}</p>`}
     </section>
 
+    ${user ? `<a class="home-game" href="#/banana-toss">
+      <span class="home-game-icon" aria-hidden="true">🍌</span>
+      <span class="home-game-text"><b>Zillah Banana Toss</b><span>${esc(t('home.gameText'))}</span></span>
+      <span class="btn btn-go btn-small home-game-btn">${esc(t('home.gamePlay'))}</span>
+    </a>` : ''}
+
     <section class="home-section">
       <h2>${esc(t('home.howTitle'))}</h2>
       <ol class="steps">

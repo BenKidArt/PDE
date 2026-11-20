@@ -785,5 +785,21 @@
   "vote.confirmShort": "Sicher? Nochmal tippen",
   "bt1.tickerPrize": "Preis: {prize}",
   "bt1.partners": "Partner",
-  "bt1.upcoming": "Demnächst"
+  "bt1.upcoming": "Demnächst",
+  "nav.bananaToss": "🍌 Banana Toss",
+  "home.gameText": "Spiel den Tageskurs und sammle BudPoints und Badges.",
+  "home.gamePlay": "Spielen",
+  "game.backHome": "Zurück zur Startseite",
+  "tossCheck.title": "Banana-Toss-Check",
+  "tossCheck.intro": "Spieler mit Würfen, die im Spiel unmöglich sind, zu schnell kamen oder zu viele pro Minute waren. Diese Würfe gaben 0 Punkte. Meistens Technik-Tricks – selten ein Fehlalarm.",
+  "tossCheck.flags": "{n}× abgelehnt · zuletzt: {reason}",
+  "tossCheck.reason.impossible": "unmöglicher Wurf",
+  "tossCheck.reason.too_fast": "zu schnell hintereinander",
+  "tossCheck.reason.too_many": "zu viele Würfe pro Minute",
+  "tossCheck.points": "Banana Toss: {toss} BudPoints · gesamt {total}",
+  "tossCheck.clear": "Okay, löschen",
+  "tossCheck.takeBack": "Punkte zurücknehmen",
+  "tossCheck.confirm": "Alle Banana-Toss-Punkte und Spiel-Badges dieses Spielers entfernen?",
+  "tossCheck.cleared": "Markierung gelöscht.",
+  "tossCheck.tookBack": "Banana-Toss-Punkte zurückgenommen."
 }

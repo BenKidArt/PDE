@@ -798,3 +798,16 @@ export async function adminReviewClaim(id, status) {
   const { error } = await sb.rpc('admin_review_claim', { p_id: id, p_status: status });
   if (error) fail(error);
 }
+
+// ---------- Admin: Banana Toss check (database update 028) ----------
+/** Players with rejected (faked-looking) throws: [{ user_id, username, display_name, flags, reason, flagged_at, toss_earned, bud_points }] */
+export async function adminTossSuspects() {
+  const { data, error } = await sb.rpc('admin_toss_suspects');
+  if (error) fail(error);
+  return data || [];
+}
+/** (userId, takeBack) clear the flags; takeBack also removes all their Banana Toss points and game badges */
+export async function adminTossClear(userId, takeBack) {
+  const { error } = await sb.rpc('admin_toss_clear', { p_user: userId, p_take_back: !!takeBack });
+  if (error) fail(error);
+}

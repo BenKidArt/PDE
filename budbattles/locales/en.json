@@ -785,5 +785,21 @@
   "vote.confirmShort": "Sure? Tap again",
   "bt1.tickerPrize": "Prize: {prize}",
   "bt1.partners": "Partners",
-  "bt1.upcoming": "Upcoming"
+  "bt1.upcoming": "Upcoming",
+  "nav.bananaToss": "🍌 Banana Toss",
+  "home.gameText": "Play the daily course and earn BudPoints and badges.",
+  "home.gamePlay": "Play",
+  "game.backHome": "Back to home",
+  "tossCheck.title": "Banana Toss check",
+  "tossCheck.intro": "Players with throws that are impossible in the game, came too fast or were too many per minute. Those throws gave 0 points. Usually technical tricks – rarely a false alarm.",
+  "tossCheck.flags": "{n}× rejected · last: {reason}",
+  "tossCheck.reason.impossible": "impossible throw",
+  "tossCheck.reason.too_fast": "too fast in a row",
+  "tossCheck.reason.too_many": "too many throws per minute",
+  "tossCheck.points": "Banana Toss: {toss} BudPoints · total {total}",
+  "tossCheck.clear": "OK, clear",
+  "tossCheck.takeBack": "Take back points",
+  "tossCheck.confirm": "Remove all Banana Toss points and game badges of this player?",
+  "tossCheck.cleared": "Flags cleared.",
+  "tossCheck.tookBack": "Banana Toss points taken back."
 }

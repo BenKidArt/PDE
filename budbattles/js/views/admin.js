@@ -2,7 +2,7 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
-  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoPlayDay, gameSyncConfig, adminAddEntry, adminBadgeClaims, adminReviewClaim } from '../store.js';
+  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoPlayDay, gameSyncConfig, adminAddEntry, adminBadgeClaims, adminReviewClaim, adminTossSuspects, adminTossClear } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { celebrate } from '../budpoints.js';
 import { BUDPOINTS } from '../budpoints-config.js';
@@ -46,6 +46,11 @@ export async function renderAdmin(root) {
         ${battles.filter((b) => b.isDraft).map((b) => `<a class="bb-chip bb-chip-pink" href="#/battle/${encodeURIComponent(b.id)}">${esc(tc(b.theme))} →</a>`).join('')}
       </div>` : ''}
       <div class="admin-links" data-links data-hscroll></div>
+      <details class="admin-demo admin-claims admin-toss" data-toss hidden>
+        <summary>⚠ ${esc(t('tossCheck.title'))} <span class="bb-chip-count" data-toss-count></span></summary>
+        <p class="small muted">${esc(t('tossCheck.intro'))}</p>
+        <div class="claims-list" data-toss-list></div>
+      </details>
       <details class="admin-demo admin-claims" data-claims hidden>
         <summary>🏅 ${esc(t('claims.title'))} <span class="bb-chip-count" data-claims-count></span></summary>
         <p class="small muted">${esc(t('claims.intro'))}</p>
@@ -96,6 +101,40 @@ export async function renderAdmin(root) {
       + `<a class="bb-chip" href="#/reports">⚑ ${esc(t('reports.title'))} →</a>`;
   };
   drawLinks();
+
+  // BANANA TOSS CHECK: players whose throws were rejected (impossible / too fast / too many)
+  const tossEl = root.querySelector('[data-toss]');
+  async function loadToss() {
+    let list;
+    try { list = await adminTossSuspects(); } catch { tossEl.hidden = true; return; } // update 028 not run yet
+    tossEl.hidden = !list.length;
+    root.querySelector('[data-toss-count]').textContent = list.length;
+    root.querySelector('[data-toss-list]').innerHTML = list.map((u) => `
+      <div class="claim-row" data-toss-user="${esc(u.user_id)}">
+        <div class="claim-text">
+          <b>${esc(u.username || u.display_name || '?')}</b>
+          <span class="small">${esc(t('tossCheck.flags', { n: u.flags, reason: t(`tossCheck.reason.${u.reason}`) }))}</span>
+          <span class="small muted">${esc(t('tossCheck.points', { toss: u.toss_earned, total: u.bud_points }))}</span>
+          ${u.username ? `<a class="link small" href="#/u/${encodeURIComponent(u.username)}">${esc(t('claims.openProfile'))} →</a>` : ''}
+        </div>
+        <div class="claim-btns">
+          <button type="button" class="bb-chip" data-toss-ok>${esc(t('tossCheck.clear'))}</button>
+          <button type="button" class="bb-chip bb-chip-pink" data-toss-back>${esc(t('tossCheck.takeBack'))}</button>
+        </div>
+      </div>`).join('');
+    root.querySelectorAll('[data-toss-user]').forEach((row) => {
+      const go = async (takeBack) => {
+        if (takeBack && !window.confirm(t('tossCheck.confirm'))) return;
+        row.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+        try { await adminTossClear(row.dataset.tossUser, takeBack); showToast(t(takeBack ? 'tossCheck.tookBack' : 'tossCheck.cleared')); }
+        catch { showToast(t('error.generic')); }
+        loadToss();
+      };
+      row.querySelector('[data-toss-ok]').addEventListener('click', () => go(false));
+      row.querySelector('[data-toss-back]').addEventListener('click', () => go(true));
+    });
+  }
+  loadToss();
 
   // BADGE CLAIMS: someone put an @handle with saved badges (e.g. Founding Member) in their profile
   const claimsEl = root.querySelector('[data-claims]');
