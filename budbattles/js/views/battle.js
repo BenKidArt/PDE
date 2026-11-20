@@ -32,6 +32,7 @@ export async function renderBattle(root, { id } = {}) {
   // prize words only for logged-in members (18+ confirmed at sign-up)
   const prize = user && settings.showPrize ? await getPrize(battle.id).catch(() => null) : null;
   const myEntry = user && status === 'open' ? await getEntryByUser(battle.id, user.id).catch(() => null) : null;
+  const partner = settings.showPartner && battle.partner?.name ? battle.partner : null;
   const isB1 = battle.number === 1 && !battle.isTest;
 
   // 1) banner (the Battle #1 banner shows the prize → members only; others see the title)
@@ -56,8 +57,19 @@ export async function renderBattle(root, { id } = {}) {
       <p class="bt1-status-line" data-status-line>${esc(statusLine(battle, status))}</p>
     </section>
 
-    <p class="bt1-host"><span class="bt1-host-label">${esc(t('bt1.hostedBy'))}</span>
-      <img src="${esc(HOST_IMAGE)}" alt="" width="32" height="32"><b>GreenZillah · BudBattles</b></p>
+    <section class="bt1-row">
+      <div class="bt1-mini">
+        <p class="bt1-mini-label">${esc(t('bt1.hostedBy'))}</p>
+        <img class="bt1-mini-img bt1-host-img" src="${esc(HOST_IMAGE)}" alt="GreenZillah" width="72" height="72" loading="lazy">
+        <p class="bt1-mini-name">GreenZillah · BudBattles</p>
+      </div>
+      ${partner ? `<div class="bt1-mini bt1-mini-partner">
+        <p class="bt1-mini-label">${esc(t(prize ? 'bt1.prizePartner' : 'bt1.partner'))}</p>
+        ${partner.logo ? `<img class="bt1-mini-logo" src="${esc(partner.logo)}" alt="${esc(partner.name)}" loading="lazy">` : `<p class="bt1-mini-name">${esc(partner.name)}</p>`}
+        ${prize ? `<p class="bt1-mini-prize">${esc(tc(prize.text))}</p>` : ''}
+        ${/^https:\/\//.test(partner.url || '') ? `<a class="link small" href="${esc(partner.url)}" target="_blank" rel="noopener noreferrer">${esc(partner.url.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, ''))} ↗</a>` : ''}
+      </div>` : ''}
+    </section>
 
     ${settings.showPartner ? partnerTicker(user, prize) : ''}
 
