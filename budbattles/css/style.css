@@ -2028,3 +2028,5 @@ html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflo
   .bt1-ticker { overflow-x: auto; -webkit-mask: none; mask: none; }
   .bt1-tk-track { animation: none; }
 }
+.bt1-tk-up { font: 800 .58rem/1 var(--font); letter-spacing: .12em; text-transform: uppercase; color: var(--neon-green);
+  padding: 3px 7px; border-radius: 999px; border: 1px solid rgba(var(--neon-green-rgb), .55); white-space: nowrap; }

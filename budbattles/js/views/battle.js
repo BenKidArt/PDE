@@ -1,4 +1,4 @@
-// BATTLE PAGE (mobile first): banner · status line · host + partner · rules (closed) ·
+// BATTLE PAGE (mobile first): banner · status line · partner ticker · rules (closed) ·
 // Founding Member strip (Battle #1) · enter button · 2-column entries grid with voting · footer.
 // Prize words (banner, prize card, winner rule) only for logged-in members.
 import { t, tc, formatDate, getLang } from '../i18n.js';
@@ -18,7 +18,6 @@ const BATTLE_HEROES = {
 // Banner at the very top (members only when it shows the prize – see BANNER_HAS_PRIZE).
 const BATTLE_BANNERS = { 'battle-1-frostiest-bud': 'assets/battles/budbattles_battle1_page_banner.jpg' };
 const BANNER_HAS_PRIZE = { 'battle-1-frostiest-bud': true };
-const HOST_IMAGE = 'assets/greenzillah_eye_host_icon.png'; // not the Banana Toss gorilla (that one is only for the game)
 const FOUNDING_BADGE = 'assets/badges/badge_heart.webp';
 
 export async function renderBattle(root, { id } = {}) {
@@ -32,7 +31,6 @@ export async function renderBattle(root, { id } = {}) {
   // prize words only for logged-in members (18+ confirmed at sign-up)
   const prize = user && settings.showPrize ? await getPrize(battle.id).catch(() => null) : null;
   const myEntry = user && status === 'open' ? await getEntryByUser(battle.id, user.id).catch(() => null) : null;
-  const partner = settings.showPartner && battle.partner?.name ? battle.partner : null;
   const isB1 = battle.number === 1 && !battle.isTest;
 
   // 1) banner (the Battle #1 banner shows the prize → members only; others see the title)
@@ -57,21 +55,8 @@ export async function renderBattle(root, { id } = {}) {
       <p class="bt1-status-line" data-status-line>${esc(statusLine(battle, status))}</p>
     </section>
 
-    <section class="bt1-row">
-      <div class="bt1-mini">
-        <p class="bt1-mini-label">${esc(t('bt1.hostedBy'))}</p>
-        <img class="bt1-mini-img bt1-host-img" src="${esc(HOST_IMAGE)}" alt="GreenZillah" width="72" height="72" loading="lazy">
-        <p class="bt1-mini-name">GreenZillah · BudBattles</p>
-      </div>
-      ${partner ? `<div class="bt1-mini bt1-mini-partner">
-        <p class="bt1-mini-label">${esc(t(prize ? 'bt1.prizePartner' : 'bt1.partner'))}</p>
-        ${partner.logo ? `<img class="bt1-mini-logo" src="${esc(partner.logo)}" alt="${esc(partner.name)}" loading="lazy">` : `<p class="bt1-mini-name">${esc(partner.name)}</p>`}
-        ${prize ? `<p class="bt1-mini-prize">${esc(tc(prize.text))}</p>` : ''}
-        ${/^https:\/\//.test(partner.url || '') ? `<a class="link small" href="${esc(partner.url)}" target="_blank" rel="noopener noreferrer">${esc(partner.url.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, ''))} ↗</a>` : ''}
-      </div>` : ''}
-    </section>
-
     ${settings.showPartner ? partnerTicker(user, prize) : ''}
+
 
     <details class="card bt1-rules">
       <summary><h2>${esc(t('battle.rules'))}</h2></summary>
@@ -137,7 +122,8 @@ function dayOnly(iso) {
   catch { return formatDate(iso); }
 }
 
-/** Partner ticker: one thin row of logos scrolling left in an endless loop (pauses while touched).
+/** Partner ticker (under the status line): one thin row of logos scrolling left in an endless loop
+ *  (pauses while touched). Cannapot = this battle's prize partner; all others are marked "Upcoming".
  *  Visitors see only the main partner (same rule as the home page: some partner names contain
  *  "seed" / "Samen"); members see all. Cannapot (main) gets a gold border + the prize for members. */
 function partnerTicker(user, prize) {
@@ -148,7 +134,8 @@ function partnerTicker(user, prize) {
   const item = (p, hidden) => {
     const url = p.website || p.instagram || '';
     const inner = `${p.logo ? `<img src="${esc(p.logo)}" alt="${esc(p.name)}" loading="lazy" decoding="async">` : `<span class="bt1-tk-name">${esc(p.name)}</span>`}
-      ${p.role === 'main' && prize ? `<span class="bt1-tk-prize">${esc(t('bt1.tickerPrize', { prize: tc(prize.text) }))}</span>` : ''}`;
+      ${p.role === 'main' && prize ? `<span class="bt1-tk-prize">${esc(t('bt1.tickerPrize', { prize: tc(prize.text) }))}</span>` : ''}
+      ${p.role !== 'main' ? `<span class="bt1-tk-up">${esc(t('bt1.upcoming'))}</span>` : ''}`;
     const cls = `bt1-tk-item${p.role === 'main' ? ' is-main' : ''}${p.round ? ' is-round' : ''}`;
     const aria = hidden ? ' aria-hidden="true" tabindex="-1"' : '';
     return url ? `<a class="${cls}" href="${esc(url)}" target="_blank" rel="noopener noreferrer"${aria}>${inner}</a>`
