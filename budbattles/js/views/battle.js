@@ -17,7 +17,7 @@ const BATTLE_HEROES = {
 // Banner at the very top (members only when it shows the prize – see BANNER_HAS_PRIZE).
 const BATTLE_BANNERS = { 'battle-1-frostiest-bud': 'assets/battles/budbattles_battle1_page_banner.jpg' };
 const BANNER_HAS_PRIZE = { 'battle-1-frostiest-bud': true };
-const HOST_IMAGE = 'assets/greenzillah.webp';
+const HOST_IMAGE = 'assets/greenzillah-host.webp';
 const FOUNDING_BADGE = 'assets/badges/badge_heart.webp';
 
 export async function renderBattle(root, { id } = {}) {
@@ -59,7 +59,7 @@ export async function renderBattle(root, { id } = {}) {
     <section class="bt1-row">
       <div class="bt1-mini">
         <p class="bt1-mini-label">${esc(t('bt1.hostedBy'))}</p>
-        <img class="bt1-mini-img" src="${esc(HOST_IMAGE)}" alt="" width="72" height="80" loading="lazy">
+        <img class="bt1-mini-img bt1-host-img" src="${esc(HOST_IMAGE)}" alt="GreenZillah" width="72" height="72" loading="lazy">
         <p class="bt1-mini-name">GreenZillah · BudBattles</p>
       </div>
       ${partner ? `<div class="bt1-mini">
