@@ -2,7 +2,7 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
-  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoBeat, gameSyncConfig, adminAddEntry } from '../store.js';
+  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoBeat, gameSyncConfig, adminAddEntry, adminBadgeClaims, adminReviewClaim } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { celebrate } from '../budpoints.js';
 import { BUDPOINTS } from '../budpoints-config.js';
@@ -46,6 +46,11 @@ export async function renderAdmin(root) {
         ${battles.filter((b) => b.isDraft).map((b) => `<a class="bb-chip bb-chip-pink" href="#/battle/${encodeURIComponent(b.id)}">${esc(tc(b.theme))} →</a>`).join('')}
       </div>` : ''}
       <div class="admin-links" data-links data-hscroll></div>
+      <details class="admin-demo admin-claims" data-claims hidden>
+        <summary>🏅 ${esc(t('claims.title'))} <span class="bb-chip-count" data-claims-count></span></summary>
+        <p class="small muted">${esc(t('claims.intro'))}</p>
+        <div class="claims-list" data-claims-list></div>
+      </details>
       <details class="admin-demo admin-guest" data-guest>
         <summary>＋ ${esc(t('guest.title'))}</summary>
         <p class="small muted">${esc(t('guest.intro'))}</p>
@@ -91,6 +96,41 @@ export async function renderAdmin(root) {
       + `<a class="bb-chip" href="#/reports">⚑ ${esc(t('reports.title'))} →</a>`;
   };
   drawLinks();
+
+  // BADGE CLAIMS: someone put an @handle with saved badges (e.g. Founding Member) in their profile
+  const claimsEl = root.querySelector('[data-claims]');
+  async function loadClaims() {
+    let list;
+    try { list = await adminBadgeClaims(); } catch { claimsEl.hidden = true; return; } // update 025 not run yet
+    claimsEl.hidden = !list.length;
+    root.querySelector('[data-claims-count]').textContent = list.length;
+    if (list.length) claimsEl.open = true;
+    root.querySelector('[data-claims-list]').innerHTML = list.map((c) => `
+      <div class="claim-row" data-claim="${esc(c.id)}">
+        ${c.photoUrl ? `<img src="${esc(c.photoUrl)}" alt="" width="56" height="56" loading="lazy">` : ''}
+        <div class="claim-text">
+          <b>@${esc(c.handle)}</b>
+          <span class="small">${esc(t('claims.by', { name: c.username || c.display_name || '?' }))}</span>
+          <span class="small muted">${esc(t('claims.badges', { n: (c.badges || []).length }))}${c.others ? ` · ⚠ ${esc(t('claims.others', { n: c.others }))}` : ''}</span>
+          ${c.username ? `<a class="link small" href="#/u/${encodeURIComponent(c.username)}">${esc(t('claims.openProfile'))} →</a>` : ''}
+        </div>
+        <div class="claim-btns">
+          <button type="button" class="bb-chip" data-claim-ok>✓ ${esc(t('admin.action.approved'))}</button>
+          <button type="button" class="bb-chip bb-chip-pink" data-claim-no>✕ ${esc(t('admin.action.rejected'))}</button>
+        </div>
+      </div>`).join('');
+    root.querySelectorAll('[data-claim]').forEach((row) => {
+      const go = async (status) => {
+        row.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+        try { await adminReviewClaim(row.dataset.claim, status); showToast(t(status === 'approved' ? 'claims.approved' : 'claims.rejected')); }
+        catch { showToast(t('error.generic')); }
+        loadClaims();
+      };
+      row.querySelector('[data-claim-ok]').addEventListener('click', () => go('approved'));
+      row.querySelector('[data-claim-no]').addEventListener('click', () => go('rejected'));
+    });
+  }
+  loadClaims();
 
   // ADD ENTRY FOR SOMEONE (grower without the app): @handle, strain, breeder, photo
   const gForm = root.querySelector('[data-guest-form]');

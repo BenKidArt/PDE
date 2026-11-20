@@ -785,3 +785,16 @@ export async function adminAddEntry({ battleId, handle, strain, breeder, photo, 
   }
   return data;
 }
+
+// ---------- Admin: badge claims by Instagram @handle (database update 025) ----------
+/** Open claims: [{ id, handle, user_id, username, display_name, instagram, badges:[ids], photoUrl, others }] */
+export async function adminBadgeClaims() {
+  const { data, error } = await sb.rpc('admin_badge_claims');
+  if (error) fail(error);
+  return (data || []).map((c) => ({ ...c, photoUrl: c.photo_path ? publicUrl(c.photo_path) : null }));
+}
+/** (claimId, 'approved' | 'rejected') */
+export async function adminReviewClaim(id, status) {
+  const { error } = await sb.rpc('admin_review_claim', { p_id: id, p_status: status });
+  if (error) fail(error);
+}

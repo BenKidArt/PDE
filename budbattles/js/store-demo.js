@@ -736,3 +736,7 @@ function tossRound(s, give, out, C, score) {
 }
 export const gameTossRound = (score) => gameDo((s, { give, out, C }) => tossRound(s, give, out, C, score));
 export const gameDemoBeat = () => adminOnly((s, { give, out, C }) => tossRound(s, give, out, C, s.tossBest == null ? 0 : s.tossBest + 1));
+
+// Badge claims by @handle only exist with the real database (update 025)
+export async function adminBadgeClaims() { return []; }
+export async function adminReviewClaim() {}

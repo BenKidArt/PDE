@@ -747,5 +747,13 @@
   "bp.ruleCrown": "Beat your Banana Toss high score {n} times.",
   "bp.ruleReach": "Reach {n} BudPoints in Banana Toss.",
   "bp.newBest": "New high score! {n}/{max} for the Banana Crown",
-  "demo.beat": "+1 beaten high score (demo)"
+  "demo.beat": "+1 beaten high score (demo)",
+  "claims.title": "Badge claims",
+  "claims.intro": "Someone put an Instagram @handle in their profile that has badges saved on it (e.g. Founding Member for an entry you added). Check it's really that person – the badge is only given after you approve.",
+  "claims.by": "claimed by {name}",
+  "claims.badges": "{n} badge(s)",
+  "claims.others": "{n} other claim(s) for this @handle",
+  "claims.openProfile": "View profile",
+  "claims.approved": "Approved – badge given.",
+  "claims.rejected": "Rejected."
 }
