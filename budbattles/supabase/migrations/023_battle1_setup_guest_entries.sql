@@ -29,7 +29,9 @@ where id = 'battle-1-frostiest-bud';
 -- ---------- 3) + 4) entries: breeder, guest entries ----------
 alter table public.entries add column if not exists breeder text;
 alter table public.entries add column if not exists guest_handle text;
-alter table public.entries add column if not exists added_by uuid references public.profiles (id) on delete set null;
+alter table public.entries add column if not exists added_by uuid; -- admin who added a guest entry (no link to profiles:
+-- a second link from entries to profiles made the app's admin photo list fail)
+alter table public.entries drop constraint if exists entries_added_by_fkey;
 alter table public.entries alter column user_id drop not null;
 do $$ begin
   alter table public.entries add constraint entries_breeder_len check (breeder is null or char_length(breeder) <= 60);

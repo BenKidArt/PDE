@@ -301,10 +301,11 @@ export async function addEntry({ battleId, strain, breeder, description, photo, 
 // ---------- Admin (the database only allows this for admins) ----------
 
 export async function listEntries(battleId) {
-  let { data, error } = await sb.from('entries').select('*, profiles(display_name, username, instagram, avatar)')
+  // profiles!entries_user_id_fkey = the grower (entries also store which admin added a guest entry)
+  let { data, error } = await sb.from('entries').select('*, profiles!entries_user_id_fkey(display_name, username, instagram, avatar)')
     .eq('battle_id', battleId).order('created_at', { ascending: true });
   if (error) { // before database update 010
-    ({ data, error } = await sb.from('entries').select('*, profiles(display_name)').eq('battle_id', battleId).order('created_at', { ascending: true }));
+    ({ data, error } = await sb.from('entries').select('*, profiles!entries_user_id_fkey(display_name)').eq('battle_id', battleId).order('created_at', { ascending: true }));
   }
   if (error) fail(error);
   return data.map((r) => ({
