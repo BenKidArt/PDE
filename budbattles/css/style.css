@@ -1936,3 +1936,5 @@ html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflo
 .admin-guest { border-color: rgba(var(--neon-green-rgb), .6); background: rgba(var(--neon-green-rgb), .05); }
 .guest-form { display: grid; gap: 8px; margin-top: 8px; }
 .guest-form .field { margin: 0; }
+.founding-left { margin: 8px 0 0; display: inline-flex; padding: 6px 12px; border-radius: 999px; font-weight: 800; font-size: .82rem;
+  color: #ffe38a; background: rgba(255, 212, 59, .08); border: 1.5px solid rgba(255, 212, 59, .6); }

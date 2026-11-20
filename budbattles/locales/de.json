@@ -710,7 +710,6 @@
   "bp.next": "Nächstes Ziel: {what} bei {at} (du hast {have})",
   "bp.milestone.blaster": "Banana-Blaster-Badge",
   "bp.milestone.shop": "Badge-Shop",
-  "bp.milestone.freeSet": "gratis Badge-Set",
   "bp.allReached": "Alle Banana-Toss-Belohnungen freigeschaltet",
   "bp.maxed": "Punkte voll – wieder in {h} Std. {m} Min.",
   "bp.shopOpen": "Badge-Shop freigeschaltet! Du findest ihn unter Badges.",
@@ -727,7 +726,6 @@
   "bp.tip": "Tipp: Spar deine BudPoints. Bald gibt es mehr Möglichkeiten, sie zu nutzen.",
   "bp.ruleBlaster": "Sammle {n} BudPoints in Zillah Banana Toss.",
   "bp.ruleShop": "Badge-Shop (öffnet bei {at} Banana-Toss-Punkten) · {price} BudPoints",
-  "bp.ruleFree": "Gratis bei {n} BudPoints aus Banana Toss.",
   "demo.toss40": "+40 Banana-Toss-Punkte (ohne 12-Std.-Limit)",
   "demo.stats2": "Dein Konto: {points} BudPoints · {toss} aus Banana Toss (insgesamt) · {used}/{max} in den letzten 12 Std. · {days} Login-Tage",
   "demo.resetConfirm2": "Alle Spiel- und Shop-Badges entfernen (Banana Blaster, 10 Days Deep, Shop und Gratis-Set) und alle BudPoints, Banana-Toss-Punkte und Login-Tage auf 0 setzen (nur dein Konto)?",
@@ -742,5 +740,12 @@
   "guest.submit": "Beitrag hinzufügen",
   "guest.added": "Beitrag von {handle} hinzugefügt.",
   "guest.badHandle": "Bitte einen gültigen Instagram-@Namen eingeben (Buchstaben, Zahlen, Punkt, Unterstrich).",
-  "guest.already": "Dieser @Name hat in diesem Battle schon einen Beitrag."
+  "guest.already": "Dieser @Name hat in diesem Battle schon einen Beitrag.",
+  "battle.foundingLeft": "Founding Member: noch {left}/{total} Plätze",
+  "bp.milestone.gorillaKing": "Gorilla-King-Badge",
+  "bp.milestone.goldenNug": "Golden-Nug-Badge",
+  "bp.ruleCrown": "Schlage deinen Banana-Toss-Highscore {n}-mal.",
+  "bp.ruleReach": "Erreiche {n} BudPoints in Banana Toss.",
+  "bp.newBest": "Neuer Highscore! {n}/{max} für die Banana Crown",
+  "demo.beat": "+1 geschlagener Highscore (Demo)"
 }

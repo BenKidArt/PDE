@@ -20,8 +20,13 @@ export const BUDPOINTS = {
   milestones: {
     blaster: 50,       // "Banana Blaster" badge, given automatically
     shop: 150,         // the Badge Shop unlocks
-    freeSet: 300,      // the free badge set below is given automatically
+    gorillaKing: 300,  // "Gorilla King" badge, given automatically
+    goldenNug: 600,    // "Golden Nug" badge, given automatically
   },
+  milestoneBadges: { gorillaKing: 'badge_gorilla_king', goldenNug: 'badge_golden_nug' },
+
+  // Banana Crown: beat your own Banana Toss high score this many times (the first round ever doesn't count)
+  crown: { badge: 'badge_banana_crown', beats: 5 },
   blasterBadge: 'badge_banana_round', // picture: assets/badges/badge_golden_bananas.png
 
   // Badge Shop: badge id → price in BudPoints (buying lowers the balance, not "lifetime earned")
@@ -34,9 +39,6 @@ export const BUDPOINTS = {
     badge_goat: 30,
   },
 
-  // Free set at milestones.freeSet (one overlay shows them all)
-  freeSet: ['badge_kangaroo', 'badge_ninja', 'badge_pickle', 'badge_sloth', 'badge_troll', 'badge_hookah'],
-
   // Other ways to earn (same balance; they do NOT count for the Banana Toss limit or badges)
   extra: {
     profile_complete: 7, // once per user: profile photo, username, bio and grow setup filled in
@@ -47,7 +49,8 @@ export const BUDPOINTS = {
 };
 
 /** All badges that "Reset my demo badges" removes again. */
-export const DEMO_BADGES = ['badge_banana_round', 'badge_login10_gorilla', ...Object.keys(BUDPOINTS.shop), ...BUDPOINTS.freeSet];
+export const DEMO_BADGES = ['badge_banana_round', 'badge_login10_gorilla', BUDPOINTS.crown.badge, ...Object.keys(BUDPOINTS.shop),
+  ...Object.values(BUDPOINTS.milestoneBadges), 'badge_kangaroo', 'badge_ninja', 'badge_pickle', 'badge_sloth', 'badge_troll', 'badge_hookah'];
 
 /** BudPoints for one throw (before the 12-hour limit). */
 export function tossPoints({ meters, rings, combo }) {
@@ -59,7 +62,5 @@ export function tossPoints({ meters, rings, combo }) {
 
 /** The next Banana Toss milestone for a lifetime total, or null when all are reached. */
 export function nextMilestone(earned) {
-  const m = BUDPOINTS.milestones;
-  return [['blaster', m.blaster], ['shop', m.shop], ['freeSet', m.freeSet]]
-    .sort((a, b) => a[1] - b[1]).find(([, at]) => earned < at) || null;
+  return Object.entries(BUDPOINTS.milestones).sort((a, b) => a[1] - b[1]).find(([, at]) => earned < at) || null;
 }

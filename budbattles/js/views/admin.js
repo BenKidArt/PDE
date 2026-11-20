@@ -2,7 +2,7 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
-  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameSyncConfig, adminAddEntry } from '../store.js';
+  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoBeat, gameSyncConfig, adminAddEntry } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { celebrate } from '../budpoints.js';
 import { BUDPOINTS } from '../budpoints-config.js';
@@ -67,6 +67,7 @@ export async function renderAdmin(root) {
         <p class="small muted admin-demo-stats" data-demo-stats></p>
         <div class="admin-demo-btns">
           <button type="button" class="bb-chip" data-demo-act="toss40">${esc(t('demo.toss40'))}</button>
+          <button type="button" class="bb-chip" data-demo-act="beat">${esc(t('demo.beat'))}</button>
           <button type="button" class="bb-chip" data-demo-act="days9">${esc(t('demo.setDays9'))}</button>
           <button type="button" class="bb-chip" data-demo-act="next">${esc(t('demo.nextDay'))}</button>
           <button type="button" class="bb-chip bb-chip-pink" data-demo-act="reset">${esc(t('demo.reset'))}</button>
@@ -134,7 +135,7 @@ export async function renderAdmin(root) {
     if (act === 'reset' && !window.confirm(t('demo.resetConfirm2'))) return;
     b.disabled = true;
     try {
-      const r = act === 'toss40' ? await gameDemoAddToss(40) : act === 'days9' ? await gameDemoSetLoginDays(9)
+      const r = act === 'toss40' ? await gameDemoAddToss(40) : act === 'beat' ? await gameDemoBeat() : act === 'days9' ? await gameDemoSetLoginDays(9)
         : act === 'next' ? await gameDemoNextLoginDay() : await gameDemoReset();
       showStats(r);
       celebrate(r);

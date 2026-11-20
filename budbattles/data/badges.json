@@ -560,6 +560,48 @@
       "sort": 130,
       "earned": false,
       "tradeable": true
+    },
+    {
+      "id": "badge_banana_crown",
+      "image": "assets/badges/badge_banana_crown_5x_highscore.png",
+      "name_de": "Banana Crown",
+      "name_en": "Banana Crown",
+      "description_de": "Schlage deinen Banana-Toss-Highscore 5-mal.",
+      "description_en": "Beat your Banana Toss high score 5 times.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 42,
+      "earned": true,
+      "tradeable": false
+    },
+    {
+      "id": "badge_gorilla_king",
+      "image": "assets/badges/badge_gorilla_king_300pts.png",
+      "name_de": "Gorilla King",
+      "name_en": "Gorilla King",
+      "description_de": "Erreiche 300 BudPoints in Banana Toss.",
+      "description_en": "Reach 300 BudPoints in Banana Toss.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 43,
+      "earned": true,
+      "tradeable": false
+    },
+    {
+      "id": "badge_golden_nug",
+      "image": "assets/badges/badge_golden_nug_600pts.png",
+      "name_de": "Golden Nug",
+      "name_en": "Golden Nug",
+      "description_de": "Erreiche 600 BudPoints in Banana Toss.",
+      "description_en": "Reach 600 BudPoints in Banana Toss.",
+      "kind": "award",
+      "price_points": null,
+      "active": true,
+      "sort": 44,
+      "earned": true,
+      "tradeable": false
     }
   ]
 }

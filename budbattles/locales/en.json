@@ -710,7 +710,6 @@
   "bp.next": "Next: {what} at {at} (you have {have})",
   "bp.milestone.blaster": "Banana Blaster badge",
   "bp.milestone.shop": "Badge Shop",
-  "bp.milestone.freeSet": "free badge set",
   "bp.allReached": "All Banana Toss rewards unlocked",
   "bp.maxed": "Points maxed – back in {h}h {m}m",
   "bp.shopOpen": "Badge Shop unlocked! Find it under Badges.",
@@ -727,7 +726,6 @@
   "bp.tip": "Tip: save your BudPoints. More ways to use them are coming.",
   "bp.ruleBlaster": "Earn {n} BudPoints in Zillah Banana Toss.",
   "bp.ruleShop": "Badge Shop (opens at {at} Banana Toss points) · {price} BudPoints",
-  "bp.ruleFree": "Free at {n} BudPoints earned in Banana Toss.",
   "demo.toss40": "+40 Banana Toss points (ignores the 12h limit)",
   "demo.stats2": "Your account: {points} BudPoints · {toss} from Banana Toss (lifetime) · {used}/{max} in the last 12 h · {days} login days",
   "demo.resetConfirm2": "Remove all game and shop badges (Banana Blaster, 10 Days Deep, shop and free set) and reset all your BudPoints, Banana Toss points and login days to 0 (your account only)?",
@@ -742,5 +740,12 @@
   "guest.submit": "Add entry",
   "guest.added": "Entry from {handle} added.",
   "guest.badHandle": "Please enter a valid Instagram @handle (letters, numbers, dot, underscore).",
-  "guest.already": "This @handle already has an entry in this battle."
+  "guest.already": "This @handle already has an entry in this battle.",
+  "battle.foundingLeft": "Founding Member: {left}/{total} left",
+  "bp.milestone.gorillaKing": "Gorilla King badge",
+  "bp.milestone.goldenNug": "Golden Nug badge",
+  "bp.ruleCrown": "Beat your Banana Toss high score {n} times.",
+  "bp.ruleReach": "Reach {n} BudPoints in Banana Toss.",
+  "bp.newBest": "New high score! {n}/{max} for the Banana Crown",
+  "demo.beat": "+1 beaten high score (demo)"
 }

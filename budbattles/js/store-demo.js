@@ -662,7 +662,7 @@ async function gameDo(change) {
   const give = [];
   const tossBadges = () => {
     if (s.tossEarned >= C.milestones.blaster) give.push(C.blasterBadge);
-    if (s.tossEarned >= C.milestones.freeSet) give.push(...C.freeSet);
+    Object.entries(C.milestoneBadges).forEach(([k, b]) => { if (s.tossEarned >= C.milestones[k]) give.push(b); });
   };
   const out = { granted: 0 };
   change(s, { give, used, tossBadges, out, user, C, windowStart });
@@ -719,6 +719,20 @@ export const gameDemoAddToss = (points) => adminOnly((s, { tossBadges, out, wind
 export const gameDemoSetLoginDays = (days) => adminOnly((s) => { s.loginDays = Math.max(0, days | 0); s.lastLoginDate = berlinDay(); });
 export const gameDemoNextLoginDay = () => adminOnly((s, { give }) => { s.loginDays += 1; s.lastLoginDate = berlinDay(); if (s.loginDays >= 10) give.push('badge_login10_gorilla'); });
 export const gameDemoReset = () => adminOnly((s, { out }) => {
-  Object.assign(s, { gameSeconds: 0, loginDays: 0, lastLoginDate: null, budPoints: 0, tossEarned: 0, events: [] });
+  Object.assign(s, { gameSeconds: 0, loginDays: 0, lastLoginDate: null, budPoints: 0, tossEarned: 0, events: [], tossBest: null, bestBeats: 0 });
   out.reset = true;
 });
+
+// Banana Crown: the first round only sets the best; every later new best counts
+function tossRound(s, give, out, C, score) {
+  const v = Math.max(0, score | 0);
+  out.newBest = false;
+  if (s.tossBest == null) s.tossBest = v;
+  else if (v > s.tossBest) {
+    s.tossBest = v; s.bestBeats = (s.bestBeats || 0) + 1; out.newBest = true;
+    if (s.bestBeats >= C.crown.beats) give.push(C.crown.badge);
+  }
+  Object.assign(out, { best: s.tossBest, beats: s.bestBeats || 0, beatsNeeded: C.crown.beats });
+}
+export const gameTossRound = (score) => gameDo((s, { give, out, C }) => tossRound(s, give, out, C, score));
+export const gameDemoBeat = () => adminOnly((s, { give, out, C }) => tossRound(s, give, out, C, s.tossBest == null ? 0 : s.tossBest + 1));

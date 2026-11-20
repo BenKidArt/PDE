@@ -10,7 +10,7 @@
 // Partner codes inside the game are demo placeholders and are not connected.
 import { t } from '../i18n.js';
 import { esc } from '../ui.js';
-import { getCurrentUser, gameTossThrow, gameMyStats } from '../store.js';
+import { getCurrentUser, gameTossThrow, gameTossRound, gameMyStats } from '../store.js';
 import { showBadgeUnlock, pointsChip } from '../gamebadges.js';
 import { progressText, maxedText, pointsToast } from '../budpoints.js';
 
@@ -112,7 +112,13 @@ export async function renderBananaToss(root) {
     }
     if (d.type === 'round') {
       // end-of-round card in the game: "+12 BudBattles points" under the score (after all throws are counted)
-      run(async () => { writeRoundLine(); roundGranted = 0; });
+      run(async () => {
+        writeRoundLine(); roundGranted = 0;
+        // Banana Crown: count every new personal best (the very first round only sets it)
+        const r = await gameTossRound(d.roundPoints);
+        if (r.newBest) pointsToast(0, t('bp.newBest', { n: Math.min(r.beats, r.beatsNeeded), max: r.beatsNeeded }));
+        if (r.newBadges?.length) setTimeout(() => showBadgeUnlock(r.newBadges), 900);
+      });
     } else if (d.type === 'throw') {
       run(async () => {
         const wasShop = !!last?.shopUnlocked;

@@ -48,6 +48,7 @@ export async function renderBattle(root, { id } = {}) {
         <span class="muted">${esc(t('battle.entriesCount', { count: entries }))}</span>
       </div>
       ${countdownHtml(battle, status)}
+      ${foundingHtml(battle, status, entries)}
       <div class="actions">
         ${status === 'open' ? `<a class="btn btn-primary btn-go" href="#/enter/${encodeURIComponent(battle.id)}">${esc(t('battle.ctaEnter'))}</a>` : ''}
         <a class="btn ${status === 'voting' ? 'btn-primary btn-go' : 'btn-ghost'}" href="#/standings/${encodeURIComponent(battle.id)}">
@@ -178,4 +179,13 @@ export function startCountdowns(root) {
 
 function dateRow(label, iso, active) {
   return `<div class="date-row${active ? ' active' : ''}"><dt>${esc(label)}</dt><dd><time datetime="${esc(iso)}">${esc(formatDate(iso))}</time></dd></div>`;
+}
+
+/** Battle #1: "🏅 Founding Member: X/25 left" (the first 25 entries keep the badge forever). */
+const FOUNDING_SPOTS = 25;
+function foundingHtml(battle, status, entries) {
+  if (battle.number !== 1 || battle.isTest || !['upcoming', 'open'].includes(status)) return '';
+  const left = Math.max(0, FOUNDING_SPOTS - (entries || 0));
+  if (!left) return '';
+  return `<p class="founding-left">🏅 ${esc(t('battle.foundingLeft', { left, total: FOUNDING_SPOTS }))}</p>`;
 }

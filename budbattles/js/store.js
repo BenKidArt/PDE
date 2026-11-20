@@ -56,13 +56,14 @@ export const {
   // BudPoints + game badges (database updates 019 + 021, rules in js/budpoints-config.js). Each returns
   // { budPoints, tossEarned, windowUsed, windowMax, windowResetAt, shopUnlocked, done, granted, newBadges }
   gameTossThrow, // ({ meters, rings, combo }) one Banana Toss throw (max 45 per 12 h)
+  gameTossRound, // (score) end of a round: new personal best? → Banana Crown after 5
   gameAward, // (kind, ref) profile_complete | profile_visual | vote (battleId) | enter (battleId), once each
   gameBuyBadge, // (badgeId) Badge Shop
   gameAddSeconds, // (seconds) play time (no badge any more)
   gameLoginDay, // once per app start; one login day per calendar day; 10 Days Deep on day 10
   gameMyStats,
   gameSyncConfig, // admin: copies js/budpoints-config.js into the database
-  gameDemoAddToss, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, // admin demo tools (own account)
+  gameDemoAddToss, gameDemoBeat, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, // admin demo tools (own account)
   registerBusinessInterest, // ({ email, company, lang }) – Business page "Interested?" list
   checkProfileName, // (name) → 'ok' | 'invalid' | 'blocked' | 'taken'
   getPublicProfile, // (key) → public profile (never the email) or null
