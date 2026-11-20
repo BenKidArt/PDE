@@ -12,7 +12,7 @@
 // The "upcoming" row is only shown to logged-in members, because several partner
 // names contain words like "seed" / "Samen" (visitors never see those words).
 export const PARTNERS = [
-  { id: 'cannapot', name: 'Cannapot', role: 'main', logo: 'assets/partner-cannapot.webp' },
+  { id: 'cannapot', name: 'Cannapot', role: 'main', logo: 'assets/partner-cannapot.webp', website: 'https://cannapot.com' },
   { id: 'seedstockers', name: 'Seedstockers', role: 'upcoming', logo: 'assets/partner-seedstockers.webp' }, // official logo, unchanged
   { id: 'hnny', name: 'HNNY', role: 'upcoming', logo: 'assets/partner-hnny.webp' },
   { id: 'huba', name: 'Huba Seed Bank', role: 'upcoming', logo: 'assets/partner-huba.webp', round: true },

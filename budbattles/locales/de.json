@@ -773,8 +773,8 @@
   "bt1.rule.legal": "Nur legale Eigenanbauer ab 18 Jahren (KCanG), nur eigene Fotos.",
   "bt1.rule.review": "Keine Personen, Adressen oder Verkaufsangebote auf dem Foto – jedes Foto wird vorher geprüft.",
   "bt1.rule.votes": "Die Community stimmt ab: eine Stimme pro Mitglied, nicht für das eigene Foto.",
-  "bt1.rule.winner": "Der Gewinner wird am {date} bekanntgegeben.",
-  "bt1.rule.results": "Ergebnisse am {date}.",
+  "bt1.rule.winner": "Der Gewinner wird nach dem {date} bekanntgegeben.",
+  "bt1.rule.results": "Ergebnisse nach dem {date}.",
   "bt1.foundingTitle": "Founding Member",
   "bt1.foundingLeft": "Die ersten 25 Beiträge – noch {left}/{total} Plätze frei",
   "bt1.enter": "Deine Blüte einreichen",
@@ -782,5 +782,7 @@
   "bt1.opensAt": "Öffnet am {date}",
   "bt1.zoom": "Foto im Vollbild öffnen",
   "bt1.footer": "Kostenlos · 18+ · nur legale Eigenanbauer",
-  "vote.confirmShort": "Sicher? Nochmal tippen"
+  "vote.confirmShort": "Sicher? Nochmal tippen",
+  "bt1.tickerPrize": "Preis: {prize}",
+  "bt1.partners": "Partner"
 }

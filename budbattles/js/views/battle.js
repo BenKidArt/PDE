@@ -7,6 +7,7 @@ import {
   getEntryByUser, getMyVote, castVote,
 } from '../store.js';
 import { mountTurnstile, turnstileEnabled } from '../turnstile.js';
+import { PARTNERS } from '../partners.js';
 import { esc, splitDuration } from '../ui.js';
 
 // Big picture at the top of a battle page (behind the title), per battle.
@@ -17,7 +18,7 @@ const BATTLE_HEROES = {
 // Banner at the very top (members only when it shows the prize – see BANNER_HAS_PRIZE).
 const BATTLE_BANNERS = { 'battle-1-frostiest-bud': 'assets/battles/budbattles_battle1_page_banner.jpg' };
 const BANNER_HAS_PRIZE = { 'battle-1-frostiest-bud': true };
-const HOST_IMAGE = 'assets/greenzillah-host.webp';
+const HOST_IMAGE = 'assets/greenzillah_eye_host_icon.png'; // not the Banana Toss gorilla (that one is only for the game)
 const FOUNDING_BADGE = 'assets/badges/badge_heart.webp';
 
 export async function renderBattle(root, { id } = {}) {
@@ -31,7 +32,6 @@ export async function renderBattle(root, { id } = {}) {
   // prize words only for logged-in members (18+ confirmed at sign-up)
   const prize = user && settings.showPrize ? await getPrize(battle.id).catch(() => null) : null;
   const myEntry = user && status === 'open' ? await getEntryByUser(battle.id, user.id).catch(() => null) : null;
-  const partner = settings.showPartner && battle.partner?.name ? battle.partner : null;
   const isB1 = battle.number === 1 && !battle.isTest;
 
   // 1) banner (the Battle #1 banner shows the prize → members only; others see the title)
@@ -56,19 +56,10 @@ export async function renderBattle(root, { id } = {}) {
       <p class="bt1-status-line" data-status-line>${esc(statusLine(battle, status))}</p>
     </section>
 
-    <section class="bt1-row">
-      <div class="bt1-mini">
-        <p class="bt1-mini-label">${esc(t('bt1.hostedBy'))}</p>
-        <img class="bt1-mini-img bt1-host-img" src="${esc(HOST_IMAGE)}" alt="GreenZillah" width="72" height="72" loading="lazy">
-        <p class="bt1-mini-name">GreenZillah · BudBattles</p>
-      </div>
-      ${partner ? `<div class="bt1-mini">
-        <p class="bt1-mini-label">${esc(t(prize ? 'bt1.prizePartner' : 'bt1.partner'))}</p>
-        ${partner.logo ? `<img class="bt1-mini-logo" src="${esc(partner.logo)}" alt="${esc(partner.name)}" loading="lazy">` : `<p class="bt1-mini-name">${esc(partner.name)}</p>`}
-        ${prize ? `<p class="bt1-mini-prize">${esc(tc(prize.text))}</p>` : ''}
-        ${/^https:\/\//.test(partner.url || '') ? `<a class="link small" href="${esc(partner.url)}" target="_blank" rel="noopener noreferrer">${esc(partner.url.replace(/^https:\/\/(www\.)?/, '').replace(/\/$/, ''))} ↗</a>` : ''}
-      </div>` : ''}
-    </section>
+    <p class="bt1-host"><span class="bt1-host-label">${esc(t('bt1.hostedBy'))}</span>
+      <img src="${esc(HOST_IMAGE)}" alt="" width="32" height="32"><b>GreenZillah · BudBattles</b></p>
+
+    ${settings.showPartner ? partnerTicker(user, prize) : ''}
 
     <details class="card bt1-rules">
       <summary><h2>${esc(t('battle.rules'))}</h2></summary>
@@ -91,6 +82,13 @@ export async function renderBattle(root, { id } = {}) {
 
     <p class="bt1-foot">${esc(t('bt1.footer'))}</p>
   </div>`;
+
+  // ticker pauses while a finger is on it
+  const tk = root.querySelector('[data-ticker]');
+  if (tk) {
+    const hold = () => tk.classList.add('is-paused'), go = () => tk.classList.remove('is-paused');
+    tk.addEventListener('pointerdown', hold); ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => tk.addEventListener(ev, go));
+  }
 
   // status line: updates every 30 s; when the phase changes the page is drawn again
   const lineEl = root.querySelector('[data-status-line]');
@@ -125,6 +123,29 @@ function b1Rules(battle, member) {
 function dayOnly(iso) {
   try { return new Date(iso).toLocaleDateString(getLang() === 'de' ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', timeZone: 'Europe/Helsinki' }); }
   catch { return formatDate(iso); }
+}
+
+/** Partner ticker: one thin row of logos scrolling left in an endless loop (pauses while touched).
+ *  Visitors see only the main partner (same rule as the home page: some partner names contain
+ *  "seed" / "Samen"); members see all. Cannapot (main) gets a gold border + the prize for members. */
+function partnerTicker(user, prize) {
+  const list = PARTNERS.filter((p) => p.role === 'main' || user);
+  if (!list.length) return '';
+  let row = [...list];
+  while (row.length < 8) row = row.concat(list); // repeat so the loop looks full
+  const item = (p, hidden) => {
+    const url = p.website || p.instagram || '';
+    const inner = `${p.logo ? `<img src="${esc(p.logo)}" alt="${esc(p.name)}" loading="lazy" decoding="async">` : `<span class="bt1-tk-name">${esc(p.name)}</span>`}
+      ${p.role === 'main' && prize ? `<span class="bt1-tk-prize">${esc(t('bt1.tickerPrize', { prize: tc(prize.text) }))}</span>` : ''}`;
+    const cls = `bt1-tk-item${p.role === 'main' ? ' is-main' : ''}${p.round ? ' is-round' : ''}`;
+    const aria = hidden ? ' aria-hidden="true" tabindex="-1"' : '';
+    return url ? `<a class="${cls}" href="${esc(url)}" target="_blank" rel="noopener noreferrer"${aria}>${inner}</a>`
+      : `<span class="${cls}"${hidden ? ' aria-hidden="true"' : ''}>${inner}</span>`;
+  };
+  // the row twice → moving it by exactly half its width loops seamlessly
+  return `<section class="bt1-ticker" aria-label="${esc(t('bt1.partners'))}" data-ticker>
+    <div class="bt1-tk-track">${row.map((p) => item(p, false)).join('')}${row.map((p) => item(p, true)).join('')}</div>
+  </section>`;
 }
 
 function enterButtonHtml(battle, status, user, myEntry) {

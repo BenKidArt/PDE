@@ -2004,3 +2004,27 @@ html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflo
 .bt1-zoom-close { position: absolute; top: max(12px, env(safe-area-inset-top)); right: 12px; width: 42px; height: 42px; border-radius: 50%;
   border: 1.5px solid rgba(255, 255, 255, .5); background: rgba(0, 0, 0, .6); color: #fff; font-size: 1.1rem; cursor: pointer; }
 .bt1-host-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; filter: drop-shadow(0 0 10px rgba(var(--neon-green-rgb), .45)); }
+
+/* Battle page: compact host line + partner ticker (endless loop, pauses while touched) */
+.bt1-host { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: .84rem; }
+.bt1-host-label { font: 800 .62rem/1 var(--font); letter-spacing: .16em; text-transform: uppercase; color: #ffd43b; }
+.bt1-host img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 10px rgba(var(--neon-green-rgb), .45); }
+.bt1-ticker { position: relative; height: 56px; overflow: hidden; margin: 0 calc(-1 * var(--page-pad, 16px));
+  border-top: 1px solid rgba(255, 212, 59, .25); border-bottom: 1px solid rgba(255, 212, 59, .25); background: rgba(10, 16, 12, .6);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+@media (min-width: 640px) { .bt1-ticker { margin: 0; border-radius: 14px; border: 1px solid rgba(255, 212, 59, .25); } }
+.bt1-tk-track { display: flex; align-items: center; gap: 12px; height: 100%; width: max-content; padding: 0 6px; animation: bt1-tick 40s linear infinite; }
+.bt1-ticker.is-paused .bt1-tk-track { animation-play-state: paused; }
+@media (hover: hover) and (pointer: fine) { .bt1-ticker:hover .bt1-tk-track { animation-play-state: paused; } } /* mouse only: on phones a tap would leave it stuck */
+@keyframes bt1-tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.bt1-tk-item { flex: none; display: flex; align-items: center; gap: 8px; height: 42px; padding: 0 12px; border-radius: 12px;
+  background: rgba(255, 255, 255, .04); border: 1px solid rgba(233, 255, 242, .12); text-decoration: none; color: var(--text); }
+.bt1-tk-item img { height: 30px; width: auto; max-width: 110px; object-fit: contain; }
+.bt1-tk-item.is-round img { width: 30px; border-radius: 50%; object-fit: cover; }
+.bt1-tk-item.is-main { border: 1.5px solid #ffd43b; box-shadow: 0 0 12px rgba(255, 212, 59, .35); background: rgba(255, 212, 59, .07); }
+.bt1-tk-name { font-weight: 800; font-size: .78rem; white-space: nowrap; }
+.bt1-tk-prize { font-size: .7rem; font-weight: 800; color: #ffd43b; white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  .bt1-ticker { overflow-x: auto; -webkit-mask: none; mask: none; }
+  .bt1-tk-track { animation: none; }
+}

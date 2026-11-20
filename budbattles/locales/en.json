@@ -773,8 +773,8 @@
   "bt1.rule.legal": "Legal home growers 18+ only (KCanG), your own photos only.",
   "bt1.rule.review": "No people, addresses or sales offers in the photo – every photo is reviewed first.",
   "bt1.rule.votes": "The community votes: one vote per member, not for your own photo.",
-  "bt1.rule.winner": "The winner is announced on {date}.",
-  "bt1.rule.results": "Results on {date}.",
+  "bt1.rule.winner": "The winner is announced after {date}.",
+  "bt1.rule.results": "Results after {date}.",
   "bt1.foundingTitle": "Founding Member",
   "bt1.foundingLeft": "First 25 entries – {left}/{total} spots left",
   "bt1.enter": "Enter your bud",
@@ -782,5 +782,7 @@
   "bt1.opensAt": "Opens {date}",
   "bt1.zoom": "Open photo full screen",
   "bt1.footer": "Free to join · 18+ · legal home growers only",
-  "vote.confirmShort": "Sure? Tap again"
+  "vote.confirmShort": "Sure? Tap again",
+  "bt1.tickerPrize": "Prize: {prize}",
+  "bt1.partners": "Partners"
 }
