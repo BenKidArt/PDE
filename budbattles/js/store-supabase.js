@@ -301,13 +301,23 @@ export async function addEntry({ battleId, strain, breeder, description, photo, 
 // ---------- Admin (the database only allows this for admins) ----------
 
 export async function listEntries(battleId) {
-  // profiles!entries_user_id_fkey = the grower (entries also store which admin added a guest entry)
+  // entries + the grower's profile in one request (profiles!entries_user_id_fkey = the grower)
   let { data, error } = await sb.from('entries').select('*, profiles!entries_user_id_fkey(display_name, username, instagram, avatar)')
     .eq('battle_id', battleId).order('created_at', { ascending: true });
-  if (error) { // before database update 010
-    ({ data, error } = await sb.from('entries').select('*, profiles!entries_user_id_fkey(display_name)').eq('battle_id', battleId).order('created_at', { ascending: true }));
+  if (error) {
+    // safety net: load the entries alone and their growers' profiles separately, so the
+    // admin list never breaks because of how the two tables are linked
+    ({ data, error } = await sb.from('entries').select('*').eq('battle_id', battleId).order('created_at', { ascending: true }));
+    if (error) fail(error);
+    const ids = [...new Set(data.map((r) => r.user_id).filter(Boolean))];
+    let profs = [];
+    if (ids.length) {
+      let res = await sb.from('profiles').select('id, display_name, username, instagram, avatar').in('id', ids);
+      if (res.error) res = await sb.from('profiles').select('id, display_name').in('id', ids);
+      profs = res.data || [];
+    }
+    data = data.map((r) => ({ ...r, profiles: profs.find((x) => x.id === r.user_id) || null }));
   }
-  if (error) fail(error);
   return data.map((r) => ({
     ...toEntry(r),
     displayName: r.profiles?.username || r.profiles?.display_name || (r.guest_handle ? `@${r.guest_handle}` : '?'),
