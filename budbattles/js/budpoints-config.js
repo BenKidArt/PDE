@@ -13,7 +13,7 @@ export const BUDPOINTS = {
     combo: 2,            // BudPoints if the throw had a combo
     // (goal: reaching the 45 below takes about 20–30 minutes of play)
     windowHours: 12,   // rolling window …
-    windowMax: 45,     // … max BudPoints from Banana Toss in that window (per user)
+    windowMax: 200,    // … max BudPoints from Banana Toss in that window (per user)
   },
 
   // Badges from LIFETIME BudPoints earned in Banana Toss (not the current balance)

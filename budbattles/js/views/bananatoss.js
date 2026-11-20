@@ -4,7 +4,7 @@
 //   { source:'zillah-banana-toss', type:'ready' }
 //   { …, type:'throw', meters, rings, combo, comboEvents, … } → BudPoints (logged in only)
 //   { …, type:'round', roundPoints, bestMeters }
-// BudPoints per throw, limit (45 per 12 h) and the badges at 35 / 120 / 200 lifetime
+// BudPoints per throw, the 12-hour limit and the badge goals (lifetime
 // Banana Toss points: see js/budpoints-config.js (the database checks them).
 // TODO (real launch): throws are reported by the browser – needs server-side checks against cheating.
 // Partner codes inside the game are demo placeholders and are not connected.

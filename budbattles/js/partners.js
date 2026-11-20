@@ -13,11 +13,11 @@
 // names contain words like "seed" / "Samen" (visitors never see those words).
 export const PARTNERS = [
   { id: 'cannapot', name: 'Cannapot', role: 'main', logo: 'assets/partner-cannapot.webp', website: 'https://cannapot.com' },
-  { id: 'seedstockers', name: 'Seedstockers', role: 'upcoming', logo: 'assets/partner-seedstockers.webp' }, // official logo, unchanged
-  { id: 'hnny', name: 'HNNY', role: 'upcoming', logo: 'assets/partner-hnny.webp' },
-  { id: 'huba', name: 'Huba Seed Bank', role: 'upcoming', logo: 'assets/partner-huba.webp', round: true },
+  { id: 'seedstockers', name: 'Seedstockers', role: 'upcoming', logo: 'assets/partner-seedstockers.webp', website: 'https://www.seedstockers.com' }, // official logo, unchanged
+  { id: 'hnny', name: 'HNNY', role: 'upcoming', logo: 'assets/partner-hnny.webp', website: 'https://linktr.ee/Hnnyhmp' },
+  { id: 'huba', name: 'Huba Seed Bank', role: 'upcoming', logo: 'assets/partner-huba.webp', round: true, website: 'https://hubabreedinglab.eu' },
   { id: 'chr_isgrowing', name: 'Chris Schmid', role: 'upcoming', logo: 'assets/partner-chr-isgrowing.webp', round: true,
-    instagram: 'https://instagram.com/_chr_isgrowing' },
+    instagram: 'https://www.instagram.com/_chr_isgrowing' },
   { id: 'cannabissamen_nrw', name: 'Cannabissamen NRW', role: 'upcoming' },
   { id: 'superskunkgrow', name: 'Superskunk Grow', role: 'shop', shopKey: 'superskunkgrow', country: 'ES',
     logo: 'assets/partner-superskunkgrow.webp', tile: true, website: 'https://superskunkgrow.com' },
