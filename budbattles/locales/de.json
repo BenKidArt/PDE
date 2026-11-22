@@ -801,5 +801,6 @@
   "tossCheck.takeBack": "Punkte zurücknehmen",
   "tossCheck.confirm": "Alle Banana-Toss-Punkte und Spiel-Badges dieses Spielers entfernen?",
   "tossCheck.cleared": "Markierung gelöscht.",
-  "tossCheck.tookBack": "Banana-Toss-Punkte zurückgenommen."
+  "tossCheck.tookBack": "Banana-Toss-Punkte zurückgenommen.",
+  "enter.inAppNote": "Foto-Upload klappt nicht? Öffne die Seite in Chrome/Safari (⋮ → Im Browser öffnen)."
 }

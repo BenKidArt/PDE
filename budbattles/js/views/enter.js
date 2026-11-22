@@ -50,8 +50,11 @@ export async function renderEnter(root, { id } = {}) {
 
       <div class="field">
         <span class="label">${esc(t('enter.photo'))}</span>
+        ${inAppBrowser() ? `<p class="inapp-note" role="note">⚠️ ${esc(t('enter.inAppNote'))}</p>` : ''}
         <label class="dropzone" data-dropzone>
-          <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" data-file hidden>
+          <!-- the real file field lies invisibly over the whole box, so the tap hits it directly
+               (in-app browsers like Instagram/Facebook ignore taps that are passed on to a hidden field) -->
+          <input type="file" accept="image/*" class="file-over" data-file aria-label="${esc(t('enter.pick'))}">
           <img alt="" data-preview hidden>
           <span class="dropzone-text" data-pick-text>📷 ${esc(t('enter.pick'))}</span>
         </label>
@@ -204,4 +207,9 @@ function wireWithdraw(root, entry, battleId) {
       btn.textContent = t(e.code || 'error.generic');
     }
   });
+}
+
+/** Instagram / Facebook / Messenger in-app browsers (photo upload often doesn't work there). */
+export function inAppBrowser(ua = navigator.userAgent || '') {
+  return /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|MessengerForiOS/i.test(ua);
 }

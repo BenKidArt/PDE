@@ -163,7 +163,7 @@ begin
   if exists (select 1 from public.user_badges where user_id = auth.uid() and badge_id = p_badge) then raise exception 'already owned'; end if;
   if r.bud_points < price then raise exception 'not enough BudPoints'; end if;
   update public.user_stats set bud_points = bud_points - price, updated_at = now() where user_id = auth.uid();
-  insert into public.user_badges (user_id, badge_id, source) values (auth.uid(), p_badge, 'shop');
+  insert into public.user_badges (user_id, badge_id, source) values (auth.uid(), p_badge, 'purchase');
   insert into public.bp_events (user_id, source, ref, points) values (auth.uid(), 'shop', p_badge, -price);
   return public.game_result(array[p_badge]);
 end $$;

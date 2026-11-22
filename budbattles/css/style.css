@@ -2039,3 +2039,21 @@ html:has(body[data-page="banana-toss"]), body[data-page="banana-toss"] { overflo
 .home-game-text { display: grid; gap: 2px; min-width: 0; flex: 1; }
 .home-game-text span { font-size: .8rem; color: var(--muted); }
 .home-game-btn { flex: none; pointer-events: none; }
+
+/* Photo upload fields: the real <input type="file"> lies invisibly over its box, so a tap hits it
+   directly – in-app browsers (Instagram/Facebook on Android) ignore taps passed on to a hidden field. */
+.dropzone, .look-upload { position: relative; }
+.file-over { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; font-size: 0; }
+.dropzone .file-over:focus-visible + img + .dropzone-text, .dropzone:focus-within { outline: 2px solid var(--green); outline-offset: 2px; }
+.inapp-note { margin: 0 0 8px; padding: 8px 12px; border-radius: 12px; font-size: .82rem; line-height: 1.4;
+  color: #ffe38a; background: rgba(255, 212, 59, .08); border: 1.5px solid rgba(255, 212, 59, .6); }
+/* Badge Shop: never wider than the screen – 2 columns on narrow phones / large text, buttons may wrap */
+.bp-shop { min-width: 0; max-width: 100%; overflow: hidden; }
+.bp-shop-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 96px), 1fr)); }
+.bp-shop-grid li { min-width: 0; }
+.bp-shop-grid .bb-chip { white-space: normal; text-align: center; line-height: 1.15; max-width: 100%; height: auto; min-height: 30px; padding: 4px 8px; }
+.bp-shop-head { flex-wrap: wrap; }
+/* Badge list: long names (e.g. "Weihnachtsrauch") wrap instead of pushing the page wider */
+.badge-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 140px), 1fr)); }
+.badge-grid > li { min-width: 0; }
+.badge-card-name, .badge-card-rule, .badge-card-state { overflow-wrap: anywhere; hyphens: auto; min-width: 0; }

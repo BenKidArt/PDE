@@ -801,5 +801,6 @@
   "tossCheck.takeBack": "Take back points",
   "tossCheck.confirm": "Remove all Banana Toss points and game badges of this player?",
   "tossCheck.cleared": "Flags cleared.",
-  "tossCheck.tookBack": "Banana Toss points taken back."
+  "tossCheck.tookBack": "Banana Toss points taken back.",
+  "enter.inAppNote": "Photo upload not working? Open this page in Chrome/Safari (⋮ → Open in browser)."
 }

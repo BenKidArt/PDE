@@ -397,7 +397,7 @@ function lookRowHtml(kind, current, review) {
     <div class="look-row look-row-${kind}" data-look-row="${kind}" data-hscroll role="group">
       ${opt('', `<span class="look-none">${esc(t('look.none'))}</span>`, t('look.none'), 'look-opt-text')}
       <label class="look-opt look-opt-text look-upload" title="${esc(t('look.upload'))}">
-        <input type="file" accept="image/*" data-look-file="${kind}" hidden>
+        <input type="file" accept="image/*" class="file-over" data-look-file="${kind}" aria-label="${esc(t('look.upload'))}">
         <span class="look-none">＋ ${esc(t('look.upload'))}</span>
       </label>
       <span data-pending-slot>${pendingOptHtml(kind, review)}</span>
