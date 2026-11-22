@@ -676,7 +676,8 @@ async function gameDo(change) {
     ...out, budPoints: s.budPoints, tossEarned: s.tossEarned, gameSeconds: s.gameSeconds, loginDays: s.loginDays,
     windowUsed: u, windowMax: C.toss.windowMax,
     windowResetAt: u >= C.toss.windowMax && inWin.length ? new Date(Math.min(...inWin.map((e) => e.at)) + C.toss.windowHours * HOUR).toISOString() : null,
-    shopUnlocked: s.tossEarned >= C.milestones.shop,
+    totalEarned: s.budPoints + s.events.filter((e) => e.source === 'shop').reduce((a, e) => a - e.points, 0),
+    shopUnlocked: s.budPoints + s.events.filter((e) => e.source === 'shop').reduce((a, e) => a - e.points, 0) >= C.shopUnlockAt,
     done: { profileComplete: s.events.some((e) => e.source === 'profile_complete'), profileVisual: s.events.some((e) => e.source === 'profile_visual') },
     newBadges: fresh,
   };
@@ -708,7 +709,8 @@ export const gameAward = (kind, ref = '') => gameDo((s, { out, C }) => {
 });
 export const gameBuyBadge = (badgeId) => gameDo((s, { give, user, C }) => {
   const price = C.shop[badgeId];
-  if (price == null || s.tossEarned < C.milestones.shop || (user.badges || []).includes(badgeId) || s.budPoints < price) throw new StoreError('error.generic');
+  const total = s.budPoints + s.events.filter((e) => e.source === 'shop').reduce((n, e) => n - e.points, 0);
+  if (price == null || total < C.shopUnlockAt || (user.badges || []).includes(badgeId) || s.budPoints < price) throw new StoreError('error.generic');
   s.budPoints -= price; s.events.push({ source: 'shop', ref: badgeId, points: -price, at: Date.now() });
   give.push(badgeId);
 });

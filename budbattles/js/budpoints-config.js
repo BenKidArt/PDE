@@ -26,10 +26,13 @@ export const BUDPOINTS = {
   // Badges from LIFETIME BudPoints earned in Banana Toss (not the current balance)
   milestones: {
     blaster: 50,       // "Banana Blaster" badge, given automatically
-    shop: 150,         // the Badge Shop unlocks
     gorillaKing: 500,  // "Gorilla King" badge, given automatically
     goldenNug: 3000,   // "Golden Nug" badge, given automatically
   },
+  // the Badge Shop opens once a user has earned this many BudPoints IN TOTAL (any source;
+  // counted as current balance + BudPoints already spent in the shop)
+  shopUnlockAt: 150,
+
   milestoneBadges: { gorillaKing: 'badge_gorilla_king', goldenNug: 'badge_golden_nug' },
 
   // Banana Crown: play Banana Toss on this many different days (Finnish calendar day)
@@ -38,12 +41,12 @@ export const BUDPOINTS = {
 
   // Badge Shop: badge id → price in BudPoints (buying lowers the balance, not "lifetime earned")
   shop: {
-    badge_clown: 30,
-    badge_cow: 30,
-    badge_donkey: 30,
-    badge_elephant: 30,
-    badge_farmer: 30,
-    badge_goat: 30,
+    badge_clown: 150,
+    badge_cow: 150,
+    badge_donkey: 150,
+    badge_elephant: 150,
+    badge_farmer: 150,
+    badge_goat: 150,
   },
 
   // Other ways to earn (same balance; they do NOT count for the Banana Toss limit or badges)

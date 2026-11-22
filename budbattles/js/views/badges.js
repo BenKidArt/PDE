@@ -11,7 +11,7 @@ import { esc } from '../ui.js';
 function ruleFor(id) {
   const C = BUDPOINTS;
   if (id === C.blasterBadge) return t('bp.ruleBlaster', { n: C.milestones.blaster });
-  if (C.shop[id] != null) return t('bp.ruleShop', { at: C.milestones.shop, price: C.shop[id] });
+  if (C.shop[id] != null) return t('bp.ruleShop', { at: C.shopUnlockAt, price: C.shop[id] });
   if (id === C.crown.badge) return t('bp.ruleCrown', { n: C.crown.days });
   const ms = Object.entries(C.milestoneBadges).find(([, b]) => b === id);
   if (ms) return t('bp.ruleReach', { n: C.milestones[ms[0]] });
@@ -176,7 +176,7 @@ async function drawShop(root, catalog, own) {
   const items = Object.entries(C.shop).map(([id, price]) => ({ b: catalog.find((x) => x.id === id), id, price })).filter((x) => x.b);
   el.innerHTML = `
     <div class="bp-shop-head"><h2>🛍 ${esc(t('bp.shop'))}</h2><span class="bp-pill"><b>${esc(Number(r.budPoints).toLocaleString())}</b> ${esc(t('game.budPoints'))}</span></div>
-    ${r.shopUnlocked ? '' : `<p class="small">🔒 ${esc(t('bp.shopLocked', { at: C.milestones.shop }))}</p><p class="small bp-progress">${esc(progressText(r.tossEarned))}</p>`}
+    ${r.shopUnlocked ? '' : `<p class="small">🔒 ${esc(t('bp.shopLocked', { at: C.shopUnlockAt, have: r.totalEarned ?? r.budPoints }))}</p>`}
     <ul class="bp-shop-grid ${r.shopUnlocked ? '' : 'is-locked'}">
       ${items.map(({ b, id, price }) => {
         const has = own.has(id);
