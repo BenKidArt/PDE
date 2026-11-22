@@ -63,6 +63,10 @@ function fail(error) {
   console.error(error);
   const code = error?.code || '';
   const msg = (error?.message || '').toLowerCase();
+  // Badge Shop
+  if (msg.includes('shop locked')) throw new StoreError('bp.err.locked');
+  if (msg.includes('not enough budpoints')) throw new StoreError('bp.err.notEnough');
+  if (msg.includes('already owned')) throw new StoreError('bp.err.owned');
   if (code === '23505') throw new StoreError('error.alreadyEntered');
   if (code === '42501' || msg.includes('row-level security')) throw new StoreError('enter.closed');
   if (code === 'invalid_credentials' || msg.includes('invalid login')) throw new StoreError('error.loginFailed');

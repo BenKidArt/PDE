@@ -6,12 +6,11 @@
 // Afterwards we double-check the new file and refuse to continue if any
 // metadata block is still found.
 
-export const MAX_INPUT_MB = 25;
-export const MAX_EDGE_PX = 1600; // longest side after resizing (saves Supabase bandwidth)
-export const JPEG_QUALITY = 0.86; // start quality …
-export const TARGET_MAX_KB = 500; // … stepped down only until the file is at most this big
-const MIN_QUALITY = 0.62;
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+export const MAX_INPUT_MB = 40;
+export const MAX_EDGE_PX = 2000; // longest side after resizing
+export const JPEG_QUALITY = 0.85;
+const TARGET_MAX_KB = 1500;  // only very detailed photos get a slightly lower quality
+const MIN_QUALITY = 0.7;
 
 export class PhotoError extends Error {
   constructor(code, vars = {}) {
@@ -23,27 +22,37 @@ export class PhotoError extends Error {
 
 /**
  * Turn the user's file into a clean, resized JPEG.
+ * The photo is redrawn on a canvas (only the pixels survive) and saved as a new JPEG.
+ * Some phone browsers add their own small info block to that new file – it never holds
+ * GPS (the canvas has none), but we cut every such block out anyway, byte by byte.
+ * Any failure → 'error.photoFallback' ("send your photo by DM").
  * @returns {Promise<{blob: Blob, width: number, height: number, hadGps: boolean, hadMetadata: boolean}>}
  */
 export async function cleanPhoto(file) {
   if (!file) throw new PhotoError('error.photoRequired');
-  if (file.type && !ALLOWED_TYPES.includes(file.type)) throw new PhotoError('error.photoType');
   if (file.size > MAX_INPUT_MB * 1024 * 1024) throw new PhotoError('error.photoTooBig', { max: MAX_INPUT_MB });
-
-  const head = new Uint8Array(await file.slice(0, 256 * 1024).arrayBuffer());
-  const hadMetadata = findMetadataSegments(head).some((seg) => seg !== 'icc');
-  const hadGps = jpegHasGps(head);
-
-  let source;
   try {
-    source = await decode(file);
-  } catch {
-    throw new PhotoError('error.photoRead');
+    return await cleanPhotoInner(file);
+  } catch (e) {
+    console.warn('photo cleaning failed', e);
+    throw new PhotoError('error.photoFallback');
   }
+}
 
-  const scale = Math.min(1, MAX_EDGE_PX / Math.max(source.width, source.height));
-  const width = Math.round(source.width * scale);
-  const height = Math.round(source.height * scale);
+async function cleanPhotoInner(file) {
+  let hadMetadata = false, hadGps = false;
+  try {
+    const head = new Uint8Array(await file.slice(0, 256 * 1024).arrayBuffer());
+    hadMetadata = findMetadataSegments(head).some((seg) => seg !== 'icc');
+    hadGps = jpegHasGps(head);
+  } catch { /* only used for the info note */ }
+
+  const source = await decode(file);
+  const sw = source.width || source.naturalWidth, sh = source.height || source.naturalHeight;
+  if (!sw || !sh) throw new Error('no size');
+  const scale = Math.min(1, MAX_EDGE_PX / Math.max(sw, sh));
+  const width = Math.max(1, Math.round(sw * scale));
+  const height = Math.max(1, Math.round(sh * scale));
 
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -54,26 +63,40 @@ export async function cleanPhoto(file) {
   ctx.drawImage(source, 0, 0, width, height);
   if (source.close) source.close();
 
-  // Good quality first; only if the file is bigger than ~500 KB, step the quality down a little.
   const encode = (q) => new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new PhotoError('error.photoRead'))), 'image/jpeg', q));
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/jpeg', q));
   let quality = JPEG_QUALITY;
   let blob = await encode(quality);
   while (blob.size > TARGET_MAX_KB * 1024 && quality > MIN_QUALITY) {
-    quality = Math.max(MIN_QUALITY, quality - 0.06);
+    quality = Math.max(MIN_QUALITY, quality - 0.05);
     blob = await encode(quality);
   }
 
-  // Safety check: the new file must not contain any metadata block.
-  // Only a colour profile ('icc') is allowed: browsers add it themselves and
-  // it describes colours only, never location or personal data.
-  const out = new Uint8Array(await blob.arrayBuffer());
-  const leftover = findMetadataSegments(out).filter((seg) => seg !== 'icc');
-  if (leftover.length > 0 || jpegHasGps(out)) {
-    throw new PhotoError('error.photoMetadata');
-  }
+  // cut out every metadata block the browser may have written (colour profile stays)
+  const bytes = stripJpegMetadata(new Uint8Array(await blob.arrayBuffer()));
+  if (findMetadataSegments(bytes).some((seg) => seg !== 'icc') || jpegHasGps(bytes)) throw new Error('metadata left');
+  return { blob: new Blob([bytes], { type: 'image/jpeg' }), width, height, hadGps, hadMetadata, quality };
+}
 
-  return { blob, width, height, hadGps, hadMetadata, quality };
+/** Removes all APP1–APP15 (except the ICC colour profile) and comment blocks from a JPEG. */
+export function stripJpegMetadata(bytes) {
+  if (bytes[0] !== 0xff || bytes[1] !== 0xd8) throw new Error('not a jpeg');
+  const parts = [bytes.subarray(0, 2)];
+  let i = 2;
+  while (i + 4 <= bytes.length && bytes[i] === 0xff) {
+    const marker = bytes[i + 1];
+    if (marker === 0xda) break; // image data starts: keep the rest as is
+    const len = (bytes[i + 2] << 8) | bytes[i + 3];
+    const isIcc = marker === 0xe2 && ascii(bytes, i + 4, 11) === 'ICC_PROFILE';
+    const drop = (marker >= 0xe1 && marker <= 0xef && !isIcc) || marker === 0xfe;
+    if (!drop) parts.push(bytes.subarray(i, i + 2 + len));
+    i += 2 + len;
+  }
+  parts.push(bytes.subarray(i));
+  const out = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let o = 0;
+  for (const p of parts) { out.set(p, o); o += p.length; }
+  return out;
 }
 
 async function decode(file) {

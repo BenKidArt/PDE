@@ -68,9 +68,8 @@
   "enter.status.rejected": "Rejected",
   "error.photoRequired": "Please choose a photo.",
   "error.photoType": "Please use JPG, PNG, WebP or HEIC photos only.",
-  "error.photoTooBig": "The photo is too large (max {max} MB).",
+  "error.photoTooBig": "The photo is too large (max {max} MB). Please send your photo by DM to @budbattlers.",
   "error.photoRead": "The photo could not be read. Please try another one.",
-  "error.photoMetadata": "The metadata could not be removed safely. The photo was not uploaded.",
   "error.strainRequired": "Please enter a strain name.",
   "error.confirmRequired": "Please confirm that the photo is your own.",
   "error.alreadyEntered": "You have already entered a photo in this battle.",
@@ -801,5 +800,9 @@
   "tossCheck.confirm": "Remove all Banana Toss points and game badges of this player?",
   "tossCheck.cleared": "Flags cleared.",
   "tossCheck.tookBack": "Banana Toss points taken back.",
-  "enter.inAppNote": "Photo upload not working? Open this page in Chrome/Safari (⋮ → Open in browser)."
+  "enter.inAppNote": "Photo upload not working? Open this page in Chrome/Safari (⋮ → Open in browser) or send your photo by DM to @budbattlers.",
+  "error.photoFallback": "This photo couldn't be prepared. Please send your photo by DM to @budbattlers.",
+  "bp.err.locked": "Shop still locked",
+  "bp.err.notEnough": "Not enough BudPoints",
+  "bp.err.owned": "Already yours"
 }

@@ -192,6 +192,6 @@ async function drawShop(root, catalog, own) {
       const res = await gameBuyBadge(btn.dataset.buy);
       celebrate(res);
       renderBadges(root); // fresh counts and balance
-    } catch { btn.disabled = false; btn.textContent = t('error.generic'); }
+    } catch (e) { btn.disabled = false; btn.textContent = t(e?.code?.startsWith('bp.err.') ? e.code : 'error.generic'); }
   }));
 }

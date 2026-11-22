@@ -60,6 +60,7 @@ export async function renderEnter(root, { id } = {}) {
         </label>
         <p class="hint">🛡️ ${esc(t('enter.gpsNote'))}</p>
         <p class="badge-ok" data-clean-status hidden></p>
+        <p class="error" role="alert" data-photo-error hidden></p>
       </div>
 
       ${settings.showStrain ? `<div class="field">
@@ -105,7 +106,8 @@ export async function renderEnter(root, { id } = {}) {
     errorEl.textContent = t(key, vars);
     errorEl.hidden = false;
   };
-  const clearError = () => { errorEl.hidden = true; };
+  const photoErr = form.querySelector('[data-photo-error]');
+  const clearError = () => { errorEl.hidden = true; photoErr.hidden = true; };
 
   desc.addEventListener('input', () => {
     counter.textContent = t('enter.chars', { used: desc.value.length, max: DESC_MAX });
@@ -131,7 +133,8 @@ export async function renderEnter(root, { id } = {}) {
     } catch (e) {
       pickText.textContent = `📷 ${t('enter.pick')}`;
       preview.hidden = true;
-      showError(e.code || 'error.photoRead', e.vars);
+      photoErr.textContent = t(e.code || 'error.photoFallback', e.vars);
+      photoErr.hidden = false;
     } finally {
       submitBtn.disabled = false;
     }

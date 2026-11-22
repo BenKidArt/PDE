@@ -68,9 +68,8 @@
   "enter.status.rejected": "Abgelehnt",
   "error.photoRequired": "Bitte wähle ein Foto aus.",
   "error.photoType": "Bitte nur JPG-, PNG-, WebP- oder HEIC-Fotos.",
-  "error.photoTooBig": "Das Foto ist zu groß (max. {max} MB).",
+  "error.photoTooBig": "Das Foto ist zu groß (max. {max} MB). Bitte schick dein Foto per DM an @budbattlers.",
   "error.photoRead": "Das Foto konnte nicht gelesen werden. Bitte versuche ein anderes.",
-  "error.photoMetadata": "Die Metadaten konnten nicht sicher entfernt werden. Das Foto wurde nicht hochgeladen.",
   "error.strainRequired": "Bitte gib einen Sortennamen ein.",
   "error.confirmRequired": "Bitte bestätige, dass das Foto von dir ist.",
   "error.alreadyEntered": "Du hast für dieses Battle schon ein Foto eingereicht.",
@@ -801,5 +800,9 @@
   "tossCheck.confirm": "Alle Banana-Toss-Punkte und Spiel-Badges dieses Spielers entfernen?",
   "tossCheck.cleared": "Markierung gelöscht.",
   "tossCheck.tookBack": "Banana-Toss-Punkte zurückgenommen.",
-  "enter.inAppNote": "Foto-Upload klappt nicht? Öffne die Seite in Chrome/Safari (⋮ → Im Browser öffnen)."
+  "enter.inAppNote": "Foto-Upload klappt nicht? Öffne die Seite in Chrome/Safari (⋮ → Im Browser öffnen) oder schick dein Foto per DM an @budbattlers.",
+  "error.photoFallback": "Dieses Foto konnte nicht vorbereitet werden. Bitte schick dein Foto per DM an @budbattlers.",
+  "bp.err.locked": "Shop noch zu",
+  "bp.err.notEnough": "Zu wenig BudPoints",
+  "bp.err.owned": "Hast du schon"
 }
