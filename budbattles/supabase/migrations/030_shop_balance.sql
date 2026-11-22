@@ -8,8 +8,8 @@
 -- =====================================================================
 
 update public.bp_config set cfg = jsonb_set(
-    jsonb_set(cfg, '{milestones}', (cfg->'milestones') - 'shop'),
-    '{shop}', (select jsonb_object_agg(key, 150) from jsonb_each(cfg->'shop')))
+    jsonb_set(cfg, '{milestones}', coalesce(cfg->'milestones', '{}'::jsonb) - 'shop'),
+    '{shop}', coalesce((select jsonb_object_agg(key, 150) from jsonb_each(cfg->'shop')), cfg->'shop', '{}'::jsonb))
   || '{"shopUnlockAt": 150}'::jsonb,
   updated_at = now()
 where id = 1;
