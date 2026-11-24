@@ -46,7 +46,7 @@
   "enter.pick": "Choose photo",
   "enter.change": "Choose another",
   "enter.gpsNote": "Location data (GPS) and other hidden info are removed automatically before your photo is uploaded.",
-  "enter.processing": "Preparing photo …",
+  "enter.processing": "Preparing photo … (can take a few seconds)",
   "enter.cleaned": "Metadata removed",
   "enter.cleanedGps": "GPS location found and removed",
   "enter.strain": "Strain name",
@@ -804,5 +804,11 @@
   "error.photoFallback": "This photo couldn't be prepared. Please send your photo by DM to @budbattlers.",
   "bp.err.locked": "Shop still locked",
   "bp.err.notEnough": "Not enough BudPoints",
-  "bp.err.owned": "Already yours"
+  "bp.err.owned": "Already yours",
+  "enter.cleanedLater": "Photo received. Hidden data (like GPS) is removed before anyone sees it.",
+  "enter.rawPending": "Your photo is being prepared and will show here after review.",
+  "admin.rawCleaning": "🔒 Cleaning photo …",
+  "admin.rawFailed": "⚠️ Couldn't clean this photo on this device. Open Admin on another device or ask for the photo by DM.",
+  "admin.rawCleaned": "Photo of {name} cleaned ✓",
+  "admin.photoNotClean": "This photo isn't cleaned yet."
 }

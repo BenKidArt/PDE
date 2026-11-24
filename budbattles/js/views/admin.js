@@ -2,7 +2,7 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
-  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoPlayDay, gameSyncConfig, adminAddEntry, adminBadgeClaims, adminReviewClaim, adminTossSuspects, adminTossClear } from '../store.js';
+  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoPlayDay, gameSyncConfig, adminAddEntry, adminBadgeClaims, adminReviewClaim, adminTossSuspects, adminTossClear, downloadRawPhoto, finishRawPhoto, logPhotoIssue } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { celebrate } from '../budpoints.js';
 import { BUDPOINTS } from '../budpoints-config.js';
@@ -249,6 +249,35 @@ export async function renderAdmin(root) {
       return;
     }
     draw();
+    cleanRawPhotos();
+  }
+
+  // Photos the grower's phone couldn't clean are stored privately (update 031).
+  // This page cleans them with the same steps (GPS & co. removed) and only then can they be approved.
+  let cleaningRaw = false;
+  async function cleanRawPhotos() {
+    if (cleaningRaw) return;
+    cleaningRaw = true;
+    try {
+      for (const e of entries.filter((x) => x.photoRaw && !x.cleanFailed)) {
+        e.cleaning = true; draw();
+        let cleaned = null;
+        try {
+          const blob = await downloadRawPhoto(e);
+          const ext = (e.photoPath.split('.').pop() || 'img');
+          cleaned = await cleanPhoto(new File([blob], `original.${ext}`, { type: blob.type || '' }));
+          if (cleaned.raw) throw Object.assign(new Error('still raw'), { steps: cleaned.steps, kind: cleaned.kind });
+          e.photoUrl = await finishRawPhoto(e, cleaned);
+          e.photoRaw = false; e.width = cleaned.width; e.height = cleaned.height;
+          showToast(t('admin.rawCleaned', { name: e.displayName }));
+        } catch (err) {
+          console.warn('raw photo', err);
+          e.cleanFailed = true;
+          logPhotoIssue({ outcome: 'admin-failed', kind: err.kind || cleaned?.kind, steps: err.steps || [String(err?.message || err)] });
+        }
+        e.cleaning = false; draw();
+      }
+    } finally { cleaningRaw = false; }
   }
 
   function draw() {
@@ -380,19 +409,20 @@ function row(e) {
     pending: ['approved', 'rejected'],
     approved: ['rejected'],
     rejected: ['approved'],
-  }[e.status];
+  }[e.status].filter((st) => !(e.photoRaw && st === 'approved')); // not cleaned yet → can't be approved
   const name = e.username ? `<a href="#/u/${encodeURIComponent(e.username)}">${esc(e.displayName)}</a>` : esc(e.displayName);
   return `
     <article class="arow" data-entry="${esc(e.id)}">
-      <button type="button" class="arow-thumb" data-show-card aria-label="${esc(t('admin.showCard'))}">
+      ${e.photoRaw ? `<div class="arow-thumb arow-raw" aria-hidden="true">🔒</div>` : `<button type="button" class="arow-thumb" data-show-card aria-label="${esc(t('admin.showCard'))}">
         <img class="arow-bg" src="${esc(e.photoUrl)}" alt="" aria-hidden="true" loading="lazy" decoding="async">
         <img class="arow-img" src="${esc(e.photoUrl)}" alt="${esc(e.strain || e.displayName)}" loading="lazy" decoding="async">
-      </button>
+      </button>`}
       <div class="arow-info">
         <p class="arow-name">${name}</p>
         ${e.strain ? `<p class="arow-strain">${esc(e.strain)}</p>` : ''}
         <p class="arow-date">${esc(date)}${e.instagram ? ` · <a class="review-insta" href="https://instagram.com/${encodeURIComponent(e.instagram)}" target="_blank" rel="noopener noreferrer">@${esc(e.instagram)}</a>` : ''}</p>
-        <button type="button" class="arow-card" data-show-card>▣ ${esc(t('admin.showCard'))}</button>
+        ${e.photoRaw ? `<p class="small ${e.cleanFailed ? 'error' : 'muted'}">${esc(t(e.cleanFailed ? 'admin.rawFailed' : 'admin.rawCleaning'))}</p>`
+          : `<button type="button" class="arow-card" data-show-card>▣ ${esc(t('admin.showCard'))}</button>`}
       </div>
       <div class="arow-actions">
         ${buttons.map((st) => `<button type="button" class="btn btn-xs ${st === 'approved' ? 'btn-primary' : 'btn-reject'}" data-action="${st}">

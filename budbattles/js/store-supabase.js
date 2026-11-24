@@ -6,6 +6,7 @@ import { StoreError, withRanks, toBadge } from './shared.js';
 import { DEMO_BADGES } from './budpoints-config.js';
 
 const BUCKET = 'entry-photos';
+const ORIG_BUCKET = 'entry-originals'; // private: originals the phone couldn't clean (update 031)
 let sb; // Supabase client
 let profileCache = null; // { id, email, displayName, isAdmin, isTester, canTest, badges }
 let badgeCache = null;
@@ -63,6 +64,7 @@ function fail(error) {
   console.error(error);
   const code = error?.code || '';
   const msg = (error?.message || '').toLowerCase();
+  if (msg.includes('photo not cleaned')) throw new StoreError('admin.photoNotClean');
   // Badge Shop
   if (msg.includes('shop locked')) throw new StoreError('bp.err.locked');
   if (msg.includes('not enough budpoints')) throw new StoreError('bp.err.notEnough');
@@ -264,7 +266,9 @@ function toEntry(r) {
     width: r.width,
     height: r.height,
     photoPath: r.photo_path,
-    photoUrl: sb.storage.from(BUCKET).getPublicUrl(r.photo_path).data.publicUrl,
+    // photo_raw: the original is still in the private folder (not cleaned yet) – no public picture
+    photoRaw: !!r.photo_raw,
+    photoUrl: r.photo_raw ? null : sb.storage.from(BUCKET).getPublicUrl(r.photo_path).data.publicUrl,
     createdAt: r.created_at,
   };
 }
@@ -282,24 +286,62 @@ export async function getEntryByUser(battleId, userId) {
   return toEntry(data);
 }
 
-export async function addEntry({ battleId, strain, breeder, description, photo, width, height }) {
+export async function addEntry({ battleId, strain, breeder, description, photo, width, height, raw = false }) {
   const user = await getCurrentUser();
   if (!user) throw new StoreError('enter.loginNeeded');
   if (await getEntryByUser(battleId, user.id)) throw new StoreError('error.alreadyEntered');
 
-  const path = `${user.id}/${crypto.randomUUID()}.jpg`;
-  const up = await sb.storage.from(BUCKET).upload(path, photo, { contentType: 'image/jpeg', upsert: false });
-  if (up.error) fail(up.error);
+  // raw: the phone couldn't clean the photo → the original goes into the PRIVATE folder;
+  // the Admin page cleans it before it can be approved (see update 031)
+  const bucket = raw ? ORIG_BUCKET : BUCKET;
+  const ext = raw ? ((photo.name || '').split('.').pop() || 'img').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) || 'img' : 'jpg';
+  const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+  const up = await sb.storage.from(bucket).upload(path, photo, { contentType: raw ? (photo.type || 'application/octet-stream') : 'image/jpeg', upsert: false });
+  if (up.error) {
+    if (raw) { console.error(up.error); throw new StoreError('error.photoFallback'); }
+    fail(up.error);
+  }
 
   const { data, error } = await sb.from('entries').insert({
-    battle_id: battleId, photo_path: path, width, height, strain: strain || null, description,
+    battle_id: battleId, photo_path: path, width: Math.max(1, width | 0), height: Math.max(1, height | 0),
+    strain: strain || null, description,
     ...(breeder ? { breeder } : {}),
+    ...(raw ? { photo_raw: true } : {}),
   }).select().single();
   if (error) {
-    await sb.storage.from(BUCKET).remove([path]); // don't leave an orphan photo behind
+    await sb.storage.from(bucket).remove([path]); // don't leave an orphan photo behind
+    if (raw) { console.error(error); throw new StoreError('error.photoFallback'); }
     fail(error);
   }
   return toEntry(data);
+}
+
+/** Notes what went wrong while preparing a photo (admins can read it; never blocks anything). */
+export async function logPhotoIssue({ outcome, kind, mime, sizeKb, steps }) {
+  try {
+    await sb.from('photo_issues').insert({
+      outcome: String(outcome).slice(0, 20), kind: String(kind || '').slice(0, 10), mime: String(mime || '').slice(0, 60),
+      size_kb: sizeKb | 0, steps: (steps || []).join(' | ').slice(0, 600), device: (navigator.userAgent || '').slice(0, 300),
+    });
+  } catch { /* logging only */ }
+}
+
+/** Admin: the original of a not-yet-cleaned entry (Blob). */
+export async function downloadRawPhoto(entry) {
+  const { data, error } = await sb.storage.from(ORIG_BUCKET).download(entry.photoPath);
+  if (error) fail(error);
+  return data;
+}
+
+/** Admin: store the cleaned JPEG publicly, point the entry to it, delete the original. */
+export async function finishRawPhoto(entry, { blob, width, height }) {
+  const path = `${entry.userId}/${crypto.randomUUID()}.jpg`;
+  const up = await sb.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+  if (up.error) fail(up.error);
+  const { data: old, error } = await sb.rpc('admin_finish_clean', { p_entry: entry.id, p_path: path, p_width: width, p_height: height });
+  if (error) { await sb.storage.from(BUCKET).remove([path]); fail(error); }
+  if (old) await sb.storage.from(ORIG_BUCKET).remove([old]);
+  return publicUrl(path);
 }
 
 // ---------- Admin (the database only allows this for admins) ----------
@@ -419,7 +461,7 @@ export async function listLatestApproved(limit = 6) {
 export async function withdrawEntry(entry) {
   const { error } = await sb.from('entries').delete().eq('id', entry.id);
   if (error) fail(error);
-  await sb.storage.from(BUCKET).remove([entry.photoPath]);
+  await sb.storage.from(entry.photoRaw ? ORIG_BUCKET : BUCKET).remove([entry.photoPath]);
 }
 
 // ---------- Automatic badges (database update 004) ----------

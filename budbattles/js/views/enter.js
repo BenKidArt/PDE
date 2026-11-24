@@ -1,7 +1,7 @@
 // ENTER PAGE: one photo per grower per battle, strain name (optional switch), short description.
 import { t, tc } from '../i18n.js';
 import {
-  getBattle, getCurrentBattle, battleStatus, getCurrentUser, getEntryByUser, addEntry, withdrawEntry, getSettings,
+  getBattle, getCurrentBattle, battleStatus, getCurrentUser, getEntryByUser, addEntry, withdrawEntry, getSettings, logPhotoIssue,
 } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { esc } from '../ui.js';
@@ -124,17 +124,28 @@ export async function renderEnter(root, { id } = {}) {
     try {
       cleaned = await cleanPhoto(file);
       if (previewUrl) URL.revokeObjectURL(previewUrl);
-      previewUrl = URL.createObjectURL(cleaned.blob);
-      preview.src = previewUrl;
-      preview.hidden = false;
-      pickText.textContent = t('enter.change');
-      cleanStatus.textContent = `✓ ${t(cleaned.hadGps ? 'enter.cleanedGps' : 'enter.cleaned')}`;
+      if (cleaned.raw) {
+        // the phone couldn't clean it: the original goes into the private folder and is cleaned before anyone sees it
+        preview.hidden = true;
+        pickText.textContent = `📷 ${file.name || t('enter.photo')} ✓ · ${t('enter.change')}`;
+        cleanStatus.textContent = `✓ ${t('enter.cleanedLater')}`;
+      } else {
+        previewUrl = URL.createObjectURL(cleaned.blob);
+        preview.src = previewUrl;
+        preview.hidden = false;
+        pickText.textContent = t('enter.change');
+        cleanStatus.textContent = `✓ ${t(cleaned.hadGps ? 'enter.cleanedGps' : 'enter.cleaned')}`;
+      }
       cleanStatus.hidden = false;
+      if (cleaned.via !== 'canvas') {
+        logPhotoIssue({ outcome: cleaned.via, kind: cleaned.kind, mime: file.type, sizeKb: file.size / 1024, steps: cleaned.steps });
+      }
     } catch (e) {
       pickText.textContent = `📷 ${t('enter.pick')}`;
       preview.hidden = true;
       photoErr.textContent = t(e.code || 'error.photoFallback', e.vars);
       photoErr.hidden = false;
+      logPhotoIssue({ outcome: 'failed', kind: e.kind, mime: file.type, sizeKb: file.size / 1024, steps: e.steps || [String(e?.message || e)] });
     } finally {
       submitBtn.disabled = false;
     }
@@ -159,6 +170,7 @@ export async function renderEnter(root, { id } = {}) {
         photo: cleaned.blob,
         width: cleaned.width,
         height: cleaned.height,
+        raw: !!cleaned.raw,
       });
       if (previewUrl) URL.revokeObjectURL(previewUrl);
       root.innerHTML = header + entryCard(entry, t('enter.success.title'), t('enter.success.text'), { success: true, canWithdraw: true });
@@ -178,7 +190,8 @@ function entryCard(entry, title, text, { success = false, canWithdraw = false } 
       <h2>${esc(title)}</h2>
       <p>${esc(text)}</p>
       <figure class="entry">
-        <img src="${esc(entry.photoUrl)}" alt="${esc(entry.strain || '')}">
+        ${entry.photoRaw ? `<div class="entry-raw">🔒 ${esc(t('enter.rawPending'))}</div>`
+          : `<img src="${esc(entry.photoUrl)}" alt="${esc(entry.strain || '')}">`}
         <figcaption>
           ${entry.strain ? `<strong>${esc(entry.strain)}</strong>` : ''}${entry.breeder ? ` <span class="muted">· ${esc(entry.breeder)}</span>` : ''}
           ${entry.description ? `<p>${esc(entry.description)}</p>` : ''}

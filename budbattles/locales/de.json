@@ -46,7 +46,7 @@
   "enter.pick": "Foto auswählen",
   "enter.change": "Anderes Foto",
   "enter.gpsNote": "Standortdaten (GPS) und andere versteckte Infos werden automatisch entfernt, bevor dein Foto hochgeladen wird.",
-  "enter.processing": "Foto wird vorbereitet …",
+  "enter.processing": "Foto wird vorbereitet … (kann ein paar Sekunden dauern)",
   "enter.cleaned": "Metadaten entfernt",
   "enter.cleanedGps": "GPS-Standort gefunden und entfernt",
   "enter.strain": "Sortenname",
@@ -804,5 +804,11 @@
   "error.photoFallback": "Dieses Foto konnte nicht vorbereitet werden. Bitte schick dein Foto per DM an @budbattlers.",
   "bp.err.locked": "Shop noch zu",
   "bp.err.notEnough": "Zu wenig BudPoints",
-  "bp.err.owned": "Hast du schon"
+  "bp.err.owned": "Hast du schon",
+  "enter.cleanedLater": "Foto erhalten. Versteckte Daten (z. B. GPS) werden entfernt, bevor es jemand sieht.",
+  "enter.rawPending": "Dein Foto wird gerade vorbereitet und erscheint hier nach der Prüfung.",
+  "admin.rawCleaning": "🔒 Foto wird bereinigt …",
+  "admin.rawFailed": "⚠️ Foto konnte auf diesem Gerät nicht bereinigt werden. Öffne den Admin-Bereich auf einem anderen Gerät oder bitte um das Foto per DM.",
+  "admin.rawCleaned": "Foto von {name} bereinigt ✓",
+  "admin.photoNotClean": "Das Foto ist noch nicht bereinigt."
 }

@@ -43,6 +43,8 @@ export const {
   countEntries, // (battleId)
   getEntryByUser, // (battleId, userId) → entry or null
   withdrawEntry, // (entry)
+  logPhotoIssue, // ({ outcome, kind, mime, sizeKb, steps }) – what went wrong while preparing a photo
+  downloadRawPhoto, finishRawPhoto, // admin: clean photos the grower's phone couldn't clean (update 031)
   listEntries, // (battleId) → all entries incl. displayName (admin only)
   adminTossSuspects, adminTossClear, // admin: Banana Toss check (update 028)
   adminBadgeClaims, adminReviewClaim, // admin: confirm badges claimed by Instagram @handle (update 025)

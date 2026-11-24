@@ -433,6 +433,10 @@ export async function listLatestApproved(limit = 6) {
     .map((r) => ({ ...toEntry(r), displayName: r.displayName || nameOf(accounts.find((a) => a.id === r.userId)), ...profileBits(r, accounts) }));
 }
 
+export async function logPhotoIssue() { /* demo: nothing to log */ }
+export async function downloadRawPhoto() { throw new StoreError('error.generic'); }
+export async function finishRawPhoto() { throw new StoreError('error.generic'); }
+
 export async function withdrawEntry(entry) {
   await tx('readwrite', (s) => s.delete(entry.id));
 }
