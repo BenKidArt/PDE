@@ -832,6 +832,27 @@ export async function adminAddEntry({ battleId, handle, strain, breeder, photo, 
   return data;
 }
 
+/** Admin: change an entry's strain, breeder, description and (guest entries) the Instagram @handle. */
+export async function updateEntry(id, { strain, breeder, description, guestHandle }) {
+  const patch = {
+    strain: strain?.trim() ? strain.trim().slice(0, 60) : null,
+    breeder: breeder?.trim() ? breeder.trim().slice(0, 60) : null,
+    description: (description || '').trim().slice(0, 280),
+  };
+  if (guestHandle !== undefined) {
+    const h = String(guestHandle || '').trim().replace(/^@+/, '').toLowerCase();
+    if (!/^[a-z0-9._]{1,30}$/.test(h)) throw new StoreError('guest.badHandle');
+    patch.guest_handle = h;
+  }
+  const { data, error } = await sb.from('entries').update(patch).eq('id', id).select('id');
+  if (error) {
+    if (error.code === '23505') throw new StoreError('guest.already');
+    fail(error);
+  }
+  if (!data?.length) throw new StoreError('admin.noAccess');
+  return patch;
+}
+
 // ---------- Admin: badge claims by Instagram @handle (database update 025) ----------
 /** Open claims: [{ id, handle, user_id, username, display_name, instagram, badges:[ids], photoUrl, others }] */
 export async function adminBadgeClaims() {

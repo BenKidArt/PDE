@@ -1417,6 +1417,12 @@ input[type="date"]:focus { outline: none; border-color: var(--neon-green); box-s
   color: var(--neon-pink-line, #ff8cc6); font: 700 .76rem/1.2 var(--font); text-decoration: underline; text-underline-offset: 2px;
 }
 .arow-actions { display: grid; gap: 6px; }
+.arow-tools { display: flex; gap: 6px; }
+.arow-tools .btn { flex: 1; }
+.arow-edit { grid-column: 1 / -1; display: grid; gap: 8px; padding: 8px 2px 4px; border-top: 1px solid var(--line-calm); }
+.arow-edit .label { display: grid; gap: 4px; font-size: .8rem; }
+.arow-edit input, .arow-edit textarea { width: 100%; }
+.arow-edit-btns { display: flex; gap: 8px; }
 .btn.btn-xs { min-height: 32px; padding: 0 10px; font-size: .74rem; letter-spacing: .02em; border-width: 1.5px; gap: 4px; }
 .card-modal { gap: 10px; padding: 14px; }
 .card-modal-img .share-card-img { width: 100%; height: auto; border-radius: 12px; display: block; }

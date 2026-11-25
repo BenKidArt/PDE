@@ -42,7 +42,8 @@ export const {
   updatePassword, // (newPassword)
   countEntries, // (battleId)
   getEntryByUser, // (battleId, userId) → entry or null
-  withdrawEntry, // (entry)
+  withdrawEntry, // (entry) – also used by admins to delete an entry for good
+  updateEntry, // admin: (id, { strain, breeder, description, guestHandle? })
   logPhotoIssue, // ({ outcome, kind, mime, sizeKb, steps }) – what went wrong while preparing a photo
   downloadRawPhoto, finishRawPhoto, // admin: clean photos the grower's phone couldn't clean (update 031)
   listEntries, // (battleId) → all entries incl. displayName (admin only)

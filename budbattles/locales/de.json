@@ -810,5 +810,12 @@
   "admin.rawCleaning": "🔒 Foto wird bereinigt …",
   "admin.rawFailed": "⚠️ Foto konnte auf diesem Gerät nicht bereinigt werden. Öffne den Admin-Bereich auf einem anderen Gerät oder bitte um das Foto per DM.",
   "admin.rawCleaned": "Foto von {name} bereinigt ✓",
-  "admin.photoNotClean": "Das Foto ist noch nicht bereinigt."
+  "admin.photoNotClean": "Das Foto ist noch nicht bereinigt.",
+  "admin.edit": "Bearbeiten",
+  "admin.save": "Speichern",
+  "admin.cancel": "Abbrechen",
+  "admin.saved": "Beitrag von {name} gespeichert.",
+  "admin.delete": "Löschen",
+  "admin.deleteConfirm": "Wirklich löschen?",
+  "admin.deleted": "Beitrag von {name} gelöscht."
 }

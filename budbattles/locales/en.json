@@ -810,5 +810,12 @@
   "admin.rawCleaning": "🔒 Cleaning photo …",
   "admin.rawFailed": "⚠️ Couldn't clean this photo on this device. Open Admin on another device or ask for the photo by DM.",
   "admin.rawCleaned": "Photo of {name} cleaned ✓",
-  "admin.photoNotClean": "This photo isn't cleaned yet."
+  "admin.photoNotClean": "This photo isn't cleaned yet.",
+  "admin.edit": "Edit",
+  "admin.save": "Save",
+  "admin.cancel": "Cancel",
+  "admin.saved": "Entry by {name} saved.",
+  "admin.delete": "Delete",
+  "admin.deleteConfirm": "Really delete?",
+  "admin.deleted": "Entry by {name} deleted."
 }

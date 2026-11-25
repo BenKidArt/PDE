@@ -2,7 +2,7 @@
 import { t, tc, getLang } from '../i18n.js';
 import {
   getCurrentUser, getBattles, getCurrentBattle, listEntries, reviewEntry, seedDemoEntries, isDemo,
-  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoPlayDay, gameSyncConfig, adminAddEntry, adminBadgeClaims, adminReviewClaim, adminTossSuspects, adminTossClear, downloadRawPhoto, finishRawPhoto, logPhotoIssue } from '../store.js';
+  getStandings, battleStatus, gameMyStats, gameDemoSetLoginDays, gameDemoNextLoginDay, gameDemoReset, gameDemoAddToss, gameDemoPlayDay, gameSyncConfig, adminAddEntry, adminBadgeClaims, adminReviewClaim, adminTossSuspects, adminTossClear, downloadRawPhoto, finishRawPhoto, logPhotoIssue, updateEntry, withdrawEntry } from '../store.js';
 import { cleanPhoto } from '../photo.js';
 import { celebrate } from '../budpoints.js';
 import { BUDPOINTS } from '../budpoints-config.js';
@@ -308,6 +308,77 @@ export async function renderAdmin(root) {
     listEl.querySelectorAll('[data-action]').forEach((btn) => btn.addEventListener('click', () => {
       act(btn.closest('[data-entry]').dataset.entry, btn.dataset.action, btn);
     }));
+    listEl.querySelectorAll('[data-edit]').forEach((btn) => btn.addEventListener('click', () => openEdit(btn.closest('[data-entry]'))));
+    listEl.querySelectorAll('[data-del]').forEach((btn) => btn.addEventListener('click', () => deleteEntry(btn)));
+  }
+
+  /** Edit strain, breeder, description and – for entries added for someone – the @handle. */
+  function openEdit(rowEl) {
+    const entry = entries.find((x) => x.id === rowEl.dataset.entry);
+    if (!entry) return;
+    const open = rowEl.querySelector('.arow-edit');
+    if (open) { open.remove(); return; }
+    const form = document.createElement('form');
+    form.className = 'arow-edit';
+    form.innerHTML = `
+      ${entry.guestHandle ? `<label class="label">${esc(t('guest.handle'))}
+        <input name="handle" type="text" maxlength="31" autocomplete="off" autocapitalize="off" value="@${esc(entry.guestHandle)}"></label>` : ''}
+      <label class="label">${esc(t('enter.strain'))}
+        <input name="strain" type="text" maxlength="60" autocomplete="off" value="${esc(entry.strain || '')}"></label>
+      <label class="label">${esc(t('enter.breeder'))}
+        <input name="breeder" type="text" maxlength="60" autocomplete="off" value="${esc(entry.breeder || '')}"></label>
+      <label class="label">${esc(t('enter.description'))}
+        <textarea name="description" rows="2" maxlength="280">${esc(entry.description || '')}</textarea></label>
+      <p class="error small" data-edit-error hidden></p>
+      <div class="arow-edit-btns">
+        <button type="submit" class="btn btn-xs btn-primary">${esc(t('admin.save'))}</button>
+        <button type="button" class="btn btn-xs btn-ghost" data-cancel>${esc(t('admin.cancel'))}</button>
+      </div>`;
+    rowEl.append(form);
+    form.querySelector('[data-cancel]').addEventListener('click', () => form.remove());
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const errEl = form.querySelector('[data-edit-error]');
+      const btn = form.querySelector('[type=submit]');
+      btn.disabled = true; errEl.hidden = true;
+      try {
+        const values = {
+          strain: form.strain.value, breeder: form.breeder.value, description: form.description.value,
+          ...(entry.guestHandle ? { guestHandle: form.handle.value } : {}),
+        };
+        const saved = await updateEntry(entry.id, values);
+        entry.strain = saved.strain; entry.breeder = saved.breeder; entry.description = saved.description;
+        if (saved.guest_handle) { entry.guestHandle = saved.guest_handle; entry.displayName = `@${saved.guest_handle}`; entry.instagram = saved.guest_handle; }
+        draw();
+        showToast(t('admin.saved', { name: entry.displayName }));
+      } catch (e) {
+        errEl.textContent = t(e.code || 'error.generic'); errEl.hidden = false; btn.disabled = false;
+      }
+    });
+    form.querySelector('input, textarea')?.focus();
+  }
+
+  /** Delete an entry for good (first tap asks, second tap deletes). Frees the @handle. */
+  async function deleteEntry(btn) {
+    const entry = entries.find((x) => x.id === btn.closest('[data-entry]').dataset.entry);
+    if (!entry) return;
+    if (!btn.dataset.armed) {
+      btn.dataset.armed = '1';
+      btn.textContent = `🗑 ${t('admin.deleteConfirm')}`;
+      btn.classList.add('btn-reject');
+      setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = '🗑'; btn.classList.remove('btn-reject'); } }, 4000);
+      return;
+    }
+    btn.disabled = true;
+    try {
+      await withdrawEntry(entry);
+      entries = entries.filter((x) => x.id !== entry.id);
+      draw();
+      showToast(t('admin.deleted', { name: entry.displayName }));
+    } catch (e) {
+      btn.disabled = false;
+      showToast(t(e.code || 'error.generic'));
+    }
   }
 
   /** Pill on the card: live rank once voting runs, else the entry number (approved only). */
@@ -427,6 +498,10 @@ function row(e) {
       <div class="arow-actions">
         ${buttons.map((st) => `<button type="button" class="btn btn-xs ${st === 'approved' ? 'btn-primary' : 'btn-reject'}" data-action="${st}">
           ${st === 'approved' ? '✓' : '✕'} ${esc(t(`admin.action.${st}`))}</button>`).join('')}
+        <div class="arow-tools">
+          <button type="button" class="btn btn-xs btn-ghost" data-edit aria-label="${esc(t('admin.edit'))}">✎ ${esc(t('admin.edit'))}</button>
+          <button type="button" class="btn btn-xs btn-ghost" data-del aria-label="${esc(t('admin.delete'))}" title="${esc(t('admin.delete'))}">🗑</button>
+        </div>
       </div>
     </article>`;
 }

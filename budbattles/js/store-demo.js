@@ -285,6 +285,10 @@ export async function adminAddEntry({ battleId, handle, strain, breeder, photo, 
     strain: strain || null, breeder: breeder || null, description: '', photo, width, height,
     status: 'approved', createdAt: new Date().toISOString(), reviewedAt: new Date().toISOString(),
   };
+  // a rejected entry doesn't block the @handle (same as the real database, update 033)
+  const old = (await tx('readonly', (st) => st.index('battleId').getAll(battleId))).find((r) => r.guestHandle === h);
+  if (old && old.status !== 'rejected') throw new StoreError('guest.already');
+  if (old) await tx('readwrite', (st) => st.delete(old.id));
   try {
     await tx('readwrite', (st) => st.add(row));
   } catch (e) {
@@ -321,6 +325,22 @@ export async function reviewEntry(id, status) {
     t.oncomplete = resolve;
     t.onerror = () => reject(t.error);
   });
+}
+
+/** Admin: change strain, breeder, description and (guest entries) the @handle. */
+export async function updateEntry(id, { strain, breeder, description, guestHandle }) {
+  const patch = { strain: strain?.trim() || null, breeder: breeder?.trim() || null, description: (description || '').trim().slice(0, 280) };
+  const row = await tx('readonly', (st) => st.get(id));
+  if (!row) throw new StoreError('error.generic');
+  if (guestHandle !== undefined) {
+    const h = String(guestHandle || '').trim().replace(/^@+/, '').toLowerCase();
+    if (!/^[a-z0-9._]{1,30}$/.test(h)) throw new StoreError('guest.badHandle');
+    const others = await tx('readonly', (st) => st.index('battleId').getAll(row.battleId));
+    if (others.some((r) => r.id !== id && r.guestHandle === h && r.status !== 'rejected')) throw new StoreError('guest.already');
+    Object.assign(patch, { guest_handle: h, guestHandle: h, userId: `guest:${h}`, displayName: `@${h}` });
+  }
+  await tx('readwrite', (st) => st.put({ ...row, ...patch }));
+  return patch;
 }
 
 /** Demo only: adds a few sample entries from pretend growers, so there is something to review. */
